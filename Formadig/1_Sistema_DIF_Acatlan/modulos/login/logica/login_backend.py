@@ -27,7 +27,18 @@ except Exception as e:
     print(f"ATENCIÓN: Claves de Supabase inválidas o vacías. Error: {e}")
     supabase = None
 
-@app.route('/api/auth/register', methods=['POST'])
+# =========================================================
+# RUTA DE PRUEBA DE VIDA - Confirmamos que el backend está online
+# =========================================================
+@app.route('/')
+def health():
+    """Endpoint de prueba - confirmamos que el backend está online."""
+    return jsonify({
+        "status": "backend_online",
+        "message": "El backend de login está funcionando correctamente."
+    }), 200
+
+@app.route('/auth/register', methods=['POST'])
 def register_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado"}), 500
@@ -102,7 +113,7 @@ def register_user():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/auth/login', methods=['POST'])
 def login_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500
