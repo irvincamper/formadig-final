@@ -48,8 +48,8 @@ def main():
     print("Iniciando Sistema de Gestión DIF Acatlán (FORMADIG v2.1)")
     print("==================================================")
 
-    # Limpiar puertos clave para evitar conflictos (5009 añadido para SMS)
-    ports = [5001, 5004, 5005, 5006, 5007, 5008, 5009, 8000]
+    # Limpiar puertos clave para evitar conflictos (5003 para Admin Usuarios, 5009 para SMS)
+    ports = [5001, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 8000]
     print(f"Limpiando puertos ({', '.join(map(str, ports))})...")
     kill_ports(ports)
 
@@ -61,6 +61,7 @@ def main():
     
     backends = {
         "Auth": os.path.join(modulos_dir, "login", "logica", "login_backend.py"),
+        "Admin Usuarios": os.path.join(modulos_dir, "admin_usuarios", "logica", "admin_usuarios_backend.py"),
         "Traslados": os.path.join(modulos_dir, "admin_traslados", "logica", "admin_traslados_backend.py"),
         "Desayunos Fríos": os.path.join(modulos_dir, "admin_desayunos_frios", "logica", "admin_desayunos_frios_backend.py"),
         "Desayunos Calientes": os.path.join(modulos_dir, "admin_desayunos_calientes", "logica", "admin_desayunos_calientes_backend.py"),

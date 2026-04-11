@@ -203,3 +203,13 @@ def eliminar_usuario(id):
 # Registro del Blueprint en la app
 # ============================================================================
 app.register_blueprint(admin_usuarios_bp)
+
+# ============================================================================
+# Ejecutar servidor Flask
+# ============================================================================
+if __name__ == '__main__':
+    print("\n👤 Backend Admin Usuarios iniciado en puerto 5003")
+    print(f"📍 Rutas registradas:")
+    for rule in app.url_map.iter_rules():
+        print(f"   {rule.rule} [{', '.join(rule.methods - {'HEAD', 'OPTIONS'})}]")
+    app.run(host='0.0.0.0', port=5003, debug=False, use_reloader=False)
