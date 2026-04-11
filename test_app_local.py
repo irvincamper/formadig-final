@@ -34,7 +34,7 @@ try:
     # Test 1: Frontend
     print("\n[TEST 1] Pidiendo frontend (GET /)...")
     try:
-        response = requests.get("http://localhost:5000/")
+        response = requests.get("http://localhost:10000/")
         if response.status_code == 200:
             print("✅ Frontend responde (200)")
             if "html" in response.text.lower() or "<!doctype" in response.text.lower():
@@ -49,7 +49,7 @@ try:
     # Test 2: Backend routes
     print("\n[TEST 2] Pidiendo backend (GET /api/auth)...")
     try:
-        response = requests.get("http://localhost:5000/api/auth")
+        response = requests.get("http://localhost:10000/api/auth")
         if response.status_code in [200, 405]:  # 405 es OK para GET en rutas que esperan POST
             print(f"✅ Backend responde ({response.status_code})")
         else:
@@ -65,7 +65,7 @@ try:
             "password": "testpassword"
         }
         response = requests.post(
-            "http://localhost:5000/api/auth/login",
+            "http://localhost:10000/api/auth/login",
             json=payload,
             headers={"Content-Type": "application/json"}
         )
@@ -77,7 +77,7 @@ try:
     # Test 4: CSS/JS files
     print("\n[TEST 4] Pidiendo archivos estáticos...")
     try:
-        response = requests.get("http://localhost:5000/core/core.js")
+        response = requests.get("http://localhost:10000/core/core.js")
         if response.status_code == 200:
             print("✅ Archivos estáticos se sirven correctamente")
         elif response.status_code == 404:
@@ -99,6 +99,7 @@ try:
     print("     git push")
     print("  3. Render se redeployará automáticamente")
     print("  4. Verifica los logs en Render dashboard")
+    print("  5. Accede a: https://tu-app.render.com/")
     print("\n")
     
 except KeyboardInterrupt:
