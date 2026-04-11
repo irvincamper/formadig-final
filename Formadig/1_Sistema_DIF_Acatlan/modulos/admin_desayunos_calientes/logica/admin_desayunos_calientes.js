@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:5006/api/desayunos_calientes/${currentSelectedId}`, {
+            const res = await fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            const res = await fetch('http://localhost:5006/api/desayunos_calientes', {
+            const res = await fetch('/api/desayunos_calientes', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();

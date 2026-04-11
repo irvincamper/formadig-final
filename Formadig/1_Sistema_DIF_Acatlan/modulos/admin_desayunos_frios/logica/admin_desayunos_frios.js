@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:5005/api/desayunos_frios/${currentSelectedId}`, {
+            const res = await fetch(`/api/desayunos_frios/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            const res = await fetch('http://localhost:5005/api/desayunos_frios', {
+            const res = await fetch('/api/desayunos_frios', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();

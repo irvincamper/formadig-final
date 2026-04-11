@@ -2,7 +2,7 @@
 const CORE_CONFIG = {
     SUPABASE_URL: "https://ctiqbycbkcftwuqgzxjb.supabase.co",
     SUPABASE_KEY: "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk",
-    AUTH_BACKEND: "http://localhost:5001/api/auth"
+    AUTH_BACKEND: "/api/auth"
 };
 
 const Auth = {

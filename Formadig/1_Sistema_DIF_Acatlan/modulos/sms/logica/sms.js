@@ -1,9 +1,8 @@
 // sms.js
 const SMS = {
-    // Detectamos la IP actual para evitar errores entre localhost y 127.0.0.1
+    // Usar rutas relativas para que funcione en desarrollo local y en producción (Render)
     get API_URL() {
-        const host = window.location.hostname || '127.0.0.1';
-        return `http://${host}:5009/api/sms`;
+        return `/api/sms`;
     },
 
     async init() {
