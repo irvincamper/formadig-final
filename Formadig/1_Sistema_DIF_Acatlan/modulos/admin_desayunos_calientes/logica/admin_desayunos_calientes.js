@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ingreso_mensual:     document.getElementById('ingreso_mensual')?.value,
             situacion_vulnerabilidad: document.getElementById('situacion_vulnerabilidad')?.checked,
             localidad:           document.getElementById('localidad')?.value,
+            colonia:             document.getElementById('colonia')?.value,
             tipo_asentamiento:   document.getElementById('tipo_asentamiento')?.value,
             cp:                  document.getElementById('cp')?.value,
             referencias:         document.getElementById('referencias')?.value,
@@ -288,6 +289,62 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cargarDatos();
+
+    // ========================================================================
+    // FUNCIÓN: Obtener colonias por Código Postal
+    // ========================================================================
+    async function cargarColonias(codigoPostal) {
+        const selectColonia = document.getElementById('colonia');
+        if (!selectColonia || !codigoPostal || codigoPostal.length !== 5) {
+            if (selectColonia) {
+                selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
+            }
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/colonias/${codigoPostal}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                console.warn(`Error fetching colonias: ${response.status}`);
+                selectColonia.innerHTML = '<option value="">-- No se encontraron colonias --</option>';
+                return;
+            }
+
+            const data = await response.json();
+            const colonias = data.colonias || [];
+
+            // Limpiar y reconstruir opciones
+            selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
+            
+            if (colonias.length === 0) {
+                selectColonia.innerHTML += '<option disabled>No hay colonias para este CP</option>';
+            } else {
+                colonias.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col.nombre;
+                    option.textContent = col.nombre;
+                    selectColonia.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando colonias:', error);
+            selectColonia.innerHTML = '<option value="">-- Error cargando colonias --</option>';
+        }
+    }
+
+    // ========================================================================
+    // EVENT LISTENER: Autocompletar colonias cuando cambia CP
+    // ========================================================================
+    const cpInput = document.getElementById('cp');
+    if (cpInput) {
+        cpInput.addEventListener('change', (e) => {
+            cargarColonias(e.target.value);
+        });
+    }
 
     // --- Lógica de Navegación tipo Carrusel ---
     function updateNavControls() {

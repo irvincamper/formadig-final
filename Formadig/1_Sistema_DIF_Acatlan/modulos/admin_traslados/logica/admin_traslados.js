@@ -35,6 +35,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Cargar datos iniciales
     cargarTraslados();
 
+    // ========================================================================
+    // FUNCIÓN: Obtener colonias por Código Postal
+    // ========================================================================
+    async function cargarColonias(codigoPostal) {
+        const selectColonia = document.getElementById('colonia');
+        if (!selectColonia || !codigoPostal || codigoPostal.length !== 5) {
+            if (selectColonia) {
+                selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
+            }
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/colonias/${codigoPostal}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                console.warn(`Error fetching colonias: ${response.status}`);
+                selectColonia.innerHTML = '<option value="">-- No se encontraron colonias --</option>';
+                return;
+            }
+
+            const data = await response.json();
+            const colonias = data.colonias || [];
+
+            // Limpiar y reconstruir opciones
+            selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
+            
+            if (colonias.length === 0) {
+                selectColonia.innerHTML += '<option disabled>No hay colonias para este CP</option>';
+            } else {
+                colonias.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col.nombre;
+                    option.textContent = col.nombre;
+                    selectColonia.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando colonias:', error);
+            selectColonia.innerHTML = '<option value="">-- Error cargando colonias --</option>';
+        }
+    }
+
+    // ========================================================================
+    // EVENT LISTENER: Autocompletar colonias cuando cambia CP
+    // ========================================================================
+    const cpInput = document.getElementById('cp');
+    if (cpInput) {
+        cpInput.addEventListener('change', (e) => {
+            cargarColonias(e.target.value);
+        });
+    }
+
     // 3. Validación en tiempo real (touched logic)
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
@@ -64,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localidad: document.getElementById('localidad')?.value,
             colonia: document.getElementById('colonia')?.value,
             tipo_asentamiento: document.getElementById('tipo_asentamiento')?.value,
-            codigo_postal: document.getElementById('codigo_postal')?.value,
+            cp: document.getElementById('cp')?.value,
             referencias: document.getElementById('referencias')?.value,
             destino_hospital: document.getElementById('destino_hospital')?.value,
             fecha_viaje:     document.getElementById('fecha_viaje').value,
@@ -371,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setVal('localidad', t.localidad);
                     setVal('colonia', t.colonia);
                     setVal('tipo_asentamiento', t.tipo_asentamiento);
-                    setVal('codigo_postal', t.codigo_postal);
+                    setVal('cp', t.cp || t.codigo_postal);
                     setVal('paciente_domicilio', t.paciente_domicilio);
                     setVal('referencias', t.referencias);
                     
