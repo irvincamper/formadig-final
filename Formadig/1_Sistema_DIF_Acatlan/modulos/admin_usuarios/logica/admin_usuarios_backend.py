@@ -29,7 +29,7 @@ ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados']
 # ============================================================================
 # GET / - Obtener lista de administradores (Filtrado por rol)
 # ============================================================================
-@admin_usuarios_bp.route('/', methods=['GET'])
+@admin_usuarios_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_usuarios():
     """
     Endpoint GET para obtener SOLO administradores.
@@ -55,7 +55,7 @@ def obtener_usuarios():
 # ============================================================================
 # POST / - Crear nuevo administrador
 # ============================================================================
-@admin_usuarios_bp.route('/', methods=['POST'])
+@admin_usuarios_bp.route('/', methods=['POST'], strict_slashes=False)
 def crear_usuario():
     """
     Endpoint POST para crear nuevo administrador.
@@ -102,9 +102,72 @@ def crear_usuario():
 
 
 # ============================================================================
+# PUT /<id> - Actualizar administrador
+# ============================================================================
+@admin_usuarios_bp.route('/<id>', methods=['PUT', 'PATCH'], strict_slashes=False)
+def actualizar_usuario(id):
+    """
+    Endpoint PUT/PATCH para actualizar un administrador.
+    Solo actualiza campos válidos de la tabla perfiles.
+    """
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No hay datos para actualizar'}), 400
+        
+        # Campos válidos que pueden actualizarse en la tabla perfiles
+        valid_fields = ['nombre_usuario', 'nombre_completo', 'rol', 'telefono', 
+                       'domicilio', 'apellidos', 'clave_elector', 'curp']
+        
+        # Filtrar solo campos válidos y no vacíos
+        update_data = {}
+        for field in valid_fields:
+            if field in data and data[field]:
+                update_data[field] = data[field]
+        
+        if not update_data:
+            return jsonify({'error': 'No se proporcionaron campos válidos para actualizar'}), 400
+        
+        # Validar que el rol sigue siendo permitido
+        if 'rol' in update_data and update_data['rol'] not in ALLOWED_ROLES:
+            return jsonify({
+                'error': f"Rol no permitido. Use: {', '.join(ALLOWED_ROLES)}"
+            }), 400
+        
+        # Obtener usuario actual para validar que es un administrador
+        usuario_response = supabase.table('perfiles').select('*').eq('id', id).execute()
+        
+        if not usuario_response.data or len(usuario_response.data) == 0:
+            return jsonify({'error': 'Usuario no encontrado'}), 404
+        
+        usuario = usuario_response.data[0]
+        
+        # Verificar que el usuario actual es un administrador
+        if usuario['rol'] not in ALLOWED_ROLES:
+            return jsonify({
+                'error': 'Solo se pueden actualizar administradores'
+            }), 403
+        
+        # Actualizar en la tabla perfiles
+        response = supabase.table('perfiles').update(update_data).eq('id', id).execute()
+        
+        if not response.data:
+            return jsonify({'error': 'No se pudo actualizar el usuario. Verifica los datos.'}), 404
+        
+        return jsonify({
+            'message': 'Administrador actualizado exitosamente',
+            'usuario': response.data[0] if response.data else update_data
+        }), 200
+        
+    except Exception as e:
+        print(f'❌ Error al actualizar usuario: {str(e)}')
+        return jsonify({'error': f'Error al actualizar usuario: {str(e)}'}), 500
+
+
+# ============================================================================
 # DELETE /<id> - Eliminar administrador
 # ============================================================================
-@admin_usuarios_bp.route('/<id>', methods=['DELETE'])
+@admin_usuarios_bp.route('/<id>', methods=['DELETE'], strict_slashes=False)
 def eliminar_usuario(id):
     """
     Endpoint DELETE para eliminar un administrador.

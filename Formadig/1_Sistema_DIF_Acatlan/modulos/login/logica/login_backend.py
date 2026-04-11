@@ -98,14 +98,20 @@ def register_user():
             user_id = user_obj.id if user_obj else None
             if user_id:
                 # El esquema espera `nombre_usuario`, usaremos el email como tal
-                supabase.table('perfiles').upsert({
+                # Solo enviamos campos que existen en la tabla perfiles
+                upsert_data = {
                     "id": user_id,
                     "nombre_usuario": email,
-                    "nombre_completo": full_name,
-                    "rol": role or 'usuario_traslados'
-                }).execute()
+                    "nombre_completo": full_name or email,
+                    "rol": role or 'usuario_traslados',
+                    "fecha_creacion": datetime.now().isoformat()
+                }
+                upsert_res = supabase.table('perfiles').upsert(upsert_data).execute()
+                if not upsert_res.data:
+                    print(f"⚠️ ADVERTENCIA: Upsert en perfiles retornó vacío para user_id: {user_id}")
         except Exception as e:
-            print('AVISO: No se pudo upsert en perfiles:', e)
+            print(f'❌ ERROR al hacer upsert en perfiles: {str(e)}')
+            # No retornamos error aquí porque el usuario ya fue creado en Auth
 
         # Si Supabase te exige confirmación de correo, res.user seguirá activo una vez comprobado.
         return jsonify({"message": "✅ Usuario creado en Supabase Auth", "user_id": res.user.id}), 201
