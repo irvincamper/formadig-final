@@ -199,6 +199,426 @@
     box-shadow: 0 3px 10px rgba(0, 118, 108, 0.3);
 }
 
+/* ════════════════════════════════════════════════════════════════════ */
+/* ESTÁNDARES DE UI/UX MEJORADOS – Tablas, Panels, Formularios */
+/* ════════════════════════════════════════════════════════════════════ */
+
+/* ── TABLAS CON HOVER EFFECTS ────────────────────────────────────── */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.table thead {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table thead th {
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table tbody tr:hover {
+    background-color: #f9fafb;
+    box-shadow: inset 0 0 0 1px #e2e8f0;
+}
+
+.table tbody tr:hover td {
+    background-color: inherit;
+}
+
+.table tbody tr.selected-row-v3 {
+    background: #e0f2fe !important;
+    border-left: 4px solid #0284c7 !important;
+    box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.1);
+}
+
+.table td, .table th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table .record-row {
+    cursor: pointer;
+}
+
+.table .record-row:active {
+    background-color: #f1f5f9;
+}
+
+/* ── STATUS BADGES (Multicolores) ───────────────────────────────── */
+.status-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-badge[style*="background: #dcfce7"],
+.status-badge[style*="background: #d1fae5"] {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    box-shadow: 0 1px 3px rgba(6, 95, 70, 0.1);
+}
+
+.status-badge[style*="background: #fef9c3"],
+.status-badge[style*="background: #fef08a"] {
+    background-color: #fef08a !important;
+    color: #78350f !important;
+    box-shadow: 0 1px 3px rgba(120, 53, 15, 0.1);
+}
+
+.status-badge[style*="background: #dbeafe"],
+.status-badge[style*="background: #bfdbfe"] {
+    background-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+    box-shadow: 0 1px 3px rgba(30, 58, 138, 0.1);
+}
+
+.status-badge[style*="background: #fee2e2"],
+.status-badge[style*="background: #fecaca"] {
+    background-color: #fecaca !important;
+    color: #991b1b !important;
+    box-shadow: 0 1px 3px rgba(153, 27, 27, 0.1);
+}
+
+.status-badge[style*="background: #e2e8f0"],
+.status-badge[style*="background: #cbd5e1"] {
+    background-color: #cbd5e1 !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 3px rgba(51, 65, 85, 0.1);
+}
+
+/* ── FORM CONTROLS MEJORADOS ────────────────────────────────────── */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background-color: white;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: var(--color-primary, #00766c);
+    background-color: #fafbfc;
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.1), 0 0 0 1px rgba(0, 118, 108, 0.5);
+    outline: none;
+}
+
+.form-control:hover:not(:focus) {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+}
+
+.form-control.touched:invalid {
+    border-color: #f87171;
+    background-color: #fef2f2;
+}
+
+.form-control::placeholder {
+    color: #cbd5e1;
+    font-style: italic;
+}
+
+/* ── FORM GROUPS CON LABELS ────────────────────────────────────── */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1e293b;
+    letter-spacing: 0.3px;
+}
+
+.form-label.required::after {
+    content: " *";
+    color: #ef4444;
+}
+
+/* ── STICKY PANEL (Barra Lateral Derecha) ──────────────────────────*/
+.sticky-panel {
+    position: sticky;
+    top: 2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.sticky-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sticky-panel::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.sticky-panel::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.sticky-panel::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ── PREMIUM CARD (Contenedores Principales) ────────────────────────*/
+.premium-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+}
+
+/* ── LAYOUT GRID PARA ADMINISTRACIÓN ────────────────────────────── */
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 2rem;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+    .sticky-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+    }
+}
+
+/* ── SECCIÓN DE FORMULARIO CON BORDES ────────────────────────────── */
+.form-section-container {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #f1f5f9;
+}
+
+.form-section-container:first-child {
+    border-left: 3px solid var(--color-primary, #00766c);
+}
+
+/* ── TABS NAVIGATION ────────────────────────────────────────────── */
+.tabs-nav {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: #f1f5f9;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    background: rgba(0, 118, 108, 0.08);
+    color: var(--color-primary, #00766c);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--color-primary, #00766c);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-bottom: 3px solid var(--color-primary, #00766c);
+}
+
+/* ── TAB PANELS ─────────────────────────────────────────────────── */
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── BOTONES INTELIGENTES PARA DOCUMENTOS ───────────────────────── */
+.document-btn-container {
+    padding: 0.5rem 0;
+}
+
+.document-btn-container a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    transition: all 0.2s ease;
+}
+
+.document-btn-container a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+}
+
+.document-btn-container a:active {
+    transform: translateY(0);
+}
+
+.document-btn-container span.disabled {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.2rem;
+    background: #e2e8f0;
+    color: #94a3b8;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: not-allowed;
+}
+
+/* ── SECTION HEADERS CON LÍNEA ──────────────────────────────────── */
+.section-header {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--color-primary-dark, #004d40);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    opacity: 0.85;
+}
+
+.section-header::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(0, 118, 108, 0.2), transparent);
+}
+
+/* ── BOTONES ESTÁNDAR CON MEJORADA ACCESIBILIDAD ──────────────────*/
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button--primary {
+    background: var(--color-primary, #00766c);
+    color: white;
+}
+
+.button--primary:hover:not(:disabled) {
+    background: var(--color-primary-dark, #004d40);
+    box-shadow: 0 4px 12px rgba(0, 118, 108, 0.3);
+}
+
+.button--secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.button--secondary:hover:not(:disabled) {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+.button--danger {
+    background: #ef4444;
+    color: white;
+}
+
+.button--danger:hover:not(:disabled) {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 @media (max-width: 900px) {
     .modules-grid { grid-template-columns: repeat(2, 1fr); }
 }
