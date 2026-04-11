@@ -1,3 +1,14 @@
+// Función estándar para formatear fechas
+function formatearFecha(fechaString) {
+    if (!fechaString) return 'S/F';
+    const fecha = new Date(fechaString);
+    if (isNaN(fecha.getTime())) return 'Inválida';
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    return `${dia}/${mes}/${año}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const session = Auth.checkSession();
     if (!session) return;
@@ -154,19 +165,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const nombreCompleto = `${r.nombre_beneficiario || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
 
-            // Formatear Fecha (Efecto ultra-seguro contra nulos)
-            let fechaStr = "--/--/--";
+            // Formatear Fecha usando función estándar
+            const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
             let horaStr = "--:--";
             try {
                 if (r.created_at) {
                     const f = new Date(r.created_at);
                     if (!isNaN(f.getTime())) {
-                        fechaStr = f.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         horaStr = f.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
                     }
                 }
             } catch (e) {
-                console.error("Error al formatear fecha:", e);
+                console.error("Error al formatear hora:", e);
             }
 
             tr.innerHTML = `

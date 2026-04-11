@@ -1,3 +1,14 @@
+// Función estándar para formatear fechas
+function formatearFecha(fechaString) {
+    if (!fechaString) return 'S/F';
+    const fecha = new Date(fechaString);
+    if (isNaN(fecha.getTime())) return 'Inválida';
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const año = fecha.getFullYear();
+    return `${dia}/${mes}/${año}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificación de sesión y Setup Header
     const session = Auth.checkSession();
@@ -300,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="display:flex; align-items:center; gap:1.25rem;">
                         <!-- Columna Fecha/Hora -->
                         <div style="display:flex; flex-direction:column; min-width:85px;">
-                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${t.fecha_viaje || t.fecha || "S/F"}</span>
+                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha_viaje || t.fecha_cita || t.fecha)}</span>
                             <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora_cita || t.hora || "--:--").toUpperCase()}</span>
                         </div>
                         
@@ -308,20 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
                         </div>
-
-                        <!-- Columna Nombre/CURP -->
-                        <div style="display:flex; flex-direction:column;">
-                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">
-                                ${t.paciente_nombre || 'Sin nombre'} ${confirmacionIcono}
-                            </span>
-                            <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top:2px;">
-                                ${t.paciente_curp || 'SIN CURP'}
-                            </span>
-                        </div>
+                    </div>
+                </td>
+                <td style="padding: 1rem 1.25rem;">
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">
+                            ${t.paciente_nombre || 'Sin nombre'} ${confirmacionIcono}
+                        </span>
+                        <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top:2px;">
+                            ${t.paciente_curp || 'SIN CURP'}
+                        </span>
                     </div>
                 </td>
                 <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${t.destino_hospital || 'No asignado'}</td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${t.acompanante_nombre || t.tutor || '--'} ${tieneDocsBenef}${tieneDocsAcomp}</td>
                 <td style="padding: 1rem 1.25rem; text-align: right;">
                     <span class="status-badge" style="${badgeStyle}">${statusUpper}</span>
                     ${t.kilometraje_salida != null ? `<br><span style="font-size:0.75rem; color:#64748b;">Km: ${t.kilometraje_salida ?? 0}→${t.kilometraje_llegada ?? 0}</span>` : ''}
@@ -463,34 +473,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!row) return;
 
         const cells = row.cells;
-        if (!cells || cells.length < 5) return;
+        if (!cells || cells.length < 4) return;
 
-        // 1. Beneficiario (Paciente + CURP)
+        // Celda 0: Fecha + Nombre/CURP
         const nameSpan = cells[0].querySelector('.live-name');
         if (nameSpan) {
             const nom = document.getElementById('paciente_nombre')?.value || '';
             nameSpan.textContent = nom || 'Sin nombre';
         }
         const curpSpan = cells[0].querySelector('.live-curp');
-        if (curpSpan) curpSpan.textContent = document.getElementById('paciente_curp')?.value || 'S/C';
+        if (curpSpan) curpSpan.textContent = document.getElementById('paciente_curp')?.value || 'SIN CURP';
 
-        // 2. Domicilio
+        // Celda 1: Destino Hospital
         if (cells[1]) {
-            const span = cells[1].querySelector('span:last-child');
-            if (span) span.textContent = document.getElementById('paciente_domicilio')?.value || '-';
+            cells[1].textContent = document.getElementById('destino_hospital')?.value || 'No asignado';
         }
         
-        // 3. Destino
+        // Celda 2: Acompañante
         if (cells[2]) {
-            const span = cells[2].querySelector('span:last-child');
-            if (span) span.textContent = document.getElementById('destino_hospital')?.value || '-';
+            cells[2].textContent = document.getElementById('acompanante_nombre')?.value || '--';
         }
 
-        // 4. Fecha/Hora
-        if (cells[3]) {
-            const f = document.getElementById('fecha_viaje')?.value || '--';
-            const h = document.getElementById('hora_cita')?.value || '--';
-            cells[3].textContent = `${f} / ${h}`;
+        // Celda 3: Estatus
+        const statusBadge = cells[3].querySelector('.status-badge');
+        if (statusBadge) {
+            const estatus = (document.getElementById('estatus')?.value || 'PENDIENTE').toUpperCase();
+            statusBadge.textContent = estatus;
         }
     }
 

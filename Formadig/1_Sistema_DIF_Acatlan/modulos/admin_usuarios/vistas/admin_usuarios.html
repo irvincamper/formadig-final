@@ -119,6 +119,85 @@
         .hidden {
             display: none;
         }
+
+        .table-section {
+            margin-bottom: 3rem;
+        }
+
+        .table-section h2 {
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: var(--premium-shadow);
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #005f54 100%);
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        td {
+            padding: 1rem;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #991b1b;
+            transform: translateY(-1px);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .form-section {
+            margin-top: 3rem;
+        }
+
+        .form-section h2 {
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -127,41 +206,92 @@
 
     <main class="workspace">
         <div class="workspace-content">
-            <div class="view__header" style="margin-bottom: 2rem; text-align: center;">
-                <h2 class="view__title" style="color:var(--color-primary);">Gestión de Usuarios</h2>
-                <p class="text-muted" style="color: #6c757d;">Crea nuevas cuentas de acceso para el personal del DIF Acatlán.</p>
+            <div class="view__header" style="margin-bottom: 2rem;">
+                <h1 class="view__title" style="color:var(--color-primary);">Gestión de Usuarios - Administradores</h1>
+                <p class="text-muted" style="color: #6c757d;">Visualiza, agrega y elimina administradores del sistema DIF Acatlán.</p>
             </div>
 
-            <section class="premium-card">
+            <!-- SECCIÓN 1: Lista de Usuarios -->
+            <section class="table-section">
+                <h2>Administradores Registrados</h2>
+                <div id="usuariosMessage" class="message hidden"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Rol</th>
+                                <th>Teléfono</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuarios-tbody">
+                            <tr><td colspan="6" class="empty-message">Cargando administradores...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: Formulario para Agregar Usuario -->
+            <section class="form-section premium-card">
                 <div id="formMessage" class="message hidden"></div>
-
-                <form id="registerForm">
+                
+                <h2>Agregar Nuevo Administrador</h2>
+                
+                <form id="agregar-usuario-form">
                     <div class="form-group">
-                        <label class="form-label" for="regFullName">Nombre Completo</label>
-                        <input type="text" id="regFullName" class="form-control" placeholder="Ej. Juan Pérez López" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="regEmail">Correo Electrónico</label>
-                        <input type="email" id="regEmail" class="form-control" placeholder="ejemplo@dif.gob.mx" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="regPassword">Contraseña Temporal</label>
-                        <input type="password" id="regPassword" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6">
+                        <label class="form-label" for="nombre_usuario">Usuario (ej. director)</label>
+                        <input 
+                            type="text" 
+                            id="nombre_usuario" 
+                            class="form-control" 
+                            placeholder="Usuario (ej. director)"
+                            required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="regRole">Rol de Acceso</label>
-                        <select id="regRole" class="form-control" required>
-                            <option value="" disabled selected>Selecciona un rol...</option>
-                            <option value="admin">Administrador General (Director/a)</option>
-                            <option value="admin_traslados">Administrador Traslados</option>
-                            <option value="admin_desayunos">Administrador Desayunos (Fríos, Calientes, EAEyD)</option>
+                        <label class="form-label" for="nombre_completo">Nombre Completo</label>
+                        <input 
+                            type="text" 
+                            id="nombre_completo" 
+                            class="form-control" 
+                            placeholder="Nombre Completo"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="rol">Rol</label>
+                        <select id="rol" class="form-control" required>
+                            <option value="">-- Selecciona Rol --</option>
+                            <option value="admin">Administrador General (admin)</option>
+                            <option value="admin_desayunos">Admin Desayunos (admin_desayunos)</option>
+                            <option value="admin_traslados">Admin Traslados (admin_traslados)</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="btn-submit" id="btnRegister">Registrar Nuevo Usuario</button>
+                    <div class="form-group">
+                        <label class="form-label" for="telefono">Teléfono</label>
+                        <input 
+                            type="text" 
+                            id="telefono" 
+                            class="form-control" 
+                            placeholder="Teléfono"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="curp">CURP</label>
+                        <input 
+                            type="text" 
+                            id="curp" 
+                            class="form-control" 
+                            placeholder="CURP"
+                            required>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnAgregar">Agregar Administrador</button>
                 </form>
             </section>
         </div>
