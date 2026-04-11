@@ -17,8 +17,8 @@ except ImportError:
 # =========================================================
 # REEMPLAZA ESTAS VARIABLES CON LOS DATOS DE TU PROYECTO SUPABASE
 # =========================================================
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 
 # Si has pegado las claves, intenta conectar
 try:
@@ -27,11 +27,49 @@ except Exception as e:
     print(f"ATENCIÓN: Claves de Supabase inválidas o vacías. Error: {e}")
     supabase = None
 
-@app.route('/api/auth/register', methods=['POST'])
+# =========================================================
+# RUTA DE PRUEBA DE VIDA - Confirmamos que el backend está online
+# =========================================================
+@app.route('/')
+def health():
+    """Endpoint de prueba - confirmamos que el backend está online."""
+    return jsonify({
+        "status": "backend_online",
+        "message": "El backend de login está funcionando correctamente."
+    }), 200
+
+@app.route('/auth/register', methods=['POST'])
 def register_user():
     if not supabase:
-         return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500
+         return jsonify({"error": "Las claves de Supabase no se han configurado"}), 500
 
+    # 1. Verificar Autorización (Solo Admin/Director puede crear usuarios)
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"error": "No autorizado. Se requiere token de sesión."}), 401
+    
+    token = auth_header.split(' ')[1]
+    try:
+        # Validar el token con Supabase
+        user_res = supabase.auth.get_user(token)
+        requester = user_res.user
+        if not requester:
+            return jsonify({"error": "Sesión inválida o expirada."}), 401
+            
+        # Verificar rol del solicitante en la tabla perfiles
+        admin_check = supabase.table('perfiles').select('rol').eq('id', requester.id).execute()
+        perfil_data = getattr(admin_check, 'data', [])
+        
+        if not perfil_data or perfil_data[0].get('rol') not in ['admin', 'directora', 'desarrollador']:
+             # Si no está en perfiles, checar metadata por si acaso
+             role_meta = requester.user_metadata.get('role')
+             if role_meta not in ['admin', 'directora', 'desarrollador']:
+                return jsonify({"error": "Permisos insuficientes. Solo el Director puede crear usuarios."}), 403
+    except Exception as e:
+        print(f"Error verificando permisos: {e}")
+        return jsonify({"error": "Error al verificar permisos de administrador."}), 401
+
+    # 2. Proceder con el registro una vez autorizado
     data = request.json
     email = data.get('email')
     password = data.get('password')
@@ -75,7 +113,7 @@ def register_user():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route('/api/auth/login', methods=['POST'])
+@app.route('/auth/login', methods=['POST'])
 def login_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500
