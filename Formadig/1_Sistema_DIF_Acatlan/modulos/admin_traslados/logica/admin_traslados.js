@@ -2,7 +2,7 @@
 function formatearFecha(fechaString) {
     if (!fechaString) return 'S/F';
     const fecha = new Date(fechaString);
-    if (isNaN(fecha.getTime())) return 'Inválida';
+    if (Number.isNaN(fecha.getTime())) return 'Inválida';
     const dia = fecha.getDate().toString().padStart(2, '0');
     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
     const año = fecha.getFullYear();
@@ -22,8 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Referencias a DOM
     const form = document.getElementById('registroForm');
-    const inputSearch = document.getElementById('searchInput');
-    const inputFecha = document.getElementById('fecha_viaje');
     const tbody = document.getElementById('listaRegistros');
     const cuposOcupadosEl = document.getElementById('cuposOcupados');
     const cuposDisponiblesTextEl = document.getElementById('cuposDisponiblesText');
@@ -251,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderDocBtn(containerId, url, label) {
         const cont = document.getElementById(containerId);
         if (!cont) return;
-        if (url) {
+        if (url && url.trim()) {
             cont.innerHTML = `<a href="${url}" target="_blank" rel="noopener noreferrer"
                 style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.6rem 1.2rem;
                 background: linear-gradient(135deg, #0d9488, #0f766e); color:white;
@@ -260,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text-decoration:none; transition: all 0.2s;"
                 onmouseover="this.style.transform='translateY(-2px)'" 
                 onmouseout="this.style.transform='translateY(0)'">
-                📄 VER ${label}
+                📄 VER ${label || 'DOCUMENTO'}
             </a>`;
         } else {
             cont.innerHTML = '<span style="font-size: 0.8rem; font-weight:600; color:#94a3b8;"><span style="opacity:0.6;">⚠️ No disponible</span></span>';
@@ -349,36 +347,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 updateNavControls();
                 
-                // Rellenar panel izquierdo con datos reales de la DB
-                document.getElementById('paciente_nombre').value = t.paciente_nombre || '';
+                // ── LLENAR PANEL IZQUIERDO CON DATOS COMPLETOS ──
+                // Sección: Identidad Oficial
                 document.getElementById('paciente_curp').value = t.paciente_curp || '';
+                
+                // Sección: Datos del Paciente
+                document.getElementById('paciente_nombre').value = t.paciente_nombre || '';
+                document.getElementById('paciente_edad').value = t.paciente_edad || '';
+                
+                // Sección: Ubicación
                 document.getElementById('paciente_domicilio').value = t.paciente_domicilio || '';
                 document.getElementById('colonia').value = t.colonia || '';
                 document.getElementById('codigo_postal').value = t.codigo_postal || '';
                 document.getElementById('referencias').value = t.referencias || '';
                 
+                // Sección: Detalles del Traslado
                 document.getElementById('destino_hospital').value = t.destino_hospital || '';
                 document.getElementById('acompanante_nombre').value = t.acompanante_nombre || '';
                 document.getElementById('acompanante_clave_elector').value = t.acompanante_clave_elector || '';
-                
                 document.getElementById('telefono_principal').value = t.telefono_principal || '';
                 document.getElementById('telefono_secundario').value = t.telefono_secundario || '';
                 
                 // ── Lógica de Documentos (Estandarizada) ──
-                // Documentación Digital
-                renderDocBtn('btnDocPacienteCont', t.url_doc_beneficiario, 'DOCUMENTO');
-                renderDocBtn('btnDocAcompCont', t.url_doc_acompanante, 'DOCUMENTO');
-                renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio, 'DOMICILIO');
+                renderDocBtn('btnDocPacienteCont', t.url_doc_beneficiario || null, 'DOCUMENTO');
+                renderDocBtn('btnDocAcompCont', t.url_doc_acompanante || null, 'DOCUMENTO');
+                renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio || null, 'DOMICILIO');
                 
-                // Automatización: Pre-llenar si vienen vacíos para el bloque de agendamiento
+                // ── Automatización: Pre-llenar Fecha y Hora ──
                 let fechaVal = t.fecha_viaje || '';
                 let horaVal = t.hora_cita || '';
-
-                // Mapear estos valores estáticos a la pestaña de vista "Datos de la Cita Médica"
-                const fSol = document.getElementById('fecha_solicitada');
-                if (fSol) fSol.value = fechaVal || '--';
-                const hSol = document.getElementById('hora_solicitada');
-                if (hSol) hSol.value = horaVal || '--';
 
                 if (!fechaVal) {
                     const today = new Date().toISOString().split('T')[0];
@@ -390,9 +387,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     horaVal = now.toTimeString().slice(0, 5);
                 }
 
-                document.getElementById('fecha_viaje').value = fechaVal;
-                document.getElementById('hora_cita').value = horaVal;
-                document.getElementById('lugares_requeridos').value = t.lugares_requeridos || 2;
+                document.getElementById('fecha_viaje').value = fechaVal || '';
+                document.getElementById('hora_cita').value = horaVal || '';
+                document.getElementById('lugares_requeridos').value = parseInt(t.lugares_requeridos) || 2;
                 
                 // Actualizar automáticamente los cupos cuando se carga la fecha
                 actualizarUI_Cupos();
@@ -402,14 +399,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnSubmit.textContent = 'Aceptar Traslado 🚐';
                 
                 const actionBlock = document.getElementById('asignacionBloque');
-                actionBlock.style.transform = 'scale(1.02)';
-                actionBlock.style.boxShadow = '0 10px 25px rgba(22,101,52,0.15)';
-                actionBlock.style.borderColor = '#22c55e';
-                setTimeout(() => {
-                    actionBlock.style.transform = '';
-                    actionBlock.style.boxShadow = '';
-                    actionBlock.style.borderColor = '#bbf7d0';
-                }, 600);
+                if (actionBlock) {
+                    actionBlock.style.transform = 'scale(1.02)';
+                    actionBlock.style.boxShadow = '0 10px 25px rgba(22,101,52,0.15)';
+                    actionBlock.style.borderColor = '#22c55e';
+                    setTimeout(() => {
+                        actionBlock.style.transform = '';
+                        actionBlock.style.boxShadow = '';
+                        actionBlock.style.borderColor = '#bbf7d0';
+                    }, 600);
+                }
             });
 
             tbody.appendChild(tr);
@@ -468,36 +467,36 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncActiveRow() {
         if (!currentSelectedId) return;
         
-        // Buscamos la fila en todo el documento
-        const row = document.querySelector(`tr[data-id="${currentSelectedId}"]`);
+        // Buscamos la fila en la tabla
+        const row = document.querySelector(`#listaRegistros tr[data-id="${currentSelectedId}"]`);
         if (!row) return;
 
-        const cells = row.cells;
-        if (!cells || cells.length < 4) return;
+        // Obtener los valores actuales del formulario
+        const nom = document.getElementById('paciente_nombre')?.value || 'Sin nombre';
+        const curp = document.getElementById('paciente_curp')?.value || 'SIN CURP';
+        const destino = document.getElementById('destino_hospital')?.value || 'No asignado';
+        const estatus = (document.getElementById('estatus')?.value || 'PENDIENTE').toUpperCase();
 
-        // Celda 0: Fecha + Nombre/CURP
-        const nameSpan = cells[0].querySelector('.live-name');
+        // Actualizar los spans dentro de la fila (si existen)
+        const nameSpan = row.querySelector('.live-name');
         if (nameSpan) {
-            const nom = document.getElementById('paciente_nombre')?.value || '';
-            nameSpan.textContent = nom || 'Sin nombre';
-        }
-        const curpSpan = cells[0].querySelector('.live-curp');
-        if (curpSpan) curpSpan.textContent = document.getElementById('paciente_curp')?.value || 'SIN CURP';
-
-        // Celda 1: Destino Hospital
-        if (cells[1]) {
-            cells[1].textContent = document.getElementById('destino_hospital')?.value || 'No asignado';
+            nameSpan.textContent = nom;
         }
         
-        // Celda 2: Acompañante
-        if (cells[2]) {
-            cells[2].textContent = document.getElementById('acompanante_nombre')?.value || '--';
+        const curpSpan = row.querySelector('.live-curp');
+        if (curpSpan) {
+            curpSpan.textContent = curp;
         }
 
-        // Celda 3: Estatus
-        const statusBadge = cells[3].querySelector('.status-badge');
+        // Actualizar la segunda celda (destino)
+        const cells = row.cells;
+        if (cells && cells.length > 2) {
+            cells[2].textContent = destino;
+        }
+
+        // Actualizar el badge de estado
+        const statusBadge = row.querySelector('.status-badge');
         if (statusBadge) {
-            const estatus = (document.getElementById('estatus')?.value || 'PENDIENTE').toUpperCase();
             statusBadge.textContent = estatus;
         }
     }

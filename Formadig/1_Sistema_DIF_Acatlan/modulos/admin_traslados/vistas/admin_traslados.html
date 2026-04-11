@@ -305,8 +305,17 @@
 
                         <!-- Sección 2: Datos Personales (Simplificada) -->
                         <div class="form-section-container" style="border-left: 3px solid #3b82f6;">
-                            <h4 class="section-header" style="color: #1e40af;">👤 DATOS DEL PACIENTE (CAMPOS AUTO-LLENADOS)</h4>
-                            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">Estos campos se rellenan desde la solicitud aplicación móvil.</p>
+                            <h4 class="section-header" style="color: #1e40af;">👤 DATOS DEL PACIENTE (AUTO-LLENADOS)</h4>
+                            <div style="display:grid; grid-template-columns: 1fr; gap:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="paciente_nombre">Nombre Completo *</label>
+                                    <input type="text" id="paciente_nombre" class="form-control" placeholder="Auto-llenado desde la app" readonly style="background: #f8fafc;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="paciente_edad">Edad</label>
+                                    <input type="number" id="paciente_edad" class="form-control" placeholder="Auto-llenado" readonly style="background: #f8fafc;">
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -326,8 +335,8 @@
                                 </div>
                             </div>
                             <div class="form-group" style="margin-top:1rem;">
-                                <label class="form-label" for="cp">C.P.</label>
-                                <input type="text" id="cp" class="form-control" placeholder="--">
+                                <label class="form-label" for="codigo_postal">C.P.</label>
+                                <input type="text" id="codigo_postal" class="form-control" placeholder="--">
                             </div>
                             <div class="form-group" style="margin-top:1rem;">
                                 <label class="form-label" for="referencias">Referencias de Ubicación</label>
