@@ -20,17 +20,18 @@
 .menu-item:hover::before { opacity: 1; }
 .menu-item.active { background: rgba(14, 165, 233, 0.05); color: #ffffff; border-left-color: var(--color-primary); font-weight: 600; }
 .workspace { margin-left: 280px; flex: 1; display: flex; flex-direction: column; background-color: transparent; min-height: calc(100vh - 64px); }
-.workspace-content { padding: 40px 50px; max-width: 1400px; margin: 0 auto; width: 100%; }
+.workspace-content { padding: 40px 50px 40px 70px; max-width: 1400px; margin: 0; width: 100%; }
 .welcome-section { margin-bottom: 50px; }
-.welcome-section h1 { font-size: 2.2rem; color: var(--color-text-main); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+.welcome-section h1 { font-size: 2.2rem; color: var(--color-text-main); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; text-align: left; }
 .welcome-section p { color: var(--color-text); font-size: 1.1rem; }
 .modules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 .module-card {
     background: var(--color-surface, rgba(15, 23, 42, 0.4)); border-radius: 20px; border: 1px solid var(--color-border);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 35px 25px; text-align: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+    padding: 35px 25px; text-align: left; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start;
 }
+
 .module-card::after {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
     background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
