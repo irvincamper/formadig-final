@@ -10,6 +10,7 @@ from werkzeug.serving import run_simple
 # ========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "Formadig", "1_Sistema_DIF_Acatlan")
+MODULOS_DIR = os.path.join(FRONTEND_DIR, "modulos")
 PORT = int(os.getenv("PORT", 10000))
 
 print("\n" + "=" * 80)
@@ -19,6 +20,78 @@ print(f"[INFO] BASE_DIR:     {BASE_DIR}")
 print(f"[INFO] FRONTEND_DIR: {FRONTEND_DIR}")
 print(f"[INFO] PUERTO:       {PORT}")
 print("=" * 80)
+
+# ========================================
+# CONFIGURACIÓN DE MÓDULOS BACKEND
+# ========================================
+# Estructura: nombre_módulo -> (archivo_backend.py, ruta_dispatcher)
+# Descomenta/comenta módulos según necesites
+BACKENDS_CONFIG = {
+    # ❌ Descomenta para cargar (comentar en línea siguiente para desactivar):
+    "login": ("login/logica/login_backend.py", "/api/auth"),
+    "traslados": ("admin_traslados/logica/admin_traslados_backend.py", "/api/traslados"),
+    "desayunos_frios": ("admin_desayunos_frios/logica/admin_desayunos_frios_backend.py", "/api/desayunos_frios"),
+    # "desayunos_calientes": ("admin_desayunos_calientes/logica/admin_desayunos_calientes_backend.py", "/api/desayunos_calientes"),
+    "sms": ("sms/logica/sms_backend.py", "/api/sms"),
+    # "espacios_eaeyd": ("admin_espacios_eaeyd/logica/admin_espacios_eaeyd_backend.py", "/api/espacios"),
+    # "usuarios": ("admin_usuarios/logica/admin_usuarios_backend.py", "/api/usuarios"),
+}
+
+
+# ========================================
+# FUNCIÓN PARA CARGAR BACKENDS
+# ========================================
+def cargar_backend(nombre_modulo, ruta_relativa):
+    """
+    Carga un backend Flask desde un archivo usando importlib.
+    
+    Args:
+        nombre_modulo: nombre único para identificar el módulo
+        ruta_relativa: ruta relativa dentro de MODULOS_DIR
+        
+    Returns:
+        objeto Flask app o None si falla
+    """
+    ruta_completa = os.path.join(MODULOS_DIR, ruta_relativa)
+    
+    print(f"\n  [→] Cargando: {nombre_modulo}")
+    print(f"      Archivo: {ruta_completa}")
+    
+    if not os.path.exists(ruta_completa):
+        print(f"      [ERROR] ❌ Archivo no existe")
+        return None
+    
+    try:
+        # Crear especificación del módulo
+        spec = importlib.util.spec_from_file_location(
+            f"backend_{nombre_modulo}",
+            ruta_completa
+        )
+        
+        if spec is None or spec.loader is None:
+            print(f"      [ERROR] ❌ No se pudo crear especificación del módulo")
+            return None
+        
+        # Cargar el módulo
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[f"backend_{nombre_modulo}"] = module
+        spec.loader.exec_module(module)
+        
+        # Extraer el objeto app
+        app_obj = getattr(module, 'app', None)
+        
+        if app_obj is None:
+            print(f"      [ERROR] ❌ No se encontró objeto 'app' en el módulo")
+            return None
+        
+        print(f"      [OK] ✅ Backend cargado exitosamente")
+        return app_obj
+        
+    except Exception as e:
+        print(f"      [ERROR] ❌ Excepción: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
 
 
 # ========================================
@@ -48,83 +121,49 @@ print("[OK] ✅ Frontend app creado")
 
 
 # ========================================
-# 2. IMPORTAR BACKEND (Login)
+# 2. CARGAR TODOS LOS BACKENDS
 # ========================================
-print("[STEP 2/3] Importando Backend de Login...")
+print("\n[STEP 2/3] Cargando backends de módulos...")
 
-backend_app = None
-backend_path = os.path.join(FRONTEND_DIR, "modulos", "login", "logica", "login_backend.py")
-print(f"[DEBUG] Ruta del backend: {backend_path}")
-print(f"[DEBUG] ¿Existe? {os.path.exists(backend_path)}")
+backends_cargados = {}
+dispatcher_dict = {}
 
-try:
-    # La carpeta comienza con número, así que usamos importlib
-    spec = importlib.util.spec_from_file_location("login_backend", backend_path)
+for nombre_modulo, (ruta_relativa, ruta_dispatcher) in BACKENDS_CONFIG.items():
+    app_backend = cargar_backend(nombre_modulo, ruta_relativa)
     
-    if spec is None:
-        print("[ERROR] ❌ spec es None")
-        raise Exception("No se pudo crear la especificación del módulo")
-    
-    if spec.loader is None:
-        print("[ERROR] ❌ spec.loader es None")
-        raise Exception("spec.loader es None")
-    
-    module = importlib.util.module_from_spec(spec)
-    sys.modules['login_backend'] = module
-    spec.loader.exec_module(module)
-    print("[OK] ✅ Módulo ejecutado")
-    
-    backend_app = getattr(module, 'app', None)
-    
-    if backend_app:
-        print("[OK] ✅ Backend importado correctamente")
-        print(f"[OK]    Tipo: {type(backend_app)}")
-        print(f"[OK]    Rutas del backend: {list(backend_app.url_map.iter_rules())[:5]}")
+    if app_backend is not None:
+        backends_cargados[nombre_modulo] = app_backend
+        dispatcher_dict[ruta_dispatcher] = app_backend
+        print(f"      → Montando en ruta: {ruta_dispatcher}")
     else:
-        print("[ERROR] ❌ Backend no tiene atributo 'app'")
-        print(f"[DEBUG] Atributos del módulo: {[a for a in dir(module) if not a.startswith('_')][:10]}")
-        
-except FileNotFoundError as fnf:
-    print(f"[ERROR] ❌ Archivo no encontrado: {fnf}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
-except ImportError as ie:
-    print(f"[ERROR] ❌ Import error: {ie}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
-except Exception as e:
-    print(f"[ERROR] ❌ Error: {type(e).__name__}: {e}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
+        print(f"      [SKIP] ⚠️  Módulo '{nombre_modulo}' no se cargará")
+
+print(f"\n[SUMMARY] Backends cargados: {len(backends_cargados)}/{len(BACKENDS_CONFIG)}")
+if backends_cargados:
+    print("  Módulos activos:")
+    for nombre in backends_cargados.keys():
+        print(f"    ✅ {nombre}")
 
 
 # ========================================
 # 3. CONSTRUIR APP WSGI CON DISPATCHER
 # ========================================
-print("[STEP 3/3] Construyendo app WSGI con DispatcherMiddleware...")
+print("\n[STEP 3/3] Construyendo app WSGI con DispatcherMiddleware...")
 
-if backend_app is not None:
-    print(f"[OK] Backend app cargado. Montando en ruta /api...")
+if dispatcher_dict:
+    print(f"[OK] Montando {len(dispatcher_dict)} backend(s) en DispatcherMiddleware...")
     
-    # Montar el backend en /api
-    # Rutas: /api/auth/login, /api/auth/register, etc.
-    app = DispatcherMiddleware(front_app, {
-        '/api': backend_app
-    })
+    app = DispatcherMiddleware(front_app, dispatcher_dict)
+    
     print("[OK] ✅ DispatcherMiddleware configurado:")
-    print("    - '/'    → Frontend (estáticos)")
-    print("    - '/api' → Backend (autenticación)")
-    print(f"[DEBUG] Type de app: {type(app)}")
-    print(f"[DEBUG] App es: {app}")
+    print("    - '/'         → Frontend (estáticos)")
+    for ruta in dispatcher_dict.keys():
+        print(f"    - '{ruta}'     → Backend")
+    
 else:
-    print(f"[WARN] ⚠️  Backend NO se cargó")
+    print(f"[WARN] ⚠️  NO hay backends cargados")
     print(f"[WARN] Operando en modo FRONTEND-ONLY (sin backend)")
-    print(f"[WARN] Las rutas /api/* no estarán disponibles")
     app = front_app
-    print(f"[DEBUG] Usando solo front_app")
 
 # VALIDACIÓN
 if app is None:
