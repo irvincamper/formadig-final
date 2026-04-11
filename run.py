@@ -42,68 +42,54 @@ def serve_frontend(path):
 
 
 # ========================================
-# CARGA DINÁMICA DE BACKENDS
+# CARGA DEL BACKEND DE LOGIN
 # ========================================
-def _load_backend_app(name, backend_path):
+def _load_login_backend():
     """
-    Carga un app Flask/WSGI desde un archivo Python dinámicamente.
+    Carga el app Flask/WSGI del backend de Login dinámicamente.
+    Este es el único backend que se carga para ahorrar memoria.
     
-    Args:
-        name: Nombre del backend (para logging)
-        backend_path: Ruta absoluta al archivo del backend
-        
     Returns:
-        El objeto app del backend, o None si falla la carga
+        El objeto app del backend de login, o None si falla
     """
+    backend_path = os.path.join(MODULOS_DIR, "login", "logica", "login_backend.py")
+    
     if not os.path.exists(backend_path):
-        print(f"[WARN] Backend '{name}' no encontrado en {backend_path}")
+        print(f"[WARN] Backend de Login no encontrado en {backend_path}")
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(name, backend_path)
+        spec = importlib.util.spec_from_file_location("login_backend", backend_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         backend_app = getattr(module, "app", None)
         
         if backend_app:
-            print(f"[OK] Backend '{name}' cargado exitosamente")
+            print(f"[OK] Backend de Login cargado exitosamente")
         else:
-            print(f"[WARN] Backend '{name}' no exporta 'app'")
+            print(f"[WARN] Backend de Login no exporta 'app'")
         
         return backend_app
     except Exception as exc:
-        print(f"[ERROR] Error cargando backend '{name}': {exc}")
+        print(f"[ERROR] Error cargando backend de Login: {exc}")
         return None
-
-
-# ========================================
-# CONFIGURAR BACKENDS
-# ========================================
-backends_config = {
-    "auth": os.path.join(MODULOS_DIR, "login", "logica", "login_backend.py"),
-    "traslados": os.path.join(MODULOS_DIR, "admin_traslados", "logica", "admin_traslados_backend.py"),
-    "desayunos-frios": os.path.join(MODULOS_DIR, "admin_desayunos_frios", "logica", "admin_desayunos_frios_backend.py"),
-    "desayunos-calientes": os.path.join(MODULOS_DIR, "admin_desayunos_calientes", "logica", "admin_desayunos_calientes_backend.py"),
-    "espacios-eaeyd": os.path.join(MODULOS_DIR, "admin_espacios_eaeyd", "logica", "admin_espacios_eaeyd_backend.py"),
-    "chatbot": os.path.join(MODULOS_DIR, "chatbot", "logica", "chatbot_backend.py"),
-    "sms": os.path.join(MODULOS_DIR, "sms", "logica", "sms_backend.py"),
-}
-
-# Cargar todos los backends disponibles
-backends_mounted = {}
-for name, path in backends_config.items():
-    backend_app = _load_backend_app(name, path)
-    if backend_app:
-        route = f"/api/{name}"
-        backends_mounted[route] = backend_app
 
 
 # ========================================
 # APP WSGI FINAL
 # ========================================
-# DispatcherMiddleware permite servir múltiples apps bajo diferentes rutas.
-# front_app sirve estáticos en /, backends sirven en /api/<nombre>
-app = DispatcherMiddleware(front_app, backends_mounted)
+# Cargar solo el backend de Login para minimizar uso de memoria
+login_app = _load_login_backend()
+
+# DispatcherMiddleware enruta:
+# - / → front_app (sirve estáticos)
+# - /api → login_app (backend de autenticación)
+if login_app:
+    app = DispatcherMiddleware(front_app, {'/api': login_app})
+else:
+    # Si falla la carga del backend, solo sirve el frontend
+    app = front_app
+    print("[WARN] Operando en modo frontend-only (sin backend de Login)")
 
 
 # ========================================
@@ -113,9 +99,9 @@ if __name__ == "__main__":
     print("=" * 60)
     print("FORMADIG - Sistema de Gestión DIF Acatlán")
     print("=" * 60)
-    print(f"Iniciando servidor en http://0.0.0.0:{PORT}")
+    print(f"Escuchando en 0.0.0.0:{PORT}")
     print(f"Estáticos servidos desde: {FRONTEND_DIR}")
-    print(f"Backends montados: {list(backends_mounted.keys())}")
+    print(f"Backend de Login montado en: /api")
     print("Presiona Ctrl+C para detener.")
     print("=" * 60)
     
