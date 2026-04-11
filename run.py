@@ -6,16 +6,6 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
 # ========================================
-# CARGAR VARIABLES DE ENTORNO
-# ========================================
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    print("⚠️  AVISO: python-dotenv no instalado. Las variables .env serán ignoradas.")
-    print("   Instala con: pip install python-dotenv")
-
-# ========================================
 # CONFIGURACIÓN BASE
 # ========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -98,7 +88,6 @@ backends_config = {
     "desayunos_calientes": ("admin_desayunos_calientes/logica/admin_desayunos_calientes_backend.py", "/api/desayunos_calientes"),
     "espacios_eaeyd": ("admin_espacios_eaeyd/logica/admin_espacios_eaeyd_backend.py", "/api/espacios_eaeyd"),
     "sms": ("sms/logica/sms_backend.py", "/api/sms"),
-    "admin_usuarios": ("admin_usuarios/logica/admin_usuarios_backend.py", "/api"),
 }
 
 # Cargar backends
