@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Referencias a DOM
     const form = document.getElementById('registroForm');
     const inputSearch = document.getElementById('searchInput');
-    const inputFecha = document.getElementById('cita_fecha');
+    const inputFecha = document.getElementById('fecha_viaje');
     const tbody = document.getElementById('listaRegistros');
     const cuposOcupadosEl = document.getElementById('cuposOcupados');
     const cuposDisponiblesTextEl = document.getElementById('cuposDisponiblesText');
@@ -51,16 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateData = {
             paciente_nombre: document.getElementById('paciente_nombre')?.value,
             paciente_curp:   document.getElementById('paciente_curp')?.value,
-            localidad:       document.getElementById('localidad')?.value,
-            destino:         document.getElementById('destino')?.value,
-            cita_fecha:      document.getElementById('cita_fecha').value,
-            cita_hora:       document.getElementById('cita_hora').value,
-            telefono:        document.getElementById('telefono')?.value,
-            telefono_emergencia: document.getElementById('telefono_emergencia')?.value,
-            clave_elector:   document.getElementById('clave_elector')?.value,
-            tutor:           document.getElementById('tutor')?.value,
-            acomp_curp:      document.getElementById('acomp_curp')?.value,
-            acomp_sexo:      document.getElementById('acomp_sexo')?.value,
+            paciente_domicilio: document.getElementById('paciente_domicilio')?.value,
+            destino_hospital: document.getElementById('destino_hospital')?.value,
+            fecha_viaje:     document.getElementById('fecha_viaje').value,
+            hora_cita:       document.getElementById('hora_cita').value,
+            telefono_principal: document.getElementById('telefono_principal')?.value,
+            telefono_secundario: document.getElementById('telefono_secundario')?.value,
+            acompanante_clave_elector: document.getElementById('acompanante_clave_elector')?.value,
+            acompanante_nombre: document.getElementById('acompanante_nombre')?.value,
             lugares_requeridos: parseInt(document.getElementById('lugares_requeridos').value) || 2,
             estatus:         'ACEPTADO'
         };
@@ -207,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function actualizarUI_Cupos() {
-        let fechaSeleccionada = document.getElementById('cita_fecha').value;
+        let fechaSeleccionada = document.getElementById('fecha_viaje').value;
         let esHoy = false;
         
         if (!fechaSeleccionada) {
@@ -342,40 +340,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateNavControls();
                 
                 // Rellenar panel izquierdo con datos reales de la DB
-                let fullName = (t.paciente_nombre || '').trim();
-                if (t.apellidos && !fullName.includes(t.apellidos)) {
-                    fullName += ` ${t.apellidos}`;
-                }
-                document.getElementById('paciente_nombre').value = fullName;
-                document.getElementById('apellidos').value = t.apellidos || '';
+                document.getElementById('paciente_nombre').value = t.paciente_nombre || '';
                 document.getElementById('paciente_curp').value = t.paciente_curp || '';
-                
-                // Nuevos mapeos:
-                const edadInput = document.getElementById('paciente_edad');
-                if (edadInput) edadInput.value = t.paciente_edad || t.edad || '';
-                
-                document.getElementById('fecha_nacimiento').value = t.fecha_nacimiento || '';
-                document.getElementById('sexo').value = t.sexo || t.paciente_sexo || '';
-                document.getElementById('estado_civil').value = t.estado_civil || '';
-                
-                document.getElementById('localidad').value = t.localidad || t.paciente_domicilio || '';
+                document.getElementById('paciente_domicilio').value = t.paciente_domicilio || '';
                 document.getElementById('colonia').value = t.colonia || '';
-                document.getElementById('cp').value = t.cp || '';
+                document.getElementById('codigo_postal').value = t.codigo_postal || '';
                 document.getElementById('referencias').value = t.referencias || '';
                 
+                document.getElementById('destino_hospital').value = t.destino_hospital || '';
+                document.getElementById('acompanante_nombre').value = t.acompanante_nombre || '';
+                document.getElementById('acompanante_clave_elector').value = t.acompanante_clave_elector || '';
                 
-                document.getElementById('destino').value = t.destino_hospital || t.destino || '';
-                document.getElementById('tutor').value = t.acompanante_nombre || t.tutor || '';
-                
-                const entidadAcomp = document.getElementById('acompanante_entidad');
-                if (entidadAcomp) entidadAcomp.value = t.acompanante_entidad || t.entidad || '';
-                
-                document.getElementById('telefono').value = t.telefono || t.telefono_principal || '';
-                document.getElementById('clave_elector').value = t.clave_elector || '';
-                document.getElementById('telefono_emergencia').value = t.telefono_secundario || t.telefono_emergencia || '';
-                
-                const zonaHosp = document.getElementById('zona_hospital');
-                if (zonaHosp) zonaHosp.value = t.zona_hospital || '--';
+                document.getElementById('telefono_principal').value = t.telefono_principal || '';
+                document.getElementById('telefono_secundario').value = t.telefono_secundario || '';
                 
                 // ── Lógica de Documentos (Estandarizada) ──
                 // Documentación Digital
@@ -384,8 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio, 'DOMICILIO');
                 
                 // Automatización: Pre-llenar si vienen vacíos para el bloque de agendamiento
-                let fechaVal = t.fecha_viaje || t.fecha || '';
-                let horaVal = t.hora_cita || t.hora || '';
+                let fechaVal = t.fecha_viaje || '';
+                let horaVal = t.hora_cita || '';
 
                 // Mapear estos valores estáticos a la pestaña de vista "Datos de la Cita Médica"
                 const fSol = document.getElementById('fecha_solicitada');
@@ -403,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     horaVal = now.toTimeString().slice(0, 5);
                 }
 
-                document.getElementById('cita_fecha').value = fechaVal;
-                document.getElementById('cita_hora').value = horaVal;
+                document.getElementById('fecha_viaje').value = fechaVal;
+                document.getElementById('hora_cita').value = horaVal;
                 document.getElementById('lugares_requeridos').value = t.lugares_requeridos || 2;
                 
                 // Actualizar automáticamente los cupos cuando se carga la fecha
@@ -492,28 +469,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameSpan = cells[0].querySelector('.live-name');
         if (nameSpan) {
             const nom = document.getElementById('paciente_nombre')?.value || '';
-            const ape = document.getElementById('apellidos')?.value || '';
-            nameSpan.textContent = `${nom} ${ape}`.trim() || 'Sin nombre';
+            nameSpan.textContent = nom || 'Sin nombre';
         }
         const curpSpan = cells[0].querySelector('.live-curp');
         if (curpSpan) curpSpan.textContent = document.getElementById('paciente_curp')?.value || 'S/C';
 
-        // 2. Localidad
+        // 2. Domicilio
         if (cells[1]) {
             const span = cells[1].querySelector('span:last-child');
-            if (span) span.textContent = document.getElementById('localidad')?.value || '-';
+            if (span) span.textContent = document.getElementById('paciente_domicilio')?.value || '-';
         }
         
         // 3. Destino
         if (cells[2]) {
             const span = cells[2].querySelector('span:last-child');
-            if (span) span.textContent = document.getElementById('destino')?.value || '-';
+            if (span) span.textContent = document.getElementById('destino_hospital')?.value || '-';
         }
 
         // 4. Fecha/Hora
         if (cells[3]) {
-            const f = document.getElementById('cita_fecha')?.value || '--';
-            const h = document.getElementById('cita_hora')?.value || '--';
+            const f = document.getElementById('fecha_viaje')?.value || '--';
+            const h = document.getElementById('hora_cita')?.value || '--';
             cells[3].textContent = `${f} / ${h}`;
         }
     }

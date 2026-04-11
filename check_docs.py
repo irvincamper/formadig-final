@@ -1,5 +1,9 @@
+import os
 from supabase import create_client
-sb = create_client('https://ctiqbycbkcftwuqgzxjb.supabase.co', 'sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk')
+sb = create_client(
+    os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co"),
+    os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
+)
 res = sb.table('traslados').select('id,url_doc_beneficiario,url_doc_acompanante,url_comprobante_domicilio').execute()
 print(f'Total registros: {len(res.data)}')
 for r in res.data:

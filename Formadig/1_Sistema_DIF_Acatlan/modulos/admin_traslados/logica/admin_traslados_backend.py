@@ -78,21 +78,21 @@ def nuevo_registro():
         return jsonify({"error": "Supabase no configurado"}), 500
 
     data = request.json
-    required_fields = ['paciente_nombre', 'paciente_curp', 'destino', 'cita_fecha', 'cita_hora']
+    required_fields = ['paciente_nombre', 'paciente_curp', 'destino_hospital', 'fecha_viaje', 'hora_cita']
     for field in required_fields:
         if not data.get(field):
             return jsonify({"error": f"El campo '{field}' es obligatorio"}), 400
 
     try:
         supabase_data = {
-            "paciente_nombre":   f"{data.get('paciente_nombre')} {data.get('apellidos', '')}".strip(),
+            "paciente_nombre":   data.get('paciente_nombre'),
             "paciente_curp":     data.get('paciente_curp'),
-            "paciente_domicilio":data.get('localidad'),
-            "acompanante_nombre":data.get('tutor') or data.get('acompanante_nombre'),
-            "destino_hospital":  data.get('destino'),
-            "fecha_viaje":       data.get('cita_fecha'),
-            "hora_cita":         data.get('cita_hora'),
-            "telefono_principal":data.get('telefono'),
+            "paciente_domicilio": data.get('paciente_domicilio'),
+            "acompanante_nombre": data.get('acompanante_nombre'),
+            "destino_hospital":  data.get('destino_hospital'),
+            "fecha_viaje":       data.get('fecha_viaje'),
+            "hora_cita":         data.get('hora_cita'),
+            "telefono_principal": data.get('telefono_principal'),
             "estatus":           data.get('estatus', 'Pendiente'),
         }
         res = supabase.table('traslados').insert(supabase_data).execute()
@@ -112,23 +112,19 @@ def actualizar_traslado(record_id):
     try:
         target_id = int(record_id) if record_id.isdigit() else record_id
 
-        # Combinamos nombre y apellidos si vienen por separado en el form
-        nombre_form = data.get('paciente_nombre', '') or ''
-        apell_form  = data.get('apellidos', '') or ''
-        nombre_completo_form = f"{nombre_form} {apell_form}".strip()
-
+        # Mapear los datos exactamente como vienen del frontend (nombres correctos de columnas)
         update_data = {
-            "paciente_nombre":     nombre_completo_form or nombre_form,
+            "paciente_nombre":     data.get('paciente_nombre'),
             "paciente_curp":       data.get('paciente_curp'),
-            "paciente_domicilio":  data.get('localidad'),
-            "destino_hospital":    data.get('destino'),
-            "fecha_viaje":         data.get('cita_fecha'),
-            "hora_cita":           data.get('cita_hora'),
-            "telefono_principal":  data.get('telefono'),
-            "telefono_secundario": data.get('telefono_emergencia'),
-            "acompanante_clave_elector": data.get('clave_elector'),
-            "acompanante_nombre":  data.get('tutor'),
-            "estatus":             data.get('estatus', 'Programado').strip().upper()
+            "paciente_domicilio":  data.get('paciente_domicilio'),
+            "destino_hospital":    data.get('destino_hospital'),
+            "fecha_viaje":         data.get('fecha_viaje'),
+            "hora_cita":           data.get('hora_cita'),
+            "telefono_principal":  data.get('telefono_principal'),
+            "telefono_secundario": data.get('telefono_secundario'),
+            "acompanante_clave_elector": data.get('acompanante_clave_elector'),
+            "acompanante_nombre":  data.get('acompanante_nombre'),
+            "estatus":             data.get('estatus', 'Programado').strip().upper() if data.get('estatus') else 'Programado'
         }
         
         # Limpiar valores None para evitar sobreescribir con nulos si no vienen en el request

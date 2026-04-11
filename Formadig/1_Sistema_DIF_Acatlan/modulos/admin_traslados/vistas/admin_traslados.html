@@ -301,41 +301,12 @@
                                     <input type="text" id="paciente_curp" class="form-control" placeholder="--" style="border-color: #e2e8f0; font-family: monospace; letter-spacing: 0.5px;">
                                 </div>
                             </div>
-                            <div style="margin-top: 1rem;">
-                                <div class="form-group">
-                                    <label class="form-label" for="clave_elector">Clave de Elector (INE)</label>
-                                    <input type="text" id="clave_elector" class="form-control" placeholder="--" style="border-color: #e2e8f0; font-family: monospace; letter-spacing: 0.5px;">
-                                </div>
-                            </div>
                         </div>
 
-                        <!-- Sección 2: Datos Personales -->
+                        <!-- Sección 2: Datos Personales (Simplificada) -->
                         <div class="form-section-container" style="border-left: 3px solid #3b82f6;">
-                            <h4 class="section-header" style="color: #1e40af;">👤 DATOS PERSONALES</h4>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
-                                <div class="form-group">
-                                    <label class="form-label" for="apellidos">Apellidos</label>
-                                    <input type="text" id="apellidos" class="form-control" placeholder="--">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="paciente_nombre">Nombre(s)</label>
-                                    <input type="text" id="paciente_nombre" class="form-control" placeholder="--">
-                                </div>
-                            </div>
-                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem; margin-top:1rem;">
-                                <div class="form-group">
-                                    <label class="form-label">F. Nacimiento</label>
-                                    <input type="text" id="fecha_nacimiento" class="form-control" placeholder="--">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Sexo</label>
-                                    <input type="text" id="sexo" class="form-control" placeholder="--">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Edo. Civil</label>
-                                    <input type="text" id="estado_civil" class="form-control" placeholder="--">
-                                </div>
-                            </div>
+                            <h4 class="section-header" style="color: #1e40af;">👤 DATOS DEL PACIENTE (CAMPOS AUTO-LLENADOS)</h4>
+                            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">Estos campos se rellenan desde la solicitud aplicación móvil.</p>
                         </div>
 
                     </div>
@@ -346,8 +317,8 @@
                             <h4 class="section-header">📍 UBICACIÓN</h4>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                 <div class="form-group">
-                                    <label class="form-label" for="localidad">Localidad</label>
-                                    <input type="text" id="localidad" class="form-control" placeholder="--">
+                                    <label class="form-label" for="paciente_domicilio">Domicilio / Localidad</label>
+                                    <input type="text" id="paciente_domicilio" class="form-control" placeholder="--">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label" for="colonia">Colonia / Barrio</label>
@@ -370,33 +341,33 @@
                         <div class="form-section-container" style="border: 2px solid rgba(0, 118, 108, 0.1); background: rgba(0, 118, 108, 0.01);">
                             <h4 class="section-header">🚐 DETALLES DEL TRASLADO</h4>
                             <div class="form-group">
-                                <label class="form-label" for="destino">Institución Médica Destino</label>
-                                <input type="text" id="destino" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
+                                <label class="form-label" for="destino_hospital">Institución Médica Destino</label>
+                                <input type="text" id="destino_hospital" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
                             </div>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
                                 <div class="form-group">
-                                    <label class="form-label" for="tutor">Acompañante (Nombre)</label>
-                                    <input type="text" id="tutor" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
+                                    <label class="form-label" for="acompanante_nombre">Acompañante (Nombre)</label>
+                                    <input type="text" id="acompanante_nombre" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="acomp_curp">CURP Acompañante</label>
-                                    <input type="text" id="acomp_curp" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
+                                    <label class="form-label" for="acompanante_clave_elector">Clave de Elector Acompañante</label>
+                                    <input type="text" id="acompanante_clave_elector" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
                                 </div>
                             </div>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
-                                <div class="form-group">
+                                <div class="form-group" style="display:none;">
                                     <label class="form-label" for="acomp_sexo">Sexo Acompañante</label>
                                     <input type="text" id="acomp_sexo" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="telefono">Teléfono de Contacto</label>
-                                    <input type="text" id="telefono" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
+                                    <label class="form-label" for="telefono_principal">Teléfono de Contacto</label>
+                                    <input type="text" id="telefono_principal" class="form-control" placeholder="--" style="border-color: rgba(0, 118, 108, 0.2);">
                                 </div>
                             </div>
                             <div style="margin-top: 1rem;">
                                 <div class="form-group">
-                                    <label class="form-label" for="telefono_emergencia">📱 Teléfono de Emergencia</label>
-                                    <input type="text" id="telefono_emergencia" class="form-control" placeholder="--" style="border-color: #fed7aa; font-weight: 600;">
+                                    <label class="form-label" for="telefono_secundario">📱 Teléfono de Emergencia</label>
+                                    <input type="text" id="telefono_secundario" class="form-control" placeholder="--" style="border-color: #fed7aa; font-weight: 600;">
                                 </div>
                             </div>
                         </div>
@@ -407,12 +378,12 @@
                             </h4>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                 <div class="form-group">
-                                    <label class="form-label" for="cita_fecha" style="color: #166534;">Día de Salida *</label>
-                                    <input type="date" id="cita_fecha" class="form-control" required style="border-color: #bbf7d0;">
+                                    <label class="form-label" for="fecha_viaje" style="color: #166534;">Día de Salida *</label>
+                                    <input type="date" id="fecha_viaje" class="form-control" required style="border-color: #bbf7d0;">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label" for="cita_hora" style="color: #166534;">Hora Salida *</label>
-                                    <input type="time" id="cita_hora" class="form-control" required style="border-color: #bbf7d0;">
+                                    <label class="form-label" for="hora_cita" style="color: #166534;">Hora Salida *</label>
+                                    <input type="time" id="hora_cita" class="form-control" required style="border-color: #bbf7d0;">
                                 </div>
                             </div>
                             <div class="form-group" style="margin-top:1rem">

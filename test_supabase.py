@@ -1,6 +1,7 @@
 import sys
 import json
 import traceback
+import os
 
 try:
     from supabase import create_client, Client
@@ -8,8 +9,8 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     sys.exit(1)
 
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)

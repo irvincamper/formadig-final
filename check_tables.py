@@ -1,7 +1,8 @@
+import os
 from supabase import create_client
 
-url = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-key = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+url = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
+key = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 supabase = create_client(url, key)
 
 tables_to_check = ["desayunos_sieb", "desayunos_eaeyd", "desayunos_frios", "desayunos_calientes", "eaeyd", "espacios_eaeyd"]

@@ -1,4 +1,5 @@
 import sys
+import os
 # Set encoding to utf-8 just in case
 if sys.stdout.encoding != 'utf-8':
     import io
@@ -7,8 +8,8 @@ if sys.stdout.encoding != 'utf-8':
 from supabase import create_client, Client
 import json
 
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 
 def main():
     try:
