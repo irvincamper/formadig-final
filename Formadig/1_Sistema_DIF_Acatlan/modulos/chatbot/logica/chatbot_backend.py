@@ -27,9 +27,9 @@ app = Flask(__name__)
 CORS(app)
 
 # Credenciales Supabase (desde environment variables SOLAMENTE para producción)
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD1FhiP8ZdGIpwPdHz3NMFHFWASea1xGUo")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
 
 
