@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 import os
+import requests
+import base64
 
-# Lógica de Backend de Python - Espacios EAEyD (V8: FINAL ROBUST FIX)
+# Lógica de Backend de Python - Espacios EAEyD (ROBUSTO CON JWT)
 app = Flask(__name__)
 CORS(app)
 
@@ -83,30 +85,36 @@ def obtener_registros():
 
 @app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def dictamen_registro(record_id):
+    """
+    Endpoint PUT/PATCH robusto para actualizar espacios EAEyD.
+    Maneja JWT correctamente para pasar RLS.
+    """
     data = request.json
     if not data:
         return jsonify({"error": "No hay datos para actualizar"}), 400
     
     try:
-        # BÚSQUEDA DEL REGISTRO
+        # Determinar tabla y columna de ID
         target_table = None
         id_col = None
+        
         for table in ['desayunos_eaeyd', 'espacios_eaeyd']:
-            for col in ['Identificación', 'id', 'uuid']:
+            for col in ['id', 'uuid', 'Identificación']:
                 try:
-                    check = global_client.table(table).select('*').eq(col, record_id).execute()
+                    check = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
                     if check.data:
-                        target_table = table; id_col = col; break
-                except: continue
-            if target_table: break
+                        target_table = table
+                        id_col = col
+                        break
+                except:
+                    continue
+            if target_table:
+                break
         
         if not target_table:
-            return jsonify({"error": "No se encontró el registro"}), 404
+            return jsonify({"error": "No se encontró el registro para actualizar"}), 404
 
-        # Construir el objeto de actualización basado en lo recibido
-        update_payload = {}
-        
-        # Mapeo de campos comunes (JS -> DB)
+        # Mapeo de campos (Frontend -> DB)
         field_mapping = {
             "nombre_beneficiario": "nombres",
             "nombres": "nombres",
@@ -127,9 +135,17 @@ def dictamen_registro(record_id):
             "clave_elector_tutor": "ine_tutor",
             "telefono": "tutor_telefono",
             "escuela": "escuela",
-            "estatus": "estatus"
+            "estatus": "estatus",
+            # CAMPOS DE ARCHIVOS (URL)
+            "url_curp": "url_curp",
+            "url_comprobante_salud": "url_comprobante_salud",
+            "url_ine_tutor": "url_ine_tutor",
+            "url_comprobante_domicilio": "url_comprobante_domicilio",
+            "url_foto_infante": "url_foto_infante"
         }
 
+        # Construir payload de actualización
+        update_payload = {}
         for frontend_key, db_key in field_mapping.items():
             if frontend_key in data:
                 update_payload[db_key] = data[frontend_key]
@@ -140,12 +156,53 @@ def dictamen_registro(record_id):
         if not update_payload:
             return jsonify({"error": "No se enviaron campos válidos para actualizar"}), 400
 
-        # ACTUALIZACIÓN EN SUPABASE
-        res = global_client.table(target_table).update(update_payload).eq(id_col, record_id).execute()
+        # --- MÉTODO ROBUSTO: Usar requests.patch() con JWT para pasar RLS ---
+        auth_header = request.headers.get('Authorization')
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
+        
+        if auth_header and auth_header.startswith('Bearer '):
+            headers["Authorization"] = auth_header
+            # Extraer UUID del token JWT para inyectar en el registro
+            try:
+                token = auth_header.split(' ')[1]
+                payload = token.split('.')[1]
+                pad = '=' * (-len(payload) % 4)
+                decoded = json.loads(base64.b64decode(payload + pad).decode('utf-8'))
+                admin_uuid = decoded.get('sub')
+                
+                # Pre-patch para asignar usuario si no existe
+                url_get = f"{SUPABASE_URL}/rest/v1/{target_table}?select={id_col}&{id_col}=eq.{record_id}"
+                rg = requests.get(url_get, headers={"apikey": SUPABASE_KEY, "Authorization": auth_header})
+                if rg.status_code == 200 and rg.json():
+                    if not rg.json()[0].get('usuario_admin'):
+                        url_patch = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
+                        requests.patch(url_patch, json={'usuario_admin': admin_uuid}, headers=headers, proxies={"http": None, "https": None})
+            except Exception as e:
+                print(f"⚠️ Advertencia parseando JWT: {e}")
+        else:
+            headers["Authorization"] = f"Bearer {SUPABASE_KEY}"  # Fallback
+
+        # Ejecutar PATCH manual a REST API
+        url = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
+        r = requests.patch(url, json=update_payload, headers=headers, proxies={"http": None, "https": None})
+        
+        if r.status_code >= 400:
+            print(f"❌ Supabase error: {r.text}")
+            return jsonify({"error": f"Supabase rechazó la operación: {r.text}"}), r.status_code
+
+        res_data = r.json()
+        if not res_data:
+            return jsonify({"error": "❌ Registro no actualizado. RLS activo o registro no encontrado"}), 404
             
-        return jsonify({"message": "¡Cambios guardados exitosamente!", "data": res.data}), 200
+        print(f"✅ EAEyD {record_id} actualizado en {target_table}")
+        return jsonify({"message": "¡Cambios guardados exitosamente!", "data": res_data[0] if res_data else {}}), 200
+        
     except Exception as e:
-        print(f"Error en PUT: {e}")
+        print(f"❌ Error crítico en PUT: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
