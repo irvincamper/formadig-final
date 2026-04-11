@@ -12,8 +12,8 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "Formadig", "1_Sistema_DIF_Acatlan")
 MODULOS_DIR = os.path.join(FRONTEND_DIR, "modulos")
 
 # Puerto: Lee de variable de entorno (Render asigna PORT automáticamente)
-# Default 5000 para desarrollo local
-PORT = int(os.getenv("PORT", 5000))
+# Default 10000 para Render, o 5000 para desarrollo local
+PORT = int(os.getenv("PORT", 10000))
 
 
 # ========================================
@@ -113,14 +113,14 @@ if __name__ == "__main__":
     print("=" * 60)
     print("FORMADIG - Sistema de Gestión DIF Acatlán")
     print("=" * 60)
-    print(f"Iniciando servidor en http://localhost:{PORT}")
+    print(f"Iniciando servidor en http://0.0.0.0:{PORT}")
     print(f"Estáticos servidos desde: {FRONTEND_DIR}")
     print(f"Backends montados: {list(backends_mounted.keys())}")
     print("Presiona Ctrl+C para detener.")
     print("=" * 60)
     
     run_simple(
-        "127.0.0.1",
+        "0.0.0.0",
         PORT,
         app,
         use_debugger=True,
