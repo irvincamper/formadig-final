@@ -103,6 +103,27 @@ def nuevo_registro():
         print(f"❌ Error al guardar traslado: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/<string:record_id>', methods=['GET'])
+def obtener_traslado(record_id):
+    """Obtener UN traslado específico por ID"""
+    if not supabase:
+        return jsonify({"error": "Supabase no configurado"}), 500
+    
+    try:
+        target_id = int(record_id) if record_id.isdigit() else record_id
+        res = supabase.table('traslados').select('*').eq('id', target_id).execute()
+        
+        if not res.data:
+            return jsonify({"error": f"Traslado con ID {record_id} no encontrado"}), 404
+        
+        traslado = res.data[0]
+        print(f"📍 GET /api/traslados/{record_id} → Traslado cargado: {traslado.get('paciente_nombre', 'N/A')}")
+        
+        return jsonify(traslado), 200
+    except Exception as e:
+        print(f"❌ Error al obtener traslado {record_id}: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def actualizar_traslado(record_id):
     if not supabase:

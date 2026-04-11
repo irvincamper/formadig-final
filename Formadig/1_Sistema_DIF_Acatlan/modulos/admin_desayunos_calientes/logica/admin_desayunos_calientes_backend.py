@@ -86,6 +86,63 @@ def obtener_registros():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/<string:record_id>', methods=['GET'])
+def obtener_desayuno(record_id):
+    """Obtener UN desayuno específico por ID"""
+    try:
+        # Buscar en múltiples tablas y columnas como hace el PUT
+        for table in ['desayunos_calientes', 'desayunos_eaeyd']:
+            for col in ['id', 'uuid', 'Identificación']:
+                try:
+                    res = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
+                    if res.data:
+                        r = res.data[0]
+                        print(f"📍 GET /api/desayunos_calientes/{record_id} → Encontrado en {table}")
+                        
+                        # Mapeo idéntico al GET /
+                        nombre = r.get('nombres') or r.get('nombre') or ''
+                        apell = r.get('apellidos') or r.get('apellido') or ''
+                        nombre_completo = f"{nombre} {apell}".strip()
+                        if not nombre_completo:
+                            nombre_completo = r.get('bordillo') or r.get('curp') or 'S/N'
+                        
+                        return jsonify({
+                            "id": str(r.get('Identificación') or r.get('id') or r.get('uuid')),
+                            "nombre_beneficiario": nombre_completo,
+                            "nombres": nombre,
+                            "apellidos": apell,
+                            "curp": r.get('curp') or r.get('bordillo'),
+                            "fecha_nacimiento": r.get('fecha_nacimiento') or r.get('nacimiento'),
+                            "sexo": r.get('sexo') or r.get('genero'),
+                            "estado_civil": r.get('estado_civil') or 'Soltero(a)',
+                            "peso_menor": r.get('peso_menor') or r.get('peso'),
+                            "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
+                            "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
+                            "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
+                            "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
+                            "localidad": r.get('localidad') or r.get('comunidad'),
+                            "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
+                            "cp": r.get('cp') or r.get('codigo_postal'),
+                            "referencias": r.get('referencias') or r.get('vialidades'),
+                            "tutor": r.get('tutor_nombre') or r.get('tutor'),
+                            "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector'),
+                            "telefono": r.get('telefono') or r.get('celular'),
+                            "url_curp": r.get('url_curp') or r.get('url_doc_curp'),
+                            "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud'),
+                            "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor'),
+                            "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
+                            "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante'),
+                            "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
+                            "estatus": r.get('estatus') or 'Pendiente'
+                        }), 200
+                except:
+                    continue
+        
+        return jsonify({"error": f"Desayuno con ID {record_id} no encontrado"}), 404
+    except Exception as e:
+        print(f"❌ Error en GET /{record_id}: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def dictamen_registro(record_id):
     """

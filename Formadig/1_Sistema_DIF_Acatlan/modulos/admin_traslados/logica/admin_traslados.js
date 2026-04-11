@@ -9,6 +9,17 @@ function formatearFecha(fechaString) {
     return `${dia}/${mes}/${año}`;
 }
 
+// ========== FUNCIÓN GLOBAL: Llenar valores de forma ==========
+function setValue(fieldId, fieldValue) {
+    const element = document.getElementById(fieldId);
+    if (element) {
+        element.value = fieldValue || '';
+        console.log(`   ✓ ${fieldId} = "${fieldValue}"`);
+    } else {
+        console.warn(`   ⚠️ Campo no encontrado: ${fieldId}`);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificación de sesión y Setup Header
     const session = Auth.checkSession();
@@ -32,8 +43,53 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSelectedId = null;
 
 
-    // 2. Cargar datos iniciales
-    cargarTraslados();
+    // 2. Cargar datos iniciales - Con autollenado por URL param
+    async function autollenarPorFolio() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const folioId = urlParams.get('id');
+        
+        if (folioId) {
+            console.log("🔍 Detectado ID en URL:", folioId);
+            try {
+                const response = await fetch(`/api/traslados/${folioId}`);
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                
+                const data = await response.json();
+                console.log("📡 Datos cargados del folio:", data);
+                console.log("📝 Llenando formulario con campos:");
+                
+                // Usar la función global setValue para llenar todos los campos
+                setValue('paciente_curp', data.paciente_curp);
+                setValue('paciente_nombre', data.paciente_nombre);
+                setValue('paciente_edad', data.paciente_edad);
+                setValue('localidad', data.paciente_localidad || data.localidad);
+                setValue('colonia', data.paciente_colonia || data.colonia);
+                setValue('tipo_asentamiento', data.paciente_tipo_asentamiento || data.tipo_asentamiento);
+                setValue('cp', data.paciente_cp || data.cp);
+                setValue('paciente_domicilio', data.paciente_domicilio);
+                setValue('referencias', data.paciente_referencias || data.referencias);
+                setValue('destino_hospital', data.destino_hospital);
+                setValue('acompanante_nombre', data.acompanante_nombre);
+                setValue('acompanante_clave_elector', data.acompanante_clave_elector);
+                setValue('telefono_principal', data.telefono_principal);
+                setValue('telefono_secundario', data.telefono_secundario);
+                setValue('fecha_viaje', data.fecha_viaje);
+                setValue('hora_cita', data.hora_cita);
+                setValue('lugares_requeridos', data.lugares_requeridos);
+                
+                currentSelectedId = data.id;
+                console.log("✅ Formulario poblado automáticamente desde URL");
+            } catch (error) {
+                console.error("❌ Error cargando folio desde URL:", error);
+                cargarTraslados();
+            }
+        } else {
+            // Si no hay ID en URL, cargar lista normal
+            cargarTraslados();
+        }
+    }
+    
+    autollenarPorFolio();
 
     // ========================================================================
     // FUNCIÓN: Obtener colonias por Código Postal
