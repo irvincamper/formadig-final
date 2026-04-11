@@ -10,6 +10,7 @@ from werkzeug.serving import run_simple
 # ========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "Formadig", "1_Sistema_DIF_Acatlan")
+MODULOS_DIR = os.path.join(FRONTEND_DIR, "modulos")
 PORT = int(os.getenv("PORT", 10000))
 
 print("\n" + "=" * 80)
@@ -48,91 +49,83 @@ print("[OK] ✅ Frontend app creado")
 
 
 # ========================================
-# 2. IMPORTAR BACKEND (Login)
+# 2. CARGAR BACKENDS MODULARES
 # ========================================
-print("[STEP 2/3] Importando Backend de Login...")
+print("\n[STEP 2/3] Cargando backends de módulos...")
 
-backend_app = None
-backend_path = os.path.join(FRONTEND_DIR, "modulos", "login", "logica", "login_backend.py")
-print(f"[DEBUG] Ruta del backend: {backend_path}")
-print(f"[DEBUG] ¿Existe? {os.path.exists(backend_path)}")
+def cargar_backend(nombre, ruta_relativa):
+    """Carga un backend usando importlib"""
+    ruta_completa = os.path.join(MODULOS_DIR, ruta_relativa)
+    
+    if not os.path.exists(ruta_completa):
+        print(f"  ⚠️  {nombre}: archivo no encontrado ({ruta_completa})")
+        return None
+    
+    try:
+        spec = importlib.util.spec_from_file_location(f"backend_{nombre}", ruta_completa)
+        if spec is None or spec.loader is None:
+            return None
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[f"backend_{nombre}"] = module
+        spec.loader.exec_module(module)
+        app_obj = getattr(module, 'app', None)
+        if app_obj:
+            print(f"  ✅ {nombre} cargado → {ruta_relativa}")
+            return app_obj
+        else:
+            print(f"  ❌ {nombre}: no tiene objeto 'app'")
+            return None
+    except Exception as e:
+        print(f"  ❌ {nombre}: {type(e).__name__}: {str(e)[:50]}")
+        return None
 
-try:
-    # La carpeta comienza con número, así que usamos importlib
-    spec = importlib.util.spec_from_file_location("login_backend", backend_path)
-    
-    if spec is None:
-        print("[ERROR] ❌ spec es None")
-        raise Exception("No se pudo crear la especificación del módulo")
-    
-    if spec.loader is None:
-        print("[ERROR] ❌ spec.loader es None")
-        raise Exception("spec.loader es None")
-    
-    module = importlib.util.module_from_spec(spec)
-    sys.modules['login_backend'] = module
-    spec.loader.exec_module(module)
-    print("[OK] ✅ Módulo ejecutado")
-    
-    backend_app = getattr(module, 'app', None)
-    
-    if backend_app:
-        print("[OK] ✅ Backend importado correctamente")
-        print(f"[OK]    Tipo: {type(backend_app)}")
-        print(f"[OK]    Rutas del backend: {list(backend_app.url_map.iter_rules())[:5]}")
-    else:
-        print("[ERROR] ❌ Backend no tiene atributo 'app'")
-        print(f"[DEBUG] Atributos del módulo: {[a for a in dir(module) if not a.startswith('_')][:10]}")
-        
-except FileNotFoundError as fnf:
-    print(f"[ERROR] ❌ Archivo no encontrado: {fnf}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
-except ImportError as ie:
-    print(f"[ERROR] ❌ Import error: {ie}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
-except Exception as e:
-    print(f"[ERROR] ❌ Error: {type(e).__name__}: {e}")
-    print("[WARN] Continuando en modo FRONTEND-ONLY")
-    import traceback
-    traceback.print_exc()
+# Diccionario de backends a cargar
+backends_config = {
+    "login": ("login/logica/login_backend.py", "/api"),
+    "chatbot": ("chatbot/logica/chatbot_backend.py", "/api/chatbot"),
+    "traslados": ("admin_traslados/logica/admin_traslados_backend.py", "/api/traslados"),
+    "desayunos_frios": ("admin_desayunos_frios/logica/admin_desayunos_frios_backend.py", "/api/desayunos_frios"),
+    "desayunos_calientes": ("admin_desayunos_calientes/logica/admin_desayunos_calientes_backend.py", "/api/desayunos_calientes"),
+    "espacios_eaeyd": ("admin_espacios_eaeyd/logica/admin_espacios_eaeyd_backend.py", "/api/espacios_eaeyd"),
+    "sms": ("sms/logica/sms_backend.py", "/api/sms"),
+}
+
+# Cargar backends
+dispatcher_dict = {}
+backends_activos = []
+
+for nombre, (ruta, prefijo) in backends_config.items():
+    app_backend = cargar_backend(nombre, ruta)
+    if app_backend:
+        dispatcher_dict[prefijo] = app_backend
+        backends_activos.append(nombre)
+
+print(f"\n  Total cargado: {len(backends_activos)}/{len(backends_config)}")
+if backends_activos:
+    print(f"  Backends: {', '.join(backends_activos)}")
 
 
 # ========================================
 # 3. CONSTRUIR APP WSGI CON DISPATCHER
 # ========================================
-print("[STEP 3/3] Construyendo app WSGI con DispatcherMiddleware...")
+print("\n[STEP 3/3] Construyendo app WSGI con DispatcherMiddleware...")
 
-if backend_app is not None:
-    print(f"[OK] Backend app cargado. Montando en ruta /api...")
-    
-    # Montar el backend en /api
-    # Rutas: /api/auth/login, /api/auth/register, etc.
-    app = DispatcherMiddleware(front_app, {
-        '/api': backend_app
-    })
+if dispatcher_dict:
+    app = DispatcherMiddleware(front_app, dispatcher_dict)
     print("[OK] ✅ DispatcherMiddleware configurado:")
-    print("    - '/'    → Frontend (estáticos)")
-    print("    - '/api' → Backend (autenticación)")
-    print(f"[DEBUG] Type de app: {type(app)}")
-    print(f"[DEBUG] App es: {app}")
+    print("     - '/'  → Frontend")
+    for ruta in dispatcher_dict.keys():
+        print(f"     - '{ruta}' → Backend")
 else:
-    print(f"[WARN] ⚠️  Backend NO se cargó")
-    print(f"[WARN] Operando en modo FRONTEND-ONLY (sin backend)")
-    print(f"[WARN] Las rutas /api/* no estarán disponibles")
+    print("[WARN] ⚠️  NO hay backends. Modo FRONTEND-ONLY")
     app = front_app
-    print(f"[DEBUG] Usando solo front_app")
 
-# VALIDACIÓN
 if app is None:
     print("[FATAL] ❌ ERROR: app es None")
     sys.exit(1)
 
 print("\n[OK] ✅ Variable 'app' lista para Gunicorn")
-print("=" * 80)
+print("=" * 80 + "\n")
 
 # ========================================
 # DESARROLLO LOCAL

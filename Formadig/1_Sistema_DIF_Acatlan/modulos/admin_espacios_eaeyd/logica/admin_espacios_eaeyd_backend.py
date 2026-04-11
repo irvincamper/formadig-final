@@ -17,7 +17,7 @@ SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
 SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@app.route('/api/espacios_eaeyd', methods=['GET'])
+@app.route('/', methods=['GET'])
 def obtener_registros():
     try:
         candidate_tables = ['desayunos_eaeyd', 'espacios_eaeyd']
@@ -81,7 +81,7 @@ def obtener_registros():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/espacios_eaeyd/<string:record_id>', methods=['PUT', 'PATCH'])
+@app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def dictamen_registro(record_id):
     data = request.json
     if not data:

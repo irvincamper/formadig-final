@@ -23,7 +23,7 @@ except Exception as e:
     print(f"ATENCIÓN: Error conectando a Supabase: {e}")
     supabase = None
 
-@app.route('/api/traslados', methods=['GET'])
+@app.route('/', methods=['GET'])
 def obtener_registros():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -87,7 +87,7 @@ def obtener_registros():
         print(f"❌ Error al obtener traslados: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/traslados', methods=['POST'])
+@app.route('/', methods=['POST'])
 def nuevo_registro():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -118,7 +118,7 @@ def nuevo_registro():
         print(f"❌ Error al guardar traslado: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/traslados/<string:record_id>', methods=['PUT', 'PATCH'])
+@app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def actualizar_traslado(record_id):
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500

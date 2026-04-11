@@ -22,7 +22,7 @@ app = Flask(__name__)
 if CORS:
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
-@app.route('/api/sms/ping', methods=['GET'])
+@app.route('/ping', methods=['GET'])
 def ping():
     return jsonify({
         "status": "online",
@@ -48,7 +48,7 @@ except Exception as e:
     print(f"Error Supabase: {e}")
     supabase = None
 
-@app.route('/api/sms/send', methods=['POST'])
+@app.route('/send', methods=['POST'])
 def send_sms():
     data = request.json
     phone = data.get('phone')
@@ -116,7 +116,7 @@ def send_sms():
         "error": error_msg
     })
 
-@app.route('/api/sms/history', methods=['GET'])
+@app.route('/history', methods=['GET'])
 def get_history():
     if not supabase:
         return jsonify({"error": "Sin conexión a DB"}), 500
@@ -127,7 +127,7 @@ def get_history():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/sms/webhook', methods=['POST'])
+@app.route('/webhook', methods=['POST'])
 def sms_webhook():
     incoming_msg = request.values.get('Body', '').strip().upper()
     sender_phone = request.values.get('From', '') # p.ej. +52775...
