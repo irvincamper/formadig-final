@@ -1,0 +1,217 @@
+/* admin_desayunos_calientes.css – Paleta Institucional DIF Acatlán */
+/* Las variables de color se definen globalmente en main.css */
+
+/* ── Base ─────────────────────────────────────────────────── */
+body {
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg-body);
+    color: var(--color-text-main);
+}
+
+/* ── Header del módulo ────────────────────────────────────── */
+header {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.header-logo {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+header h1 { margin: 0; font-size: 2rem; }
+header p  { margin: 0.5rem 0 0; opacity: 0.8; }
+
+/* ── Layout ───────────────────────────────────────────────── */
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+section {
+    background: var(--color-surface);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+h2 {
+    margin-top: 0;
+    color: var(--color-primary-dark);
+    border-bottom: 2px solid var(--color-primary-light);
+    padding-bottom: 0.5rem;
+}
+
+/* ── Info panel ───────────────────────────────────────────── */
+.info-panel {
+    background-color: rgba(0, 118, 108, 0.06);
+    border-left: 5px solid var(--color-primary);
+}
+.info-panel h2 {
+    color: var(--color-primary-dark);
+    border-bottom: none;
+}
+
+/* ── Form ─────────────────────────────────────────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group { display: flex; flex-direction: column; }
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.form-group input {
+    padding: 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--color-text-main);
+    font-family: var(--font-main);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.15);
+}
+
+/* ── Docs section ─────────────────────────────────────────── */
+.docs-section {
+    background: var(--color-bg-body);
+    padding: 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.doc-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--color-surface);
+    padding: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.doc-item:hover { border-color: var(--color-primary-light); }
+.doc-item input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+
+/* ── Actions & Buttons ─────────────────────────────────────── */
+.form-actions { display: flex; justify-content: flex-end; }
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--border-radius);
+    font-family: var(--font-main);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: 0 2px 6px rgba(0, 77, 64, 0.3);
+    transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(1px); }
+
+/* ── Record cards ─────────────────────────────────────────── */
+.records-list .record-card {
+    background: var(--color-bg-body);
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--color-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.record-card p  { margin: 0; font-size: 0.9rem; color: var(--color-text-muted); }
+
+/* ── Badge ────────────────────────────────────────────────── */
+.badge {
+    background: var(--color-success);
+    color: white;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ── Section title ────────────────────────────────────────── */
+.section-title {
+    grid-column: 1 / -1;
+    font-size: 1.1rem;
+    color: var(--color-primary-dark);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Checkbox group ───────────────────────────────────────── */
+.checkbox-group label { font-weight: normal; font-size: 0.9rem; }
+.checkbox-group input { width: 1.2rem; height: 1.2rem; }
+
+/* ── Messages ─────────────────────────────────────────────── */
+.message {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.message.success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border-color: #9ae6b4;
+}
+.message.error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border-color: #feb2b2;
+}
+
+.hidden { display: none; }
+
+@media (max-width: 600px) {
+    .form-grid  { grid-template-columns: 1fr; }
+    .checklist  { grid-template-columns: 1fr; }
+}

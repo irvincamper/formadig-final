@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión DIF Acatlán</title>
+    <!-- Estándar W3C para HTML5 -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/modules.css">
+    <!-- Google Fonts para tipografía legible -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="body">
+    <!-- Header simulando navegación sin login -->
+    <header class="header">
+        <div class="header__logo">
+            <h1 class="header__title">DIF Municipal Acatlán</h1>
+        </div>
+        <nav class="header__nav">
+            <span class="header__user-label">Perfil actual:</span>
+            <select id="profileSelector" class="header__selector">
+                <option value="admin">Administrativo</option>
+                <option value="nutrition">Nutrición</option>
+            </select>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- Módulo Administrativo: Expediente Digital -->
+        <section id="adminView" class="view view--active">
+            <h2 class="view__title">Gestión de Expedientes</h2>
+            
+            <div class="card">
+                <h3 class="card__title">Registro de Beneficiarios</h3>
+                <form id="beneficiaryForm" class="form" novalidate>
+                    <div class="form__group">
+                        <label for="fullName" class="form__label">Nombre Completo <span class="text-error">*</span></label>
+                        <input type="text" id="fullName" class="form__input" required>
+                        <span class="form__error" id="fullNameError">Este campo es obligatorio</span>
+                    </div>
+                    
+                    <div class="form__group-row">
+                        <div class="form__group form__group--half">
+                            <label for="curp" class="form__label">CURP <span class="text-error">*</span></label>
+                            <input type="text" id="curp" class="form__input" placeholder="18 caracteres alfanuméricos" maxlength="18" required>
+                            <span class="form__error" id="curpError">Formato de CURP inválido (18 caracteres resueltos)</span>
+                        </div>
+                        <div class="form__group form__group--half">
+                            <label for="birthDate" class="form__label">Fecha de Nacimiento <span class="text-error">*</span></label>
+                            <input type="date" id="birthDate" class="form__input" required>
+                            <span class="form__error" id="dateError">Fecha de nacimiento no válida</span>
+                        </div>
+                    </div>
+
+                    <div class="form__actions">
+                        <button type="submit" class="button button--primary">Registrar Expediente</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla Interactiva -->
+            <div class="card card--margin-top">
+                <h3 class="card__title">Directorio de Beneficiarios</h3>
+                
+                <div class="table-controls">
+                    <input type="text" id="searchBeneficiary" class="form__input form__input--search" placeholder="🔍 Buscar por nombre o CURP...">
+                    <select id="filterStatus" class="form__input form__input--select">
+                        <option value="all">Todos los estatus</option>
+                        <option value="Activo">Activos</option>
+                        <option value="Inactivo">Inactivos</option>
+                    </select>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table" id="beneficiariesTable">
+                        <thead class="table__head">
+                            <tr>
+                                <th class="table__th">ID</th>
+                                <th class="table__th">Nombre</th>
+                                <th class="table__th">CURP</th>
+                                <th class="table__th">Fecha Nac.</th>
+                                <th class="table__th">Estatus</th>
+                                <th class="table__th">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table__body">
+                            <!-- Populated by JavaScript/TypeScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo de Nutrición: Gestión de Programas -->
+        <section id="nutritionView" class="view">
+            <h2 class="view__title">Seguimiento Nutricional</h2>
+            
+            <div class="card">
+                <h3 class="card__title">Captura Antropométrica</h3>
+                <form id="nutritionForm" class="form" novalidate>
+                    <div class="form__group">
+                        <label for="nutriBeneficiary" class="form__label">Beneficiario <span class="text-error">*</span></label>
+                        <select id="nutriBeneficiary" class="form__input" required>
+                            <option value="">-- Seleccione un beneficiario --</option>
+                            <!-- Populated by JavaScript/TypeScript -->
+                        </select>
+                        <span class="form__error" id="nutriBeneficiaryError">Seleccione un beneficiario</span>
+                    </div>
+                    
+                    <div class="form__group-row">
+                        <div class="form__group form__group--half">
+                            <label for="weight" class="form__label">Peso (kg) <span class="text-error">*</span></label>
+                            <input type="number" id="weight" class="form__input" step="0.1" min="1" max="300" placeholder="Ej. 65.5" required>
+                            <span class="form__error" id="weightError">Peso inválido</span>
+                        </div>
+                        <div class="form__group form__group--half">
+                            <label for="height" class="form__label">Talla (m) <span class="text-error">*</span></label>
+                            <input type="number" id="height" class="form__input" step="0.01" min="0.4" max="2.5" placeholder="Ej. 1.70" required>
+                            <span class="form__error" id="heightError">Talla inválida</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form__actions">
+                        <button type="submit" class="button button--secondary">Calcular IMC y Registrar</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Panel de Resultados Nutricionales -->
+            <div class="card card--margin-top">
+                <h3 class="card__title">Resumen y Alertas Nutricionales</h3>
+                <div id="nutritionAlerts" class="alerts-container">
+                    <p class="text-muted" id="emptyNutritionMsg">No hay evaluaciones recientes. Llene el formulario para generar una alerta nutricional.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts de la aplicación (Compilados desde TypeScript) -->
+    <script src="dist/core/security.js"></script>
+    <script src="dist/modules/admin/admin.js"></script>
+    <script src="dist/modules/nutrition/nutrition.js"></script>
+    
+    <!-- Script temporal para el switch de vistas sin recargar la página -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileSelector = document.getElementById('profileSelector');
+            const adminView = document.getElementById('adminView');
+            const nutritionView = document.getElementById('nutritionView');
+
+            profileSelector.addEventListener('change', (e) => {
+                const view = e.target.value;
+                if (view === 'admin') {
+                    adminView.classList.add('view--active');
+                    nutritionView.classList.remove('view--active');
+                } else {
+                    nutritionView.classList.add('view--active');
+                    adminView.classList.remove('view--active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

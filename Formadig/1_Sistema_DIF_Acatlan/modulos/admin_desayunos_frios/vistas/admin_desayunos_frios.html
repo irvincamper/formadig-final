@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desayunos Fríos - Admin - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/main.css?v=99">
+    <link rel="stylesheet" href="../../../css/modules.css?v=99">
+    <link rel="stylesheet" href="../../../css/dashboard.css?v=99">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --premium-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            min-height: 100vh;
+        }
+
+        .workspace-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .premium-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--premium-shadow);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .premium-card:hover {
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .section-header {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: var(--color-primary-dark);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            opacity: 0.85;
+        }
+
+        .section-header::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(0, 118, 108, 0.2), transparent);
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 0.65rem 0.9rem;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.1);
+            outline: none;
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tr {
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .table tr:hover {
+            background: rgba(0, 118, 108, 0.04) !important;
+        }
+
+        /* Nueva Fila Base (reemplaza estilos inline de JS) */
+        .record-row {
+            background: white !important;
+            border-radius: 12px !important;
+            margin-bottom: 8px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 5px solid transparent !important;
+        }
+
+        .selected-row-v3 {
+            background: rgba(0, 118, 108, 0.1) !important;
+            border-left: 4px solid var(--color-primary) !important;
+            box-shadow: inset 0 0 0 1px rgba(0, 118, 108, 0.2);
+            position: relative;
+            z-index: 50;
+        }
+
+        /* Cabeceras de tabla fijas */
+
+        /* Cabeceras de tabla fijas */
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            z-index: 5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .editing-mode-title {
+            animation: highlightTitle 1.5s infinite alternate;
+            color: #f59e0b !important;
+        }
+
+        @keyframes highlightTitle {
+            from { text-shadow: 0 0 0px transparent; }
+            to { text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        }
+
+        .form-section-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.5rem;
+            align-items: flex-start; /* Changed from stretch to allow sticky */
+            flex: 1;
+            min-height: 0;
+        }
+
+        .sticky-panel {
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .view__header-compact {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 1.25rem; 
+            flex-wrap: wrap; 
+            gap: 1rem;
+        }
+        
+        .table th, .table td {
+            padding: 0.75rem !important;
+        }
+
+        /* Tabs setup */
+        .tabs-nav {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            background: rgba(0, 118, 108, 0.05);
+            padding: 0.3rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 118, 108, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            background: transparent;
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .selected-row {
+            background: rgba(0, 118, 108, 0.1) !important;
+            border-left: 4px solid var(--color-primary) !important;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .program-info-widget {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #005a52 100%);
+            color: white !important;
+            border-radius: 16px;
+            padding: 0.8rem 1.2rem;
+            box-shadow: 0 10px 20px rgba(0, 118, 108, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .selected-row {
+            background: rgba(0, 118, 108, 0.1) !important;
+            border-left: 4px solid var(--color-primary) !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header"><!-- Inyectado por UI.setupHeader --></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="workspace-content">
+        <div class="view__header-compact">
+            <div class="view__header" style="margin:0; padding:0; border:none;">
+                <a href="../../../dashboard.html" class="button button--secondary" style="margin-bottom: 0.5rem; padding: 0.4rem 1rem; font-size: 0.8rem; display: inline-block;">← Volver al Panel</a>
+                <h2 class="view__title" style="font-size: 1.75rem; font-weight: 800; color: #1e293b; margin:0;">Desayunos Fríos</h2>
+                <p class="text-muted" style="margin-top: 0.25rem; color: #64748b; font-size: 0.85rem;">Distribución de apoyos alimentarios en centros escolares.</p>
+            </div>
+            
+            <div class="program-info-widget">
+                <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">🥛</div>
+                <div>
+                    <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; opacity: 0.8; margin-bottom: 0.1rem;">Meta Mensual</div>
+                    <div style="font-size: 1.25rem; font-weight: 800;">1,250 DOTACIONES</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- Columna Izquierda: Procesar Solicitud Móvil (Panel Fijo) -->
+            <section class="premium-card sticky-panel">
+                <header style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 id="formTitle" style="font-size: 1.25rem; font-weight: 700; color:var(--color-primary); margin:0;">Revisión de Expediente</h3>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">Validación de datos socioeconómicos.</p>
+                    </div>
+                    <!-- Controles de Navegación tipo Carrusel -->
+                    <div id="navCarousel" style="display: none; align-items: center; gap: 0.75rem; background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <button type="button" id="btnPrevRec" class="nav-btn" style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer; color: #64748b; font-weight: 700;">←</button>
+                        <span id="navCounter" style="font-size: 0.75rem; font-weight: 700; color: #475569; min-width: 60px; text-align: center;">0 de 0</span>
+                        <button type="button" id="btnNextRec" class="nav-btn" style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer; color: #64748b; font-weight: 700;">→</button>
+                    </div>
+                </header>
+                
+                <form id="registroForm" novalidate>
+                    <!-- Sistema de Pestañas -->
+                    <div class="tabs-nav">
+                        <button type="button" class="tab-btn active" data-tab="tab-datos"><span>👶</span> <span>Datos</span></button>
+                        <button type="button" class="tab-btn" data-tab="tab-ubica"><span>📍</span> <span>Ubicación</span></button>
+                        <button type="button" class="tab-btn" data-tab="tab-dictamen"><span>✍️</span> <span>Dictamen</span></button>
+                        <button type="button" class="tab-btn" data-tab="tab-docs"><span>🗂️</span> <span>Docs</span></button>
+                    </div>
+
+                    <!-- Panel 1: Beneficiario (Niño/a) -->
+                    <div id="tab-datos" class="tab-panel active">
+
+                        <!-- Sección 1: Datos Generales del Beneficiario -->
+                        <div class="form-section-container" style="border-left: 3px solid #00766c;">
+                            <h4 class="section-header">👶 DATOS GENERALES DEL BENEFICIARIO (NIÑO/A)</h4>
+                            <div class="form-group">
+                                <label class="form-label" for="curp">CURP del Niño/a</label>
+                                <input type="text" id="curp" class="form-control" placeholder="--" style="border-color: #e2e8f0; font-family: monospace; letter-spacing: 0.5px;">
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="apellidos">Apellidos del Menor/Beneficiario</label>
+                                    <input type="text" id="apellidos" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="nombre_beneficiario">Nombre(s) del Menor/Beneficiario</label>
+                                    <input type="text" id="nombre_beneficiario" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">F. Nacimiento</label>
+                                    <input type="text" id="fecha_nacimiento" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sexo</label>
+                                    <input type="text" id="sexo" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Edo. Civil</label>
+                                    <input type="text" id="estado_civil" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 2: Datos de Salud -->
+                        <div class="form-section-container" style="border-left: 3px solid #ef4444;">
+                            <h4 class="section-header" style="color: #b91c1c;">❤️ DATOS DE SALUD (OBLIGATORIO)</h4>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="peso_menor">Peso del Menor (kg)</label>
+                                    <input type="text" id="peso_menor" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="estatura_menor">Estatura del Menor (cm)</label>
+                                    <input type="text" id="estatura_menor" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección 3: Información Socioeconómica -->
+                        <div class="form-section-container" style="border-left: 3px solid #f59e0b;">
+                            <h4 class="section-header" style="color: #92400e;">📊 INFORMACIÓN SOCIOECONÓMICA</h4>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="nivel_estudios">Nivel de Estudios del Tutor</label>
+                                    <input type="text" id="nivel_estudios" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="ingreso_mensual">Ingreso Familiar Mensual</label>
+                                    <input type="text" id="ingreso_mensual" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:1rem; display:flex; align-items:center; gap:0.75rem;">
+                                <input type="checkbox" id="situacion_vulnerabilidad" style="width:18px; height:18px; accent-color: #f59e0b;">
+                                <label for="situacion_vulnerabilidad" style="font-weight:500; color:#92400e; cursor: default;">¿Se encuentra en situación de vulnerabilidad?</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Panel 2: Ubicación y Tutor -->
+                    <div id="tab-ubica" class="tab-panel">
+                        <div class="form-section-container">
+                            <h4 class="section-header">📍 DOMICILIO DONDE RESIDE</h4>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="localidad">Localidad</label>
+                                    <input type="text" id="localidad" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="colonia">Colonia / Barrio</label>
+                                    <input type="text" id="colonia" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="tipo_asentamiento">Tipo de Asentamiento</label>
+                                    <input type="text" id="tipo_asentamiento" class="form-control" placeholder="--">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="cp">Código Postal</label>
+                                    <input type="text" id="cp" class="form-control" placeholder="--">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top:1rem;">
+                                <label class="form-label" for="referencias">Referencias (Vialidades)</label>
+                                <textarea id="referencias" class="form-control" placeholder="--" style="height: 80px; resize:none; font-size: 0.9rem;"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-section-container" style="border: 2px solid rgba(0, 118, 108, 0.1); background: rgba(0, 118, 108, 0.01);">
+                            <h4 class="section-header">👪 DATOS DEL TUTOR</h4>
+                            <div class="form-group">
+                                <label class="form-label" for="tutor">Nombre del Padre/Tutor</label>
+                                <input type="text" id="tutor" class="form-control" placeholder="--">
+                            </div>
+                            <div class="form-group" style="margin-top:1rem;">
+                                <label class="form-label" for="clave_elector_tutor">Clave de Elector (INE)</label>
+                                <input type="text" id="clave_elector_tutor" class="form-control" placeholder="--" style="font-family: monospace;">
+                            </div>
+                            <div class="form-group" style="margin-top:1rem;">
+                                <label class="form-label" for="telefono">Teléfono de Contacto</label>
+                                <input type="text" id="telefono" class="form-control" placeholder="--">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 4: Documentos (al final) -->
+                    <div id="tab-docs" class="tab-panel">
+                        <div style="margin-bottom: 1.25rem;">
+                            <h4 style="font-size:0.85rem; font-weight:700; letter-spacing:1px; color:#4338ca; text-transform:uppercase; display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+                                🗂️ DOCUMENTACIÓN DIGITAL
+                                <span style="flex:1; height:1px; background: linear-gradient(to right, rgba(99,102,241,0.3), transparent); display:block;"></span>
+                            </h4>
+                            <p style="font-size:0.85rem; color:#64748b; margin:0;">Archivos proporcionados desde la aplicación móvil.</p>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; min-height:130px; display:flex; flex-direction:column; gap:0.75rem;">
+                                <span style="font-size:0.72rem; font-weight:700; letter-spacing:1.2px; color:#64748b; text-transform:uppercase;">CURP DEL NIÑO/A</span>
+                                <div id="btnDocCurpCont"><span style="font-size:0.85rem; opacity:0.5;">No disponible</span></div>
+                            </div>
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; min-height:130px; display:flex; flex-direction:column; gap:0.75rem;">
+                                <span style="font-size:0.72rem; font-weight:700; letter-spacing:1.2px; color:#64748b; text-transform:uppercase;">COMPROBANTE DE SALUD</span>
+                                <div id="btnDocSaludCont"><span style="font-size:0.85rem; opacity:0.5;">No disponible</span></div>
+                            </div>
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; min-height:130px; display:flex; flex-direction:column; gap:0.75rem;">
+                                <span style="font-size:0.72rem; font-weight:700; letter-spacing:1.2px; color:#64748b; text-transform:uppercase;">INE DEL TUTOR</span>
+                                <div id="btnDocIneTutorCont"><span style="font-size:0.85rem; opacity:0.5;">No disponible</span></div>
+                            </div>
+                            <!-- Nuevos Documentos Solicitados -->
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; min-height:130px; display:flex; flex-direction:column; gap:0.75rem;">
+                                <span style="font-size:0.72rem; font-weight:700; letter-spacing:1.2px; color:#64748b; text-transform:uppercase;">FOTO DEL INFANTE</span>
+                                <div id="btnDocFotoInfanteCont"><span style="font-size:0.85rem; opacity:0.5;">No disponible</span></div>
+                            </div>
+                            <div style="background:white; border:1px solid #e2e8f0; border-radius:12px; padding:1.25rem; min-height:130px; display:flex; flex-direction:column; gap:0.75rem;">
+                                <span style="font-size:0.72rem; font-weight:700; letter-spacing:1.2px; color:#64748b; text-transform:uppercase;">COMPROBANTE DOMICILIO</span>
+                                <div id="btnDocCompDomCont"><span style="font-size:0.85rem; opacity:0.5;">No disponible</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-dictamen" class="tab-panel">
+                        <div id="asignacionBloque" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #166534; margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
+                                ✍️ DICTAMEN EDUCATIVO
+                            </h4>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="escuela" style="color: #166534;">Asignar Centro Escolar (Punto de Entrega) *</label>
+                                <input type="text" id="escuela" class="form-control" required placeholder="Ej. Primaria Benito Juárez" style="border-color: #bbf7d0;">
+                            </div>
+                            
+                            <div class="form-group" style="margin-top:1rem;">
+                                <label class="form-label" for="estatus" style="color: #166534;">Resolución *</label>
+                                <select id="estatus" class="form-control" required style="border-color: #bbf7d0;">
+                                    <option value="Aprobado">Aprobar y Alta en Padrón</option>
+                                    <option value="Lista de Espera">Mandar a Lista de Espera</option>
+                                    <option value="Rechazado">Denegar Solicitud</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="formMessage" class="hidden" style="margin-bottom:1rem;"></div>
+                        
+                        <button type="submit" class="button button--primary" style="width:100%; padding: 1.25rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,118,108,0.3);" disabled>Guardar Dictamen 🥛</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Columna Derecha: Tabla de Datos -->
+            <section class="premium-card">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color:var(--color-primary); margin:0;">Padrón de Beneficiarios</h3>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">Listado oficial de apoyos entregados.</p>
+                    </div>
+                    <div style="position:relative;">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Buscar beneficiario..." style="width: 250px; padding-left: 2.5rem;">
+                        <span style="position:absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.4;">🔍</span>
+                    </div>
+                </header>
+                
+                <div style="overflow-x: auto;">
+                    <table class="table" style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
+                        <thead>
+                            <tr style="background: transparent;">
+                                <th style="border:none; padding-bottom: 1rem;">Beneficiario</th>
+                                <th style="border:none; padding-bottom: 1rem;">Plantel Escolar</th>
+                                <th style="border:none; padding-bottom: 1rem;">Tutor</th>
+                                <th style="border:none; padding-bottom: 1rem;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaRegistros">
+                            <tr><td colspan="4" style="text-align:center; padding:3rem; opacity:0.6;">Cargando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        </div>
+    </main>
+
+    <script>
+        // Lógica de Pestañas (Tabs)
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+
+    <script src="../../../core/formadig-core.js?v=277"></script>
+    <script src="../logica/admin_desayunos_frios.js?v=123"></script>
+</body>
+</html>

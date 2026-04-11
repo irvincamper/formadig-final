@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../diseno/login.css?v=201">
+</head>
+<body class="login-page">
+    <div class="split-container">
+        <!-- Lado Izquierdo: Ilustración y Marca -->
+        <div class="illustration-side">
+            <div class="illustration-overlay"></div>
+            <div class="brand-content">
+                <h1 class="brand-title">FORMADIG</h1>
+                <p class="brand-subtitle">Tecnología al Servicio de la Comunidad</p>
+            </div>
+            <div class="illustration-image" style="background-image: url('../recursos/login_illustration.png');"></div>
+        </div>
+
+        <!-- Lado Derecho: Formulario -->
+        <div class="form-side">
+            <div class="login-card">
+                <div class="login-card__header">
+                    <h2>Bienvenido de nuevo</h2>
+                    <p>Por favor, ingresa tus credenciales para acceder</p>
+                </div>
+
+                <form id="loginForm" class="modern-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Correo Institucional</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">✉️</span>
+                            <input type="email" id="loginEmail" placeholder="usuario@dif.gob.mx" required autocomplete="email">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                            <button type="button" id="togglePassword" class="password-toggle-btn" aria-label="Mostrar contraseña">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary-modern" id="btnLogin">
+                        <span>Ingresar al Sistema</span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <div id="formMessage" class="message hidden"></div>
+
+                <div class="footer-info">
+                    <p>Sistema Digital Formadig</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../logica/login.js"></script>
+    <script>
+        // Efecto visual al mover el mouse
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) / 50;
+            const moveY = (e.clientY - window.innerHeight / 2) / 50;
+            const image = document.querySelector('.illustration-image');
+            if(image) image.style.transform = `scale(1.1) translate(${moveX}px, ${moveY}px)`;
+        });
+    </script>
+</body>
+</html>

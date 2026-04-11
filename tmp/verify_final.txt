@@ -1,0 +1,11 @@
+﻿=== ESTRUCTURA DE desayunos_eaeyd ===
+
+Total accesibles ahora: 0
+Sin datos aun, pero mostrando columnas via insert vacio...
+
+=== TRASLADOS - Estructura ===
+
+Total registros traslados: 1
+Columnas: ['id', 'paciente_nombre', 'paciente_curp', 'paciente_edad', 'paciente_domicilio', 'destino_hospital', 'fecha_viaje', 'hora_cita', 'telefono_principal', 'telefono_secundario', 'acompanante_nombre', 'estatus', 'registrado_por', 'fecha_solicitud', 'fecha', 'hora', 'kilometraje_salida', 'kilometraje_llegada', 'url_doc_beneficiario', 'url_doc_acompanante']
+
+Registro 1: {'id': 'a056d67e-3f58-418d-ae43-8eb645250e2e', 'paciente_nombre': 'Irvin Hernßndez Cabrera', 'paciente_curp': 'HECI061012HHGRBRA7', 'paciente_edad': 19, 'paciente_domicilio': 'blvd Quetzalcoatl ', 'destino_hospital': 'Hospital Infantil de MÚxico Federico G¾mez (Colonia Doctores, CDMX)', 'fecha_viaje': None, 'hora_cita': None, 'telefono_principal': '7751434428', 'telefono_secundario': None, 'acompanante_nombre': 'dodanim Mizraim ┴vila Musso ', 'estatus': 'Pendiente', 'registrado_por': 'a1b631b5-b542-4a1d-9897-f5cebed9ca95', 'fecha_solicitud': '2026-03-30T15:15:05.458689+00:00', 'fecha': '30/03/2026', 'hora': '05:00 a.m.', 'kilometraje_salida': 0.0, 'kilometraje_llegada': 0.0, 'url_doc_beneficiario': 'https://ctiqbycbkcftwuqgzxjb.supabase.co/storage/v1/object/public/documentos/traslados/a1b631b5-b542-4a1d-9897-f5cebed9ca95/beneficiario_1774883701883.jpg', 'url_doc_acompanante': 'https://ctiqbycbkcftwuqgzxjb.supabase.co/storage/v1/object/public/documentos/traslados/a1b631b5-b542-4a1d-9897-f5cebed9ca95/acompanante_1774883703129.jpg'}

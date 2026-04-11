@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de SMS - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/main.css?v=99">
+    <link rel="stylesheet" href="../../../css/modules.css?v=99">
+    <link rel="stylesheet" href="../../../css/dashboard.css?v=99">
+    <link rel="stylesheet" href="../diseno/sms.css?v=99">
+</head>
+<body>
+    <header class="header"></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="sms-dashboard">
+            <div class="sms-header">
+                <h1>Notificaciones SMS</h1>
+                <p>Gestión automatizada de confirmación de citas.</p>
+            </div>
+
+            <div class="sms-grid">
+                <div class="sms-stats-card">
+                    <h3>Estado del Servicio</h3>
+                    <div class="status-indicator connected">Conectado</div>
+                    <div class="stat-item">
+                        <span>Enviados hoy:</span>
+                        <strong id="statEnviadosHoy">0</strong>
+                    </div>
+                </div>
+
+                <div class="sms-action-card">
+                    <h3>Enviar Notificación Manual</h3>
+                    <div class="input-group">
+                        <label>Teléfono:</label>
+                        <input type="text" id="targetPhone" placeholder="+52...">
+                    </div>
+                    <div class="input-group">
+                        <label>Mensaje:</label>
+                        <textarea id="messageText" rows="3"></textarea>
+                    </div>
+                    <button class="button button--primary" onclick="SMS.sendManual()">Enviar SMS</button>
+                </div>
+            </div>
+
+            <div class="sms-log">
+                <h3>Historial de Mensajes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Destinatario</th>
+                            <th>Mensaje</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="smsLogTable">
+                        <!-- Llenado dinámico -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../../core/formadig-core.js?v=275"></script>
+    <script src="../logica/sms.js?v=2"></script>
+</body>
+</html>

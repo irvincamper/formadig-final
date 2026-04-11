@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - FORMADIG</title>
+    <link rel="stylesheet" href="css/main.css?v=4">
+    <link rel="stylesheet" href="css/modules.css?v=4">
+    <link rel="stylesheet" href="css/dashboard.css?v=4">
+    <style>
+        body { background: linear-gradient(-45deg, #020617, #1e1b4b, #0f172a, #312e81, #082f49); background-size: 400% 400%; animation: auroraFlow 18s ease infinite; }
+        @keyframes auroraFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .aurora-wrap { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .aurora-orb { position: absolute; border-radius: 50%; filter: blur(110px); pointer-events: none; }
+        .aurora-orb-1 { width: 700px; height: 700px; background: #0ea5e9; top: -200px; left: -200px; opacity: 0.35; animation: orb1 20s ease-in-out infinite alternate; }
+        .aurora-orb-2 { width: 600px; height: 600px; background: #6366f1; bottom: -200px; right: -200px; opacity: 0.3; animation: orb2 25s ease-in-out infinite alternate; }
+        @keyframes orb1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(120px, 100px) scale(1.2); } }
+        @keyframes orb2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-100px, -100px) scale(1.15); } }
+    </style>
+</head>
+<body>
+    <div class="aurora-wrap">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+    </div>
+
+    <aside class="sidebar" id="sidebarMenu">
+        <!-- Menú generado dinámicamente -->
+    </aside>
+    <main class="workspace">
+        <div class="workspace-content">
+            <div class="welcome-section">
+                <h1 id="welcomeTitle">Bienvenido</h1>
+                <p>Panel integral de administración por áreas.</p>
+            </div>
+            <div class="stats-grid" id="modulesContainer">
+                <!-- Tarjetas de módulos -->
+            </div>
+        </div>
+    </main>
+
+    <script src="core/core.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = Auth.getUser();
+            if(!user) {
+                window.location.href = 'modulos/login/vistas/login.html';
+                return;
+            }
+
+            // Configurar Header SDF
+            UI.setupHeader('Panel Central');
+
+            document.getElementById('welcomeTitle').textContent = `Bienvenido, ${user.fullName}`;
+            
+            const role = user.role || '';
+            const isAdmin = ['directora', 'admin', 'desarrollador'].includes(role);
+            const isTraslado = role.includes('traslado');
+            const isDesayuno = role.includes('desayuno');
+
+            const areas = [];
+
+            if (isAdmin || isTraslado) {
+                areas.push({
+                    areaName: "Área Médica",
+                    modules: [
+                        { title: 'Traslados Médicos', icon: '🚑', url: 'modulos/admin_traslados/vistas/admin_traslados.html' }
+                    ]
+                });
+            }
+
+            if (isAdmin || isDesayuno) {
+                areas.push({
+                    areaName: "Programas Alimentarios y Desarrollo Integral",
+                    modules: [
+                        { title: 'Desayunos Fríos', icon: '🥛', url: 'modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html' },
+                        { title: 'Desayunos Calientes', icon: '🍲', url: 'modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html' },
+                        { title: 'Espacios EAEyD', icon: '🏢', url: 'modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html' }
+                    ]
+                });
+            }
+
+            const workspaceContent = document.querySelector('.workspace-content');
+            const oldContainer = document.getElementById('modulesContainer');
+            if(oldContainer) oldContainer.remove();
+
+            areas.forEach(area => {
+                const section = document.createElement('div');
+                section.style.marginBottom = '2.5rem';
+
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = area.areaName;
+                sectionTitle.style.color = '#e2e8f0';
+                sectionTitle.style.fontWeight = '800';
+                sectionTitle.style.letterSpacing = '-0.02em';
+                sectionTitle.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+                sectionTitle.style.paddingBottom = '0.75rem';
+                sectionTitle.style.marginBottom = '2rem';
+                sectionTitle.style.fontSize = '1.4rem';
+                
+                const grid = document.createElement('div');
+                grid.className = 'modules-grid';
+
+                area.modules.forEach(mod => {
+                    const card = document.createElement('div');
+                    card.className = 'module-card';
+                    card.innerHTML = `
+                        <div class="module-icon">${mod.icon}</div>
+                        <h3>${mod.title}</h3>
+                        <a href="${mod.url}" class="button button--primary">Entrar al Módulo</a>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                section.appendChild(sectionTitle);
+                section.appendChild(grid);
+                workspaceContent.appendChild(section);
+            });
+        });
+    </script>
+</body>
+</html>

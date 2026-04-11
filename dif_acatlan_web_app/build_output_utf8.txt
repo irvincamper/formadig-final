@@ -1,0 +1,6 @@
+
+> dif_acatlan_web_app@0.0.0 build
+> tsc -b && vite build
+
+src/pages/LoginScreen.tsx(2,37): error TS1484: 'User' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/LoginScreen.tsx(2,43): error TS1484: 'Role' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Asistencia - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/main.css?v=3.6">
+    <link rel="stylesheet" href="../../../css/modules.css?v=3.6">
+    <link rel="stylesheet" href="../../../css/dashboard.css?v=3.6">
+    <link rel="stylesheet" href="../diseno/chatbot.css?v=3.6">
+</head>
+
+<body>
+    <header class="header"></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <div class="bot-info">
+                    <div class="bot-avatar">DIF</div>
+                    <div>
+                        <h2>Asistente Virtual DIF</h2>
+                        <span class="status-online">En línea</span>
+                    </div>
+                </div>
+                <button id="printBtn" class="button button--secondary" style="padding: 5px 15px; font-size: 0.8rem;" title="Imprimir Chat">🖨️ Imprimir</button>
+            </div>
+            
+            <div class="chat-window" id="chatWindow">
+                <div class="message bot">
+                    <div class="message-content">
+                        ¡Hola! Soy el asistente virtual del DIF Acatlán. Estoy diseñado exclusivamente para procesar, organizar y generar los reportes automáticos de todos los módulos del sistema. ¿Qué reporte necesitas generar hoy?
+                    </div>
+                </div>
+            </div>
+
+                <div class="chatbot-input-area">
+                    <input type="file" id="bulk-upload-input" style="display: none;" accept=".csv,.xlsx,.xls">
+                    <button id="attachment-btn" class="attachment-btn" title="Subir Archivo (Excel/CSV)">📎</button>
+                    <input type="text" id="userInput" placeholder="Ej. Generar reporte de desayunos fríos...">
+                    <button id="sendBtn">Enviar</button>
+                </div>
+        </div>
+    </main>
+
+    <script src="../../../core/formadig-core.js?v=275"></script>
+    <script src="../logica/chatbot.js?v=3.5"></script>
+
+
+</body>
+</html>

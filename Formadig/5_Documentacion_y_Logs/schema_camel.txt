@@ -1,0 +1,8 @@
+[
+  "id",
+  "nombre_completo",
+  "curp",
+  "localidad",
+  "tipo_apoyo",
+  "fecha_registro"
+]

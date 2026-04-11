@@ -1,0 +1,6 @@
+﻿=== TRASLADOS ===
+Registros: 0
+Tabla vacia o RLS bloquea acceso con clave publica
+
+=== DESAYUNOS_SIEB ===
+Error: {'message': "Could not find the table 'public.desayunos_sieb' in the schema cache", 'code': 'PGRST205', 'hint': "Perhaps you meant the table 'public.desayunos_eaeyd'", 'details': None}

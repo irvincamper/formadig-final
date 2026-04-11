@@ -1,0 +1,143 @@
+:root {
+    --primary: #2E7D32;
+    --primary-light: #4CAF50;
+    --primary-dark: #1B5E20;
+    --secondary: #E8F5E9;
+    --text-main: #333333;
+    --text-muted: #666666;
+    --bg-color: #F8F9FA;
+    --border-color: #E0E0E0;
+    --success: #1565C0;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.header-logo {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+header h1 { margin: 0; font-size: 2rem; }
+header p { margin: 0.5rem 0 0; opacity: 0.8; }
+
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+section {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+h2 { margin-top: 0; color: var(--primary-dark); border-bottom: 2px solid var(--secondary); padding-bottom: 0.5rem; }
+
+.info-panel { background-color: var(--secondary); border-left: 5px solid var(--primary); }
+.info-panel h2 { color: var(--primary-dark); border-bottom: none; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group { display: flex; flex-direction: column; }
+.form-group label { margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--text-muted); }
+.form-group input { padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 1rem; transition: border-color 0.3s; }
+.form-group input:focus { border-color: var(--primary); outline: none; }
+
+.docs-section {
+    background: var(--bg-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+}
+
+.checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+.doc-item { display: flex; align-items: center; gap: 0.75rem; background: white; padding: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; }
+.doc-item:hover { border-color: var(--primary-light); }
+.doc-item input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+
+.form-actions { display: flex; justify-content: flex-end; }
+.btn-primary {
+    background-color: var(--success);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+.btn-primary:hover { background-color: #0b4a9e; }
+.btn-primary:active { transform: translateY(2px); }
+
+.records-list .record-card {
+    background: var(--bg-color);
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--primary);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.record-card h3 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+.record-card p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+.badge { background: var(--success); color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+
+.section-title {
+    grid-column: 1 / -1;
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-group label {
+    font-weight: normal;
+    font-size: 0.9rem;
+}
+
+.checkbox-group input {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.message { padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-weight: bold; text-align: center; }
+.message.success { background-color: #E8F5E9; color: var(--success); border: 1px solid #C8E6C9; }
+.message.error { background-color: #FFEBEE; color: #D32F2F; border: 1px solid #FFCDD2; }
+.hidden { display: none; }

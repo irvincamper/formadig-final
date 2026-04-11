@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/main.css?v=99">
+    <link rel="stylesheet" href="../../../css/modules.css?v=99">
+    <link rel="stylesheet" href="../../../css/dashboard.css?v=99">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --premium-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            min-height: 100vh;
+        }
+
+        .workspace-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .premium-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--premium-shadow);
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.1);
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,118,108,0.2);
+        }
+
+        .btn-submit:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,118,108,0.3);
+        }
+
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header"><!-- Inyectado por UI.setupHeader --></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="workspace-content">
+            <div class="view__header" style="margin-bottom: 2rem; text-align: center;">
+                <h2 class="view__title" style="color:var(--color-primary);">Gestión de Usuarios</h2>
+                <p class="text-muted" style="color: #6c757d;">Crea nuevas cuentas de acceso para el personal del DIF Acatlán.</p>
+            </div>
+
+            <section class="premium-card">
+                <div id="formMessage" class="message hidden"></div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label class="form-label" for="regFullName">Nombre Completo</label>
+                        <input type="text" id="regFullName" class="form-control" placeholder="Ej. Juan Pérez López" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="regEmail">Correo Electrónico</label>
+                        <input type="email" id="regEmail" class="form-control" placeholder="ejemplo@dif.gob.mx" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regPassword">Contraseña Temporal</label>
+                        <input type="password" id="regPassword" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regRole">Rol de Acceso</label>
+                        <select id="regRole" class="form-control" required>
+                            <option value="" disabled selected>Selecciona un rol...</option>
+                            <option value="admin">Administrador General (Director/a)</option>
+                            <option value="admin_traslados">Administrador Traslados</option>
+                            <option value="admin_desayunos">Administrador Desayunos (Fríos, Calientes, EAEyD)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnRegister">Registrar Nuevo Usuario</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script src="../../../core/formadig-core.js?v=275"></script>
+    <script src="../logica/admin_usuarios.js?v=99"></script>
+</body>
+</html>

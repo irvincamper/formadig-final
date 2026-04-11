@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css?v=99">
+    <link rel="stylesheet" href="css/modules.css?v=99">
+    <link rel="stylesheet" href="css/dashboard.css?v=99">
+</head>
+
+<body>
+    <header class="header"><!-- Inyectado por UI.setupHeader --></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="workspace-content">
+            <div class="welcome-section">
+                <h1 id="welcomeTitle">Bienvenido</h1>
+                <p>Panel integral de administración por áreas.</p>
+            </div>
+            <div id="modulesContainer"></div>
+        </div>
+    </main>
+
+    <script src="core/formadig-core.js?v=275"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = Auth.getUser();
+            if (!user) {
+                window.location.href = 'modulos/login/vistas/login.html';
+                return;
+            }
+
+            UI.setupHeader('Panel Central');
+
+            document.getElementById('welcomeTitle').textContent = `Bienvenido, ${user.fullName}`;
+
+            const role = user.role || '';
+            const isAdmin = ['directora', 'admin', 'desarrollador'].includes(role);
+            const isTraslado = role.includes('traslado');
+            const isDesayuno = role.includes('desayuno');
+
+            const areas = [];
+
+            if (isAdmin || isTraslado) {
+                areas.push({
+                    areaName: "Área Médica",
+                    modules: [
+                        { title: 'Traslados Médicos', icon: '🚑', url: 'modulos/admin_traslados/vistas/admin_traslados.html' }
+                    ]
+                });
+            }
+
+            const alimentosModules = [];
+            if (isAdmin || isDesayuno) {
+                alimentosModules.push({ title: 'Gestión Fríos', icon: '🥛', url: 'modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html' });
+                alimentosModules.push({ title: 'Gestión Calientes', icon: '🍲', url: 'modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html' });
+                alimentosModules.push({ title: 'Espacios EAEyD', icon: '🏢', url: 'modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html' });
+            }
+
+            if (alimentosModules.length > 0) {
+                areas.push({
+                    areaName: "Programas Alimentarios y Desarrollo",
+                    modules: alimentosModules
+                });
+            }
+
+            // --- Sección de Soporte (Universal) ---
+            areas.push({
+                areaName: "Asistencia y Comunicación",
+                modules: [
+                    { title: 'Chatbot Asistente', icon: '🤖', url: 'modulos/chatbot/vistas/chatbot.html' },
+                    { title: 'Gestión de SMS', icon: '📱', url: 'modulos/sms/vistas/admin_sms.html' }
+                ]
+            });
+
+            const container = document.getElementById('modulesContainer');
+
+            areas.forEach(area => {
+                /* ── Título de área ── */
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.className = 'area-section-title';
+                sectionTitle.textContent = area.areaName;
+
+                /* ── Grid de tarjetas ── */
+                const grid = document.createElement('div');
+                grid.className = 'modules-grid';
+
+                area.modules.forEach(mod => {
+                    const card = document.createElement('div');
+                    card.className = 'module-card';
+                    card.innerHTML = `
+                        <div class="module-icon">${mod.icon}</div>
+                        <h3>${mod.title}</h3>
+                        <a href="${mod.url}" class="button button--primary">Entrar al Módulo</a>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                const section = document.createElement('div');
+                section.className = 'area-section';
+                section.appendChild(sectionTitle);
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
+        });
+    </script>
+</body>
+
+</html>

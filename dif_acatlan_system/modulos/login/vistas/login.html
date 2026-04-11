@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - FORMADIG</title>
+    <link rel="stylesheet" href="../diseno/login.css?v=5">
+</head>
+<body>
+    <div class="login-bg-glow"></div>
+    <div class="login-wrapper">
+        <div class="header-box">
+            <h1 class="header-box__logo">SDF</h1>
+            <p class="header-box__tagline">Sistema Digital Formadig • 2025</p>
+        </div>
+
+        <div class="form-container" id="loginBox">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" placeholder="admin@dif.gob.mx" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" id="btnLogin">Ingresar al Sistema</button>
+            </form>
+            <div class="toggle-link">
+                <p>¿Administrador del sistema? <a href="#" onclick="toggleView()">Crear nuevo usuario</a></p>
+            </div>
+        </div>
+
+        <div class="form-container hidden" id="registerBox">
+            <h2>Crear Nuevo Usuario</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regFullName">Nombre Completo del Personal</label>
+                    <input type="text" id="regFullName" placeholder="Juan Pérez López" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Correo Electrónico del Personal</label>
+                    <input type="email" id="regEmail" placeholder="nuevo@dif.gob.mx" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Asignar Contraseña</label>
+                    <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="regRole">Rol de Acceso en el Sistema</label>
+                    <select id="regRole" required>
+                        <option value="" disabled selected>Selecciona un módulo...</option>
+                        <option value="admin_traslados">Administrador Traslados</option>
+                        <option value="admin_desayunos">Administrador Desayunos</option>
+                        <option value="usuario_traslados">Usuario Traslados</option>
+                        <option value="usuario_desayunos">Usuario Desayunos</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary" id="btnRegister">Registrar y Asignar Rol</button>
+            </form>
+            <div class="toggle-link">
+                <p>¿Ya tienes cuenta? <a href="#" onclick="toggleView()">Iniciar Sesión</a></p>
+            </div>
+        </div>
+
+        <div id="formMessage" class="message hidden"></div>
+    </div>
+
+    <script>
+        // Forzar visibilidad tras carga
+        window.addEventListener('load', () => document.body.classList.add('loaded'));
+    </script>
+    <script src="../logica/login.js"></script>
+</body>
+</html>

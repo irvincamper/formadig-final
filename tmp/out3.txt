@@ -1,0 +1,14 @@
+﻿=== TRASLADOS ===
+Registros: 0
+Tabla vacia o RLS bloquea acceso con clave publica
+
+=== DESAYUNOS_EAEYD (tabla real) ===
+Registros: 0
+Tabla vacia o RLS bloquea acceso
+
+=== TABLAS DISPONIBLES (via information_schema) ===
+  traslados: ACCESSIBLE - count=0
+  desayunos_eaeyd: ACCESSIBLE - count=0
+  hospitales: ACCESSIBLE - count=23
+  perfiles: ACCESSIBLE - count=19
+  chatbot_conocimiento: ACCESSIBLE - count=0

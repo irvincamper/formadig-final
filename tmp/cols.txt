@@ -1,0 +1,1 @@
+id,paciente_nombre,paciente_curp,paciente_edad,paciente_domicilio,destino_hospital,fecha_viaje,hora_cita,telefono_principal,telefono_secundario,acompanante_nombre,estatus,registrado_por,fecha_solicitud,fecha,hora,kilometraje_salida,kilometraje_llegada,url_doc_beneficiario,url_doc_acompanante

@@ -1,0 +1,253 @@
+/* modules.css – Estilos compartidos, Paleta Institucional DIF Acatlán */
+
+/* ── Formularios ──────────────────────────────────────────── */
+.form { display: flex; flex-direction: column; gap: 1.25rem; }
+.form__group-row { display: flex; gap: 1.25rem; }
+.form__group { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
+
+.form__label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-main, #2d3748);
+}
+
+.form__input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 6px;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--color-text-main, #2d3748);
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form__input::placeholder { color: var(--color-text-muted, #a0aec0); }
+.form__input:focus {
+    outline: none;
+    border-color: var(--color-primary, #00766c);
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.15);
+}
+.form__input--invalid {
+    border-color: var(--color-error, #e53e3e);
+    background: var(--color-error-bg, #fff5f5);
+}
+
+/* ── Tabla ────────────────────────────────────────────────── */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    background: #fff;
+}
+.table { width: 100%; border-collapse: collapse; margin: 0; }
+.table th, .table td {
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--color-text-main, #2d3748);
+}
+.table th {
+    background-color: #f0faf9;
+    color: var(--color-primary-dark, #004d40);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.table__tr:hover { background-color: #f7fffe; }
+.table__tr:last-child td { border-bottom: none; }
+
+/* Aliases legacy */
+.form-group { margin-bottom: 1rem; }
+.form-input {
+    width: 100%; padding: 0.7rem 0.9rem;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 6px; font-size: 0.95rem;
+    color: var(--color-text-main, #2d3748);
+    background: #fff;
+    transition: border-color 0.2s;
+}
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-primary, #00766c);
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.12);
+}
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-main, #2d3748);
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.badge--active   { background-color: #e6fffa; color: #276749; border: 1px solid #9ae6b4; }
+.badge--inactive { background-color: #fffaf0; color: #c05621; border: 1px solid #fbd38d; }
+
+/* ── Info panel ───────────────────────────────────────────── */
+.info-panel {
+    background: rgba(0, 118, 108, 0.05);
+    border-left: 4px solid var(--color-primary, #00766c);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 2rem;
+}
+.info-panel h2 {
+    color: var(--color-primary-dark, #004d40);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+}
+.info-panel p { color: var(--color-text-main, #2d3748); line-height: 1.6; font-size: 0.95rem; }
+
+/* ── Mock button ──────────────────────────────────────────── */
+.mock-button {
+    background: #f7fffe;
+    border: 2px dashed var(--color-primary-light, #4db6ac);
+    padding: 1.1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--color-primary, #00766c);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.mock-button:hover { background: rgba(0, 118, 108, 0.08); transform: scale(1.01); }
+
+/* ── Chart bars ───────────────────────────────────────────── */
+.chart-bar-container { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.chart-row { display: flex; align-items: center; gap: 1.25rem; }
+.chart-label { width: 130px; font-size: 0.875rem; color: var(--color-text-muted, #718096); font-weight: 600; }
+.chart-track {
+    flex: 1;
+    background: var(--color-border, #e2e8f0);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+}
+.chart-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, var(--color-primary, #00766c), var(--color-primary-light, #4db6ac));
+}
+.chart-fill--caliente { background: linear-gradient(90deg, #b71c1c, #f05545); }
+.chart-fill--eaeyd    { background: linear-gradient(90deg, var(--color-primary-dark, #004d40), var(--color-primary-light, #4db6ac)); }
+.chart-value { font-weight: 700; min-width: 36px; text-align: right; color: var(--color-text-main, #2d3748); font-size: 0.875rem; }
+
+@media (max-width: 600px) {
+    .form__group-row { flex-direction: column; gap: 1rem; }
+    .chart-label { width: 90px; font-size: 0.8rem; }
+}
+
+/* ── Status Badges (usados dinámicamente en JS) ───────────── */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid transparent;
+}
+
+/* Pendiente → naranja advertencia */
+.status--pendiente {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border-color: #fed7aa;
+}
+
+/* Activo / Aprobado → verde éxito */
+.status--activo {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border-color: #9ae6b4;
+}
+
+/* Programado → info azul */
+.status--programado {
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+    border-color: #bee3f8;
+}
+
+/* En proceso → primario verde institucional */
+.status--en-proceso {
+    background-color: rgba(0, 118, 108, 0.1);
+    color: var(--color-primary);
+    border-color: var(--color-primary-light);
+}
+
+/* Rechazado / Cancelado → error */
+.status--rechazado,
+.status--cancelado {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border-color: #feb2b2;
+}
+
+/* ── Layout Grid (2 columnas para vistas de módulo) ───────── */
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* ── Data Table (tabla de padrón modular) ─────────────────── */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--color-text-main);
+}
+.data-table th {
+    background-color: #f0faf9;
+    color: var(--color-primary-dark);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.data-table tbody tr:hover {
+    background-color: rgba(0, 118, 108, 0.04);
+    cursor: pointer;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+/* CURP monospace */
+.curp-cell {
+    font-family: monospace;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
+
+@media (max-width: 800px) {
+    .layout-grid { grid-template-columns: 1fr; }
+}

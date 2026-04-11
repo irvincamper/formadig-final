@@ -1,0 +1,15 @@
+﻿=== VERIFICACION POST-RLS FIX ===
+
+  traslados: 0 registros totales
+    Tabla vacia o sin datos aun
+
+  desayunos_sieb: ERROR - {'message': "Could not find the table 'public.desayunos_sieb' in the schema cache", 'code': 'PGRST205', 'hint': "Perhaps you meant the table 'public.desayunos_eaeyd'", 'details': None}
+
+  hospitales: 23 registros totales
+    Keys: ['id', 'nombre_hospital', 'ubicacion']
+    Primer registro: {'id': 1, 'nombre_hospital': 'Hospital Infantil de MÚxico Federico G¾mez', 'ubicacion': 'CDMX'}
+
+  perfiles: 19 registros totales
+    Keys: ['id', 'nombre_usuario', 'nombre_completo', 'rol', 'fecha_creacion', 'curp', 'telefono', 'domicilio', 'apellidos', 'clave_elector']
+    Primer registro: {'id': '48d9b597-4aa2-4ae8-9560-664d40c091fb', 'nombre_usuario': 'traslados', 'nombre_completo': 'traslaos', 'rol': 'usuario_traslados', 'fecha_creacion': '2026-03-19T19:40:28+00:00', 'curp': None, 'telefono': None, 'domicilio': None, 'apellidos': None, 'clave_elector': None}
+

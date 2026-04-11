@@ -1,0 +1,224 @@
+/* dashboard.css – Paleta Institucional DIF Acatlán */
+
+/* ── Layout ───────────────────────────────────────────────── */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-body, #f5f7fa);
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, var(--color-primary-dark, #004d40) 0%, #003530 100%);
+    color: white;
+    position: fixed;
+    top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    z-index: 90;
+    border-right: 1px solid rgba(0,0,0,0.1);
+}
+
+.sidebar-header {
+    padding: 1.5rem 1.25rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-logo-text {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+}
+
+.sidebar-section-label {
+    padding: 12px 1.25rem 4px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.45);
+}
+
+.sidebar-menu {
+    padding: 0.5rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.8rem 1.25rem;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.08);
+    border-left-color: var(--color-primary-light, #4db6ac);
+    padding-left: 1.5rem;
+}
+
+.menu-item.active {
+    color: #ffffff;
+    background: rgba(255,255,255,0.12);
+    border-left-color: #ffffff;
+    font-weight: 600;
+}
+
+/* ── Workspace ────────────────────────────────────────────── */
+.workspace {
+    margin-left: 260px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-body, #f5f7fa);
+    min-height: calc(100vh - 64px);
+}
+
+.workspace-content {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem;
+    flex: 1;
+}
+
+/* ── Welcome section ──────────────────────────────────────── */
+.welcome-section { margin-bottom: 2.5rem; }
+
+.welcome-section h1 {
+    font-size: 1.8rem;
+    color: var(--color-primary-dark, #004d40);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+}
+
+.welcome-section p {
+    color: var(--color-text-muted, #718096);
+    font-size: 1rem;
+}
+
+/* ── Module cards grid ────────────────────────────────────── */
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.module-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.module-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-primary, #00766c), var(--color-primary-light, #4db6ac));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 118, 108, 0.15);
+    border-color: var(--color-primary-light, #4db6ac);
+}
+
+.module-card:hover::after { transform: scaleX(1); }
+
+.module-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 118, 108, 0.08);
+    border-radius: 16px;
+    color: var(--color-primary, #00766c);
+    transition: all 0.3s ease;
+}
+
+.module-card:hover .module-icon {
+    background: var(--color-primary, #00766c);
+    color: white;
+    transform: scale(1.05) translateY(-3px);
+}
+
+.module-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--color-text-main, #2d3748);
+}
+
+.module-card .button {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: transparent;
+    color: var(--color-primary, #00766c);
+    border: 1.5px solid var(--color-primary, #00766c);
+    font-weight: 700;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.module-card:hover .button {
+    background: var(--color-primary, #00766c);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 3px 10px rgba(0, 118, 108, 0.3);
+}
+
+@media (max-width: 900px) {
+    .modules-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .workspace { margin-left: 0; }
+    .sidebar   { display: none; }
+    .modules-grid { grid-template-columns: 1fr; }
+    .workspace-content { padding: 1.5rem 1rem; }
+}
+
+/* ── Area sections ────────────────────────────────────────── */
+.area-section {
+    margin-bottom: 2.5rem;
+}
+
+.area-section-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+    letter-spacing: -0.02em;
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 0.6rem;
+    margin-bottom: 1.5rem;
+}

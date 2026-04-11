@@ -1,0 +1,9 @@
+﻿=== ESTRUCTURA DE desayunos_eaeyd ===
+
+Total accesibles ahora: 0
+Sin datos aun, pero mostrando columnas via insert vacio...
+
+=== TRASLADOS - Estructura ===
+
+Total registros traslados: 0
+Traslados vaco por ahora
