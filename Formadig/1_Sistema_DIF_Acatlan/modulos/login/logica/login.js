@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLogin.textContent = 'Autenticando...';
 
         try {
-            const response = await fetch('http://localhost:5001/api/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Network Error:', error);
-            showMessage('❌ No se pudo conectar con el servidor Backend (Puerto 5001 apagado).', 'error');
+            showMessage('❌ No se pudo conectar con el servidor Backend. Verifica la conexión.', 'error');
             btnLogin.disabled = false;
             btnLogin.textContent = 'Ingresar al Sistema';
         }

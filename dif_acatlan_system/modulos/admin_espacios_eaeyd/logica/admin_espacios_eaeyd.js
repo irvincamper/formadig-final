@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             estatus: "Pendiente"
         };
         try {
-            const res = await fetch('http://localhost:5007/api/espacios_eaeyd', {
+            const res = await fetch('/api/espacios_eaeyd', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.token}` },
                 body: JSON.stringify(dummyData)
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.textContent = 'Guardando Dictamen...';
 
         try {
-            const res = await fetch(`http://localhost:5007/api/espacios_eaeyd/${currentSelectedId}`, {
+            const res = await fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarEspacios() {
         try {
-            const res = await fetch('http://localhost:5007/api/espacios_eaeyd', {
+            const res = await fetch('/api/espacios_eaeyd', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             

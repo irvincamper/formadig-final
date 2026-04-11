@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             estatus: "Pendiente"
         };
         try {
-            const res = await fetch('http://localhost:5006/api/desayunos_calientes', {
+            const res = await fetch('/api/desayunos_calientes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.token}` },
                 body: JSON.stringify(dummyData)
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.textContent = 'Guardando Dictamen...';
 
         try {
-            const res = await fetch(`http://localhost:5006/api/desayunos_calientes/${currentSelectedId}`, {
+            const res = await fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDesayunos() {
         try {
-            const res = await fetch('http://localhost:5006/api/desayunos_calientes', {
+            const res = await fetch('/api/desayunos_calientes', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             

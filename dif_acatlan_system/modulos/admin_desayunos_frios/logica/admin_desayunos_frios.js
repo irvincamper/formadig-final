@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             estatus: "Pendiente"
         };
         try {
-            const res = await fetch('http://localhost:5005/api/desayunos_frios', {
+            const res = await fetch('/api/desayunos_frios', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.token}` },
                 body: JSON.stringify(dummyData)
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.textContent = 'Guardando Dictamen...';
 
         try {
-            const res = await fetch(`http://localhost:5005/api/desayunos_frios/${currentSelectedId}`, {
+            const res = await fetch(`/api/desayunos_frios/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDesayunos() {
         try {
-            const res = await fetch('http://localhost:5005/api/desayunos_frios', {
+            const res = await fetch('/api/desayunos_frios', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             

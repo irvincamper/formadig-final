@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dummyData.cita_fecha = "2099-12-31";
             dummyData.cita_hora = "00:00";
             
-            await fetch('http://localhost:5004/api/traslados', {
+            await fetch('/api/traslados', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.token}` },
                 body: JSON.stringify(dummyData)
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.textContent = 'Guardando...';
 
         try {
-            const res = await fetch(`http://localhost:5004/api/traslados/${currentSelectedId}`, {
+            const res = await fetch(`/api/traslados/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Cargar y renderizar la Tabla (Bitácora)
     async function cargarTraslados() {
         try {
-            const res = await fetch('http://localhost:5004/api/traslados', {
+            const res = await fetch('/api/traslados', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             

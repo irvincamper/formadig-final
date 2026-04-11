@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const user = Auth.getUser();
-            const response = await fetch('http://localhost:5008/api/chatbot/ask', {
+            const response = await fetch('/api/chatbot/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', file);
 
         try {
-            const res = await fetch('http://localhost:5008/api/chatbot/upload', {
+            const res = await fetch('/api/chatbot/upload', {
                 method: 'POST',
                 body: formData
             });

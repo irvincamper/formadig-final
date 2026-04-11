@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnSubmit) btnSubmit.textContent = 'Guardando...';
 
         try {
-            const res = await fetch(`http://localhost:5004/api/traslados/${currentSelectedId}`, {
+            const res = await fetch(`/api/traslados/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRechazar.textContent = 'Rechazando...';
 
         try {
-            const res = await fetch(`http://localhost:5004/api/traslados/${currentSelectedId}`, {
+            const res = await fetch(`/api/traslados/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Cargar y renderizar la Tabla (Bitácora)
     async function cargarTraslados() {
         try {
-            const res = await fetch('http://localhost:5004/api/traslados', {
+            const res = await fetch('/api/traslados', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             

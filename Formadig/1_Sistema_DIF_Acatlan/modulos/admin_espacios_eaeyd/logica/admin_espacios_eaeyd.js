@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:5007/api/espacios_eaeyd/${currentSelectedId}`, {
+            const res = await fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            const res = await fetch('http://localhost:5007/api/espacios_eaeyd', {
+            const res = await fetch('/api/espacios_eaeyd', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();
