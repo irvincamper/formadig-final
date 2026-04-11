@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Inicializar Blueprint
-admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/admin_usuarios')
+admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/api/admin_usuarios')
 
 # Inicializar Supabase
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://ctiqbycbkcftwuqgzxjb.supabase.co')
