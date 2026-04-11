@@ -88,6 +88,7 @@ backends_config = {
     "desayunos_calientes": ("admin_desayunos_calientes/logica/admin_desayunos_calientes_backend.py", "/api/desayunos_calientes"),
     "espacios_eaeyd": ("admin_espacios_eaeyd/logica/admin_espacios_eaeyd_backend.py", "/api/espacios_eaeyd"),
     "sms": ("sms/logica/sms_backend.py", "/api/sms"),
+    "admin_usuarios": ("admin_usuarios/logica/admin_usuarios_backend.py", "/api"),
 }
 
 # Cargar backends

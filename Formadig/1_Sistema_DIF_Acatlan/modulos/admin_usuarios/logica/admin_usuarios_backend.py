@@ -4,17 +4,22 @@ Módulo: admin_usuarios_backend.py
 Enfoque: Seguridad - Mostrar únicamente administradores (admin, admin_desayunos, admin_traslados)
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify
+from flask_cors import CORS
 from supabase import create_client
 import os
 from datetime import datetime
 
+# Crear aplicación Flask
+app = Flask(__name__)
+CORS(app)
+
 # Inicializar Blueprint
-admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/api/admin_usuarios')
+admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/admin_usuarios')
 
 # Inicializar Supabase
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://ctiqbycbkcftwuqgzxjb.supabase.co')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY', 'sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk')
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Roles permitidos - SOLO administradores
@@ -132,8 +137,6 @@ def eliminar_usuario(id):
 
 
 # ============================================================================
-# Registro del Blueprint
+# Registro del Blueprint en la app
 # ============================================================================
-def register_blueprint(app):
-    """Registra el blueprint en la aplicación Flask"""
-    app.register_blueprint(admin_usuarios_bp)
+app.register_blueprint(admin_usuarios_bp)

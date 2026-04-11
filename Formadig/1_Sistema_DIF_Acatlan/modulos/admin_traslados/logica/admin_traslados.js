@@ -61,6 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
             paciente_nombre: document.getElementById('paciente_nombre')?.value,
             paciente_curp:   document.getElementById('paciente_curp')?.value,
             paciente_domicilio: document.getElementById('paciente_domicilio')?.value,
+            localidad: document.getElementById('localidad')?.value,
+            colonia: document.getElementById('colonia')?.value,
+            tipo_asentamiento: document.getElementById('tipo_asentamiento')?.value,
+            codigo_postal: document.getElementById('codigo_postal')?.value,
+            referencias: document.getElementById('referencias')?.value,
             destino_hospital: document.getElementById('destino_hospital')?.value,
             fecha_viaje:     document.getElementById('fecha_viaje').value,
             hora_cita:       document.getElementById('hora_cita').value,
@@ -338,76 +343,89 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             tr.addEventListener('click', () => {
-                currentSelectedId = t.id;
-                document.querySelectorAll('#listaRegistros tr').forEach(row => row.classList.remove('selected-row-v3'));
-                tr.classList.add('selected-row-v3');
-                
-                // Resaltar el título del formulario
-                document.getElementById('formTitle')?.classList.add('editing-mode-title');
-                
-                updateNavControls();
-                
-                // ── LLENAR PANEL IZQUIERDO CON DATOS COMPLETOS ──
-                // Sección: Identidad Oficial
-                document.getElementById('paciente_curp').value = t.paciente_curp || '';
-                
-                // Sección: Datos del Paciente
-                document.getElementById('paciente_nombre').value = t.paciente_nombre || '';
-                document.getElementById('paciente_edad').value = t.paciente_edad || '';
-                
-                // Sección: Ubicación
-                document.getElementById('paciente_domicilio').value = t.paciente_domicilio || '';
-                document.getElementById('colonia').value = t.colonia || '';
-                document.getElementById('codigo_postal').value = t.codigo_postal || '';
-                document.getElementById('referencias').value = t.referencias || '';
-                
-                // Sección: Detalles del Traslado
-                document.getElementById('destino_hospital').value = t.destino_hospital || '';
-                document.getElementById('acompanante_nombre').value = t.acompanante_nombre || '';
-                document.getElementById('acompanante_clave_elector').value = t.acompanante_clave_elector || '';
-                document.getElementById('telefono_principal').value = t.telefono_principal || '';
-                document.getElementById('telefono_secundario').value = t.telefono_secundario || '';
-                
-                // ── Lógica de Documentos (Estandarizada) ──
-                renderDocBtn('btnDocPacienteCont', t.url_doc_beneficiario || null, 'DOCUMENTO');
-                renderDocBtn('btnDocAcompCont', t.url_doc_acompanante || null, 'DOCUMENTO');
-                renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio || null, 'DOMICILIO');
-                
-                // ── Automatización: Pre-llenar Fecha y Hora ──
-                let fechaVal = t.fecha_viaje || '';
-                let horaVal = t.hora_cita || '';
+                try {
+                    currentSelectedId = t.id;
+                    document.querySelectorAll('#listaRegistros tr').forEach(row => row.classList.remove('selected-row-v3'));
+                    tr.classList.add('selected-row-v3');
+                    
+                    // Resaltar el título del formulario
+                    document.getElementById('formTitle')?.classList.add('editing-mode-title');
+                    
+                    updateNavControls();
+                    
+                    // ── LLENAR PANEL IZQUIERDO CON DATOS COMPLETOS ──
+                    // Con validación para evitar errores si el elemento no existe
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = val || '';
+                    };
+                    
+                    // Sección: Identidad Oficial
+                    setVal('paciente_curp', t.paciente_curp);
+                    
+                    // Sección: Datos del Paciente
+                    setVal('paciente_nombre', t.paciente_nombre);
+                    setVal('paciente_edad', t.paciente_edad);
+                    
+                    // Sección: Ubicación
+                    setVal('localidad', t.localidad);
+                    setVal('colonia', t.colonia);
+                    setVal('tipo_asentamiento', t.tipo_asentamiento);
+                    setVal('codigo_postal', t.codigo_postal);
+                    setVal('paciente_domicilio', t.paciente_domicilio);
+                    setVal('referencias', t.referencias);
+                    
+                    // Sección: Detalles del Traslado
+                    setVal('destino_hospital', t.destino_hospital);
+                    setVal('acompanante_nombre', t.acompanante_nombre);
+                    setVal('acompanante_clave_elector', t.acompanante_clave_elector);
+                    setVal('telefono_principal', t.telefono_principal);
+                    setVal('telefono_secundario', t.telefono_secundario);
+                    setVal('estatus', t.estatus);
+                    
+                    // ── Lógica de Documentos (Estandarizada) ──
+                    renderDocBtn('btnDocPacienteCont', t.url_doc_beneficiario || null, 'DOCUMENTO');
+                    renderDocBtn('btnDocAcompCont', t.url_doc_acompanante || null, 'DOCUMENTO');
+                    renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio || null, 'DOMICILIO');
+                    
+                    // ── Automatización: Pre-llenar Fecha y Hora ──
+                    let fechaVal = t.fecha_viaje || '';
+                    let horaVal = t.hora_cita || '';
 
-                if (!fechaVal) {
-                    const today = new Date().toISOString().split('T')[0];
-                    fechaVal = today;
-                }
-                if (!horaVal) {
-                    const now = new Date();
-                    now.setHours(now.getHours() + 1); // Sugerir 1 hora después
-                    horaVal = now.toTimeString().slice(0, 5);
-                }
+                    if (!fechaVal) {
+                        const today = new Date().toISOString().split('T')[0];
+                        fechaVal = today;
+                    }
+                    if (!horaVal) {
+                        const now = new Date();
+                        now.setHours(now.getHours() + 1);
+                        horaVal = now.toTimeString().slice(0, 5);
+                    }
 
-                document.getElementById('fecha_viaje').value = fechaVal || '';
-                document.getElementById('hora_cita').value = horaVal || '';
-                document.getElementById('lugares_requeridos').value = parseInt(t.lugares_requeridos) || 2;
-                
-                // Actualizar automáticamente los cupos cuando se carga la fecha
-                actualizarUI_Cupos();
-                
-                btnSubmit.disabled = false;
-                btnRechazar.disabled = false;
-                btnSubmit.textContent = 'Aceptar Traslado 🚐';
-                
-                const actionBlock = document.getElementById('asignacionBloque');
-                if (actionBlock) {
-                    actionBlock.style.transform = 'scale(1.02)';
-                    actionBlock.style.boxShadow = '0 10px 25px rgba(22,101,52,0.15)';
-                    actionBlock.style.borderColor = '#22c55e';
-                    setTimeout(() => {
-                        actionBlock.style.transform = '';
-                        actionBlock.style.boxShadow = '';
-                        actionBlock.style.borderColor = '#bbf7d0';
-                    }, 600);
+                    setVal('fecha_viaje', fechaVal);
+                    setVal('hora_cita', horaVal);
+                    setVal('lugares_requeridos', parseInt(t.lugares_requeridos) || 2);
+                    
+                    // Actualizar automáticamente los cupos cuando se carga la fecha
+                    actualizarUI_Cupos();
+                    
+                    btnSubmit.disabled = false;
+                    btnRechazar.disabled = false;
+                    btnSubmit.textContent = 'Aceptar Traslado 🚐';
+                    
+                    const actionBlock = document.getElementById('asignacionBloque');
+                    if (actionBlock) {
+                        actionBlock.style.transform = 'scale(1.02)';
+                        actionBlock.style.boxShadow = '0 10px 25px rgba(22,101,52,0.15)';
+                        actionBlock.style.borderColor = '#22c55e';
+                        setTimeout(() => {
+                            actionBlock.style.transform = '';
+                            actionBlock.style.boxShadow = '';
+                            actionBlock.style.borderColor = '#bbf7d0';
+                        }, 600);
+                    }
+                } catch (error) {
+                    console.error('Error al seleccionar traslado:', error);
                 }
             });
 
