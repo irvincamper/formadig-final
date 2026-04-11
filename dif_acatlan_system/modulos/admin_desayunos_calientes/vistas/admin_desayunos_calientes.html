@@ -77,6 +77,39 @@
                             <label class="form-label">Dirección (Ingresada en la App)</label>
                             <input type="text" id="direccion" class="form-control" readonly placeholder="Esperando datos..." style="background: #e2e8f0;">
                         </div>
+                        
+                        <!-- Location Fields -->
+                        <div style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                            <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #374151; margin-bottom: 0.75rem;">📌 Detalles de Ubicación</h4>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="dc_localidad">Localidad</label>
+                                    <input type="text" id="dc_localidad" class="form-control" readonly style="background: #e5e7eb; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="dc_colonia">Colonia</label>
+                                    <input type="text" id="dc_colonia" class="form-control" readonly style="background: #e5e7eb; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-top: 0.5rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="dc_tipo_asentamiento">Tipo Asentamiento</label>
+                                    <input type="text" id="dc_tipo_asentamiento" class="form-control" readonly style="background: #e5e7eb; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="dc_cp">Código Postal</label>
+                                    <input type="text" id="dc_cp" class="form-control" readonly style="background: #e5e7eb; font-size: 0.9rem;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents Section -->
+                    <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 1rem; border-radius: 6px; margin: 1rem 0 0 0;">
+                        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #92400e; margin-bottom: 0.75rem;">📄 Documentos Requeridos</h4>
+                        <div id="dc_documentos_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-size: 0.9rem;">
+                            <!-- Documents will be rendered here -->
+                        </div>
                     </div>
 
                     <!-- Bloque de Acción del Administrador -->

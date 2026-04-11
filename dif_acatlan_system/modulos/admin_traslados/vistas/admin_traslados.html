@@ -92,6 +92,48 @@
                         </div>
                     </div>
 
+                    <!-- UBICACIÓN DEL PACIENTE -->
+                    <div style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 1rem; border-radius: 6px; margin: 1.5rem 0; margin-top: 1.5rem;">
+                        <h4 style="font-size: 0.9rem; color: #374151; margin-bottom: 0.75rem; display:flex; align-items:center; gap:0.5rem;">📍 Ubicación del Paciente</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="localidad">Localidad</label>
+                                <input type="text" id="localidad" class="form-input" readonly style="background: #e5e7eb;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="colonia">Colonia</label>
+                                <input type="text" id="colonia" class="form-input" readonly style="background: #e5e7eb;">
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+                            <div class="form-group">
+                                <label class="form-label" for="tipo_asentamiento">Tipo de Asentamiento</label>
+                                <input type="text" id="tipo_asentamiento" class="form-input" readonly style="background: #e5e7eb;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="cp">Código Postal</label>
+                                <input type="text" id="cp" class="form-input" readonly style="background: #e5e7eb;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="paciente_domicilio">Domicilio Completo</label>
+                            <input type="text" id="paciente_domicilio" class="form-input" readonly style="background: #e5e7eb;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="referencias">Referencias</label>
+                            <input type="text" id="referencias" class="form-input" readonly style="background: #e5e7eb;">
+                        </div>
+                    </div>
+
+                    <!-- DATOS DEL ACOMPAÑANTE -->
+                    <div style="background: #fef3c7; border: 1px solid #fcd34d; padding: 1rem; border-radius: 6px; margin: 1.5rem 0;">
+                        <h4 style="font-size: 0.9rem; color: #92400e; margin-bottom: 0.75rem;">👥 Acompañante</h4>
+                        <div class="form-group">
+                            <label class="form-label" for="acompanante_clave_elector">Clave de Elector</label>
+                            <input type="text" id="acompanante_clave_elector" class="form-input" placeholder="Ingresa la clave de elector del acompañante">
+                        </div>
+                    </div>
+
                     <div id="formMessage" class="hidden" style="margin-bottom:1rem;"></div>
                     
                     <button type="submit" class="button button--primary" style="width:100%" disabled>Aprobar y Registrar Traslado 🚑</button>

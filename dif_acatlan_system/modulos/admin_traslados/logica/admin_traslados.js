@@ -78,9 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const updateData = {
             cita_fecha: document.getElementById('cita_fecha').value,
-            cita_hora: document.getElementById('cita_hora').value,
+            cita_hora: document.getElementById('cita_hora').value || '03:00', // Set default to 03:00 AM
             lugares_requeridos: parseInt(document.getElementById('lugares_requeridos').value) || 2,
-            estatus: 'PROGRAMADO'
+            estatus: 'PROGRAMADO',
+            // Added fields for location and companion
+            hora_salida: '03:00', // Fixed departure time (3:00 AM)
+            hora_regreso: '15:30', // Fixed return time (3:30 PM)
+            acompanante_clave_elector: document.getElementById('acompanante_clave_elector')?.value || ''
         };
 
         // Validar cupos antes de enviar
@@ -226,6 +230,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('paciente_nombre').value = t.paciente_nombre;
                 document.getElementById('paciente_curp').value = t.paciente_curp || '';
                 document.getElementById('destino').value = t.destino_hospital || t.destino || '';
+                
+                // Fill location fields from the record
+                document.getElementById('localidad').value = t.localidad || '';
+                document.getElementById('colonia').value = t.colonia || '';
+                document.getElementById('tipo_asentamiento').value = t.tipo_asentamiento || '';
+                document.getElementById('cp').value = t.cp || '';
+                document.getElementById('paciente_domicilio').value = t.paciente_domicilio || '';
+                document.getElementById('referencias').value = t.referencias || '';
+                
+                // Fill companion clave elector if available
+                document.getElementById('acompanante_clave_elector').value = t.acompanante_clave_elector || '';
                 
                 if(!t.fecha_cita.includes('2099')) document.getElementById('cita_fecha').value = t.fecha_cita;
                 else document.getElementById('cita_fecha').value = "";

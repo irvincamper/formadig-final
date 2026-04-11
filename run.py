@@ -6,6 +6,16 @@ from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from werkzeug.serving import run_simple
 
 # ========================================
+# CARGAR VARIABLES DE ENTORNO
+# ========================================
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("⚠️  AVISO: python-dotenv no instalado. Las variables .env serán ignoradas.")
+    print("   Instala con: pip install python-dotenv")
+
+# ========================================
 # CONFIGURACIÓN BASE
 # ========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

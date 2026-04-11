@@ -168,6 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('tutor').value = r.tutor;
                 document.getElementById('direccion').value = "Extraída de App Móvil GPS"; // Simulado
                 
+                // Fill location fields
+                document.getElementById('df_localidad').value = r.localidad || '';
+                document.getElementById('df_colonia').value = r.colonia || '';
+                document.getElementById('df_tipo_asentamiento').value = r.tipo_asentamiento || '';
+                document.getElementById('df_cp').value = r.cp || '';
+                
                 if(r.escuela !== 'Pendiente de Asignación') {
                     document.getElementById('escuela').value = r.escuela;
                 } else {
