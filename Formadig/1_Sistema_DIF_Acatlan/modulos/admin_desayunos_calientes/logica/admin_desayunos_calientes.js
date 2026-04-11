@@ -295,43 +295,65 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================================================
     async function cargarColonias(codigoPostal) {
         const selectColonia = document.getElementById('colonia');
-        if (!selectColonia || !codigoPostal || codigoPostal.length !== 5) {
-            if (selectColonia) {
-                selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
-            }
+        if (!selectColonia) {
+            console.error('❌ Select de colonia no encontrado en el DOM');
+            return;
+        }
+        
+        if (!codigoPostal || codigoPostal.length !== 5) {
+            console.warn(`⚠️ CP inválido o incompleto: "${codigoPostal}"`);
+            selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
             return;
         }
 
+        console.log(`🔍 Iniciando búsqueda de colonias para CP: ${codigoPostal}`);
+
         try {
-            const response = await fetch(`/api/colonias/${codigoPostal}`, {
+            const url = `/api/colonias/${codigoPostal}`;
+            console.log(`📡 Petición GET a: ${url}`);
+            
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
 
+            console.log(`📊 Estado de respuesta: ${response.status} ${response.statusText}`);
+
             if (!response.ok) {
-                console.warn(`Error fetching colonias: ${response.status}`);
+                console.warn(`⚠️ Error HTTP ${response.status} al obtener colonias`);
                 selectColonia.innerHTML = '<option value="">-- No se encontraron colonias --</option>';
                 return;
             }
 
             const data = await response.json();
-            const colonias = data.colonias || [];
+            console.log("✅ Respuesta del backend para colonias:", data);
 
-            // Limpiar y reconstruir opciones
+            // El backend ahora devuelve array directamente
+            const colonias = Array.isArray(data) ? data : (data.colonias || []);
+            console.log(`📋 Colonias extraídas (cantidad: ${colonias.length}):`, colonias);
+
+            // Limpiar dropdown
             selectColonia.innerHTML = '<option value="">-- Selecciona una colonia --</option>';
             
             if (colonias.length === 0) {
-                selectColonia.innerHTML += '<option disabled>No hay colonias para este CP</option>';
+                console.warn(`⚠️ No hay colonias registradas para CP ${codigoPostal}`);
+                selectColonia.innerHTML += '<option disabled style="color: #999;">No hay colonias para este CP</option>';
             } else {
-                colonias.forEach(col => {
+                console.log(`✅ Agregando ${colonias.length} opciones al selector`);
+                colonias.forEach((col, idx) => {
+                    const nombreColonia = col.nombre || col.name || 'Unnamed';
+                    console.log(`   [${idx + 1}] ${nombreColonia}`);
+                    
                     const option = document.createElement('option');
-                    option.value = col.nombre;
-                    option.textContent = col.nombre;
+                    option.value = nombreColonia;
+                    option.textContent = nombreColonia;
                     selectColonia.appendChild(option);
                 });
+                console.log('✅ Todas las opciones agregadas exitosamente');
             }
         } catch (error) {
-            console.error('Error cargando colonias:', error);
+            console.error('❌ Error de red/CORS cargando colonias:', error);
+            console.error('   Detalles del error:', error.message);
             selectColonia.innerHTML = '<option value="">-- Error cargando colonias --</option>';
         }
     }

@@ -30,26 +30,33 @@ def obtener_colonias_por_cp(cp):
     """
     Endpoint GET para obtener colonias por código postal.
     Consulta la tabla colonias_acatlan en Supabase.
+    Devuelve array directo de objetos para mejor consumo en frontend.
     """
     try:
         # Validar que cp no esté vacío
         if not cp or not cp.strip():
-            return jsonify({'error': 'Código Postal no puede estar vacío'}), 400
+            print(f"❌ CP vacío recibido")
+            return jsonify({'error': 'Código Postal no puede estar vacío', 'colonias': []}), 400
+        
+        cp_clean = cp.strip()
+        print(f"🔍 Buscando colonias para CP: {cp_clean}")
         
         # Consultar colonias por código postal
-        response = supabase.table('colonias_acatlan').select('id, nombre, codigo_postal').eq('codigo_postal', cp.strip()).execute()
+        response = supabase.table('colonias_acatlan').select('id, nombre, codigo_postal').eq('codigo_postal', cp_clean).execute()
         
         colonias = response.data if response.data else []
         
-        # Si no hay resultados, retornar lista vacía (no es error)
-        return jsonify({
-            'colonias': colonias,
-            'total': len(colonias),
-            'codigo_postal': cp.strip()
-        }), 200
+        print(f"✅ Se encontraron {len(colonias)} colonia(s) para CP {cp_clean}")
+        if colonias:
+            print(f"   Colonias: {[c.get('nombre') for c in colonias]}")
+        
+        # Devolver array limpio para mejor consumo frontend
+        return jsonify(colonias), 200
         
     except Exception as e:
-        print(f'❌ Error al obtener colonias: {str(e)}')
+        print(f'❌ Error crítico al obtener colonias: {str(e)}')
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'Error al obtener colonias: {str(e)}'}), 500
 
 
