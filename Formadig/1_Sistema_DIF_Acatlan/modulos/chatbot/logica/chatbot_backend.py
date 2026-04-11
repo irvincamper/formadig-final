@@ -26,10 +26,10 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
-# Credenciales Supabase (Obtenidas de otros módulos operativos)
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
-GEMINI_API_KEY = "AIzaSyD1FhiP8ZdGIpwPdHz3NMFHFWASea1xGUo"
+# Credenciales Supabase (desde environment variables SOLAMENTE para producción)
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
 
 
@@ -122,14 +122,14 @@ def obtener_contexto_db(user_email=None, user_role=None):
     
     # 1. Catálogo de Hospitales
     try:
-        hosp_res = supabase.table('hospitales').select('nombre_hospital').execute()
+        hosp_res = supabase.table('hospitales').select('nombre_hospital').limit(1000).execute()
         hospitales = [h['nombre_hospital'] for h in hosp_res.data]
         contexto += f"Hospitales registrados: {', '.join(hospitales)}\n"
     except: pass
 
     # 2. Conocimiento General (FAQ/Reglas)
     try:
-        conoc_res = supabase.table('chatbot_conocimiento').select('titulo, contenido').execute()
+        conoc_res = supabase.table('chatbot_conocimiento').select('titulo, contenido').limit(1000).execute()
         for item in conoc_res.data:
             contexto += f"Regla/Info [{item['titulo']}]: {item['contenido']}\n"
     except: pass

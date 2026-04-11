@@ -13,8 +13,8 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -28,57 +28,42 @@ def obtener_registros():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
     try:
-        res = supabase.table('traslados').select('*').order('fecha_solicitud', desc=True).execute()
+        res = supabase.table('traslados').select('*').order('fecha_solicitud', desc=True).limit(1000).execute()
         
-        # Mapear columnas reales de DB -> nombres que el frontend espera
+        # Mapear columnas reales de DB -> JSON response (SIN FALLBACKS, SOLO CAMPOS EXACTOS)
         traslados_mapeados = []
         for r in res.data:
-            # Combinar fecha/hora de la app móvil con fecha_viaje/hora_cita del esquema original
-            fecha_display = r.get('fecha_viaje') or r.get('fecha')
-            hora_display  = r.get('hora_cita')  or r.get('hora')
-
             traslados_mapeados.append({
                 # IDs y meta
-                "id":                r.get('id'),
-                "registrado_por":    r.get('registrado_por'),
-                "fecha_solicitud":   r.get('fecha_solicitud'),
+                "id": r.get('id'),
+                "registrado_por": r.get('registrado_por'),
+                "fecha_solicitud": r.get('fecha_solicitud'),
                 # Paciente
-                "paciente_nombre":   r.get('paciente_nombre'),
-                "paciente_curp":     r.get('paciente_curp'),
-                "paciente_edad":     r.get('paciente_edad'),
-                "paciente_domicilio":r.get('paciente_domicilio'),
-                "localidad":         r.get('paciente_domicilio'),  # alias
+                "paciente_nombre": r.get('paciente_nombre'),
+                "paciente_curp": r.get('paciente_curp'),
+                "paciente_edad": r.get('paciente_edad'),
+                "paciente_domicilio": r.get('paciente_domicilio'),
                 # Destino
-                "destino_hospital":  r.get('destino_hospital'),
-                "destino":           r.get('destino_hospital'),    # alias
-                # Fecha y hora (compatibilidad doble)
-                "fecha_viaje":       r.get('fecha_viaje'),
-                "fecha_cita":        fecha_display,                 # frontend usa fecha_cita
-                "hora_cita":         r.get('hora_cita'),
-                "hora_salida":       hora_display,                  # frontend usa hora_salida
-                "fecha":             r.get('fecha'),
-                "hora":              r.get('hora'),
+                "destino_hospital": r.get('destino_hospital'),
+                # Fecha y hora (exactos del schema)
+                "fecha_viaje": r.get('fecha_viaje'),
+                "hora_cita": r.get('hora_cita'),
                 # Contacto
-                "telefono_principal":r.get('telefono_principal'),
-                "telefono":          r.get('telefono_principal'),   # alias
-                "telefono_secundario":r.get('telefono_secundario'),
-                "telefono_emergencia":r.get('telefono_secundario'), # alias frontend
-                # Identidad oficial
-                "clave_elector":     r.get('clave_elector') or r.get('clave_de_elector'),
+                "telefono_principal": r.get('telefono_principal'),
+                "telefono_secundario": r.get('telefono_secundario'),
                 # Acompañante
-                "acompanante_nombre":r.get('acompanante_nombre'),
-                "acompanante_entidad": r.get('acompanante_entidad') or r.get('entidad'),
-                "tutor":             r.get('acompanante_nombre'),   # alias
+                "acompanante_nombre": r.get('acompanante_nombre'),
+                "acompanante_entidad": r.get('acompanante_entidad'),
                 # Estatus y logística
-                "estatus":           r.get('estatus', 'Pendiente'),
-                "kilometraje_salida":r.get('kilometraje_salida'),
-                "kilometraje_llegada":r.get('kilometraje_llegada'),
-                # Documentos (URLs de imágenes de la app móvil)
-                "url_doc_beneficiario": r.get('url_doc_beneficiario') or r.get('url_ine_paciente') or r.get('foto_ine_url') or r.get('url_curp') or r.get('url_ine'),
-                "url_doc_acompanante":  r.get('url_doc_acompanante') or r.get('url_ine_acompanante') or r.get('url_doc_ine_tutor'),
-                "url_foto_infante":      r.get('url_foto_infante') or r.get('foto_paciente') or r.get('url_foto_paciente') or r.get('url_foto'),
-                "url_comprobante_domicilio": r.get('url_comprobante_domicilio') or r.get('comprobante_domicilio') or r.get('url_comprobante') or r.get('url_doc_domicilio'),
-                "lugares_requeridos":   r.get('lugares_requeridos', 2),
+                "estatus": r.get('estatus', 'Pendiente'),
+                "kilometraje_salida": r.get('kilometraje_salida'),
+                "kilometraje_llegada": r.get('kilometraje_llegada'),
+                # Documentos
+                "url_doc_beneficiario": r.get('url_doc_beneficiario'),
+                "url_doc_acompanante": r.get('url_doc_acompanante'),
+                "url_foto_infante": r.get('url_foto_infante'),
+                "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
+                "lugares_requeridos": r.get('lugares_requeridos', 2),
             })
 
         print(f"📋 GET /api/traslados → {len(traslados_mapeados)} registros")

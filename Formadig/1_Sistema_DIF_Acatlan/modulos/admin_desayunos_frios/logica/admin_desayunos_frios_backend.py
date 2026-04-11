@@ -13,33 +13,24 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_KEY = "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk"
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/', methods=['GET'])
 def obtener_registros():
     try:
-        candidate_tables = ['desayunos_frios', 'desayunos_fríos', 'desayunos_eaeyd']
-        responses = []
-        for table in candidate_tables:
-            try:
-                res = global_client.table(table).select('*').execute()
-                if table == 'desayunos_eaeyd':
-                    responses.extend([r for r in res.data if r.get('tipo_apoyo') == 'Frios'])
-                else:
-                    responses.extend(res.data)
-            except: continue
+        # Query tabla principal desayunos_frios con límite de 1000 registros
+        res = global_client.table('desayunos_frios').select('*').limit(1000).execute()
+        responses = res.data if res.data else []
         
         desayunos_mapeados = []
         for r in responses:
-            record_id = r.get('Identificación') or r.get('id') or r.get('uuid')
-            nombre = r.get('nombres') or r.get('nombre') or r.get('nombre_beneficiario') or ''
-            apell = r.get('apellidos') or r.get('apellido') or ''
+            # Usar campos exactos del schema
+            record_id = r.get('id')
+            nombre = r.get('nombres') or ''
+            apell = r.get('apellidos') or ''
             nombre_completo = f"{nombre} {apell}".strip()
-            
-            if not nombre_completo:
-                nombre_completo = r.get('bordillo') or r.get('curp') or f"Registro #{str(record_id)[:8] if record_id else '?'}"
             
             desayunos_mapeados.append({
                 "id": str(record_id),
