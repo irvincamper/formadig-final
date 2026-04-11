@@ -1,0 +1,19 @@
+# Servidor y Web
+Flask
+Flask-Cors
+gunicorn
+whitenoise
+Werkzeug
+python-dotenv
+
+# Base de Datos (Supabase)
+supabase
+
+# Utilidades
+requests
+PyJWT
+pydantic
+typing_extensions
+
+# Twilio (SMS)
+twilio
