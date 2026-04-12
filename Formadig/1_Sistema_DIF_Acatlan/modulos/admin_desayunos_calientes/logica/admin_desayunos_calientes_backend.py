@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import CORS
 import json
 import os
 import requests
@@ -7,6 +8,9 @@ import base64
 # Lógica de Backend de Python - Desayunos Calientes (V8: FINAL ROBUST FIX - CON JWT HANDLING)
 # Crear Blueprint para desayunos calientes
 desayunos_calientes_bp = Blueprint('desayunos_calientes', __name__, url_prefix='/api/desayunos_calientes')
+
+# Habilitar CORS para permitir la comunicación con el Frontend
+CORS(desayunos_calientes_bp)
 
 try:
     from supabase import create_client, Client
@@ -141,7 +145,8 @@ def dictamen_registro(record_id):
         target_table = None
         id_col = None
         
-        for table in ['desayunos_calientes', 'desayunos_calientes', 'desayunos_eaeyd']:
+        # Búsqueda dinámica de la tabla correcta
+        for table in ['desayunos_calientes', 'desayunos_frios', 'desayunos_eaeyd']:
             for col in ['id', 'uuid', 'Identificación']:
                 try:
                     check = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
@@ -179,7 +184,6 @@ def dictamen_registro(record_id):
             "telefono": "tutor_telefono",
             "escuela": "escuela",
             "estatus": "estatus",
-            # CAMPOS DE ARCHIVOS (URL)
             "url_curp": "url_curp",
             "url_comprobante_salud": "url_comprobante_salud",
             "url_ine_tutor": "url_ine_tutor",
@@ -209,7 +213,7 @@ def dictamen_registro(record_id):
         
         if auth_header and auth_header.startswith('Bearer '):
             headers["Authorization"] = auth_header
-            # Extraer UUID del token JWT para inyectar en el registro
+            # Extraer UUID del token JWT para inyectar en el registro si es necesario
             try:
                 token = auth_header.split(' ')[1]
                 payload = token.split('.')[1]
@@ -217,19 +221,19 @@ def dictamen_registro(record_id):
                 decoded = json.loads(base64.b64decode(payload + pad).decode('utf-8'))
                 admin_uuid = decoded.get('sub')
                 
-                # Pre-patch para asignar usuario si no existe
-                url_get = f"{SUPABASE_URL}/rest/v1/{target_table}?select={id_col}&{id_col}=eq.{record_id}"
+                # Pre-patch para asignar usuario_admin si la columna existe y está vacía
+                url_get = f"{SUPABASE_URL}/rest/v1/{target_table}?select={id_col},usuario_admin&{id_col}=eq.{record_id}"
                 rg = requests.get(url_get, headers={"apikey": SUPABASE_KEY, "Authorization": auth_header})
                 if rg.status_code == 200 and rg.json():
-                    if not rg.json()[0].get('usuario_admin'):
+                    if 'usuario_admin' in rg.json()[0] and not rg.json()[0].get('usuario_admin'):
                         url_patch = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
-                        requests.patch(url_patch, json={'usuario_admin': admin_uuid}, headers=headers, proxies={"http": None, "https": None})
+                        requests.patch(url_patch, json={'usuario_admin': admin_uuid}, headers=headers)
             except Exception as e:
                 print(f"⚠️ Advertencia parseando JWT: {e}")
         else:
-            headers["Authorization"] = f"Bearer {SUPABASE_KEY}"  # Fallback
+            headers["Authorization"] = f"Bearer {SUPABASE_KEY}"
 
-        # Ejecutar PATCH manual a REST API
+        # Ejecutar PATCH manual a REST API de Supabase
         url = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
         r = requests.patch(url, json=update_payload, headers=headers, proxies={"http": None, "https": None})
         
@@ -248,6 +252,5 @@ def dictamen_registro(record_id):
         print(f"❌ Error crítico en PUT: {e}")
         return jsonify({"error": str(e)}), 500
 
-# ============================================================================
-# NOTA: El blueprint 'desayunos_calientes_bp' se registra en la app maestra
-# ============================================================================
+# Registro de Blueprint
+# app.register_blueprint(desayunos_calientes_bp)
