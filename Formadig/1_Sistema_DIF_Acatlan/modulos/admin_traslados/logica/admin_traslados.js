@@ -20,6 +20,21 @@ function setValue(fieldId, fieldValue) {
     }
 }
 
+// ========== INICIALIZAR SUPABASE CLIENTE PARA REALTIME ==========
+let supabaseClient = null;
+let realtimeChannel = null;
+
+try {
+    supabaseClient = supabase.createClient(
+        'https://ctiqbycbkcftwuqgzxjb.supabase.co',
+        'sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk'
+    );
+    console.log('✅ Cliente Supabase inicializado para Realtime');
+} catch (error) {
+    console.warn('⚠️ Error inicializando Supabase cliente:', error);
+    supabaseClient = null;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificación de sesión y Setup Header
     const session = Auth.checkSession();
@@ -311,8 +326,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Cargar y renderizar la Tabla (Bitácora)
     async function cargarTraslados() {
         try {
+            // Obtener datos del usuario autenticado
+            const user = Auth.getUser();
+            const userEmail = user?.email || '';
+            const userRole = user?.role || '';
+            
             const res = await fetch('/api/traslados', {
-                headers: { 'Authorization': `Bearer ${session.token}` }
+                headers: {
+                    'Authorization': `Bearer ${session.token}`,
+                    'X-User-Email': userEmail,
+                    'X-User-Role': userRole
+                }
             });
             
             if (!res.ok) throw new Error('Falló fetch');
@@ -329,12 +353,57 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 updateNavControls();
             }
+            
+            // ========== INICIAR ESCUCHA REALTIME ==========
+            iniciarRealtimeTraslados();
 
         } catch (error) {
             console.error('Error cargando traslados:', error);
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#e53e3e;">
                 ⚠️ No se pudieron cargar los registros. El servidor backend podría estar apagado.
             </td></tr>`;
+        }
+    }
+    
+    // ========== FUNCIÓN: REALTIME - Escuchar cambios en la tabla traslados ==========
+    async function iniciarRealtimeTraslados() {
+        if (!supabaseClient) {
+            console.warn('⚠️ Cliente Supabase no disponible, Realtime deshabilitado');
+            return;
+        }
+        
+        try {
+            // Si hay un canal anterior, limpiarlo
+            if (realtimeChannel) {
+                await realtimeChannel.unsubscribe();
+            }
+            
+            // Crear nuevo canal escuchando cambios en traslados
+            realtimeChannel = supabaseClient.channel('public:traslados', {
+                config: { broadcast: { self: true } }
+            })
+            .on('postgres_changes', 
+                { 
+                    event: '*',  // Escuchar INSERT, UPDATE, DELETE
+                    schema: 'public',
+                    table: 'traslados'
+                },
+                (payload) => {
+                    console.log('🔄 Cambio detectado en traslados:', payload);
+                    
+                    // Re-cargar los traslados del backend
+                    cargarTraslados();
+                }
+            )
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Realtime conectado - Escuchando cambios en traslados');
+                } else if (status === 'CLOSED') {
+                    console.log('⚠️ Realtime desconectado');
+                }
+            });
+        } catch (error) {
+            console.error('❌ Error iniciando Realtime:', error);
         }
     }
 
