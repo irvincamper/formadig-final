@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             estatura_menor:      document.getElementById('estatura_menor')?.value,
             nivel_estudios:      document.getElementById('nivel_estudios')?.value,
             ingreso_mensual:     document.getElementById('ingreso_mensual')?.value,
-            situacion_vulnerabilidad: document.getElementById('situacion_vulnerabilidad')?.checked,
             localidad:           document.getElementById('localidad')?.value,
             colonia:             document.getElementById('colonia')?.value,
             tipo_asentamiento:   document.getElementById('tipo_asentamiento')?.value,
@@ -250,8 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Socioeconómico
                 safeSet('nivel_estudios', r.nivel_estudios);
                 safeSet('ingreso_mensual', r.ingreso_mensual);
-                const vulnCheck = document.getElementById('situacion_vulnerabilidad');
-                if (vulnCheck) vulnCheck.checked = !!(r.situacion_vulnerabilidad || r.vulnerabilidad);
                 // Ubicación
                 safeSet('localidad', r.localidad);
                 safeSet('colonia', r.colonia);
@@ -375,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 setValue('estatura_menor', data.estatura_menor);
                 setValue('nivel_estudios', data.nivel_estudios);
                 setValue('ingreso_mensual', data.ingreso_mensual);
-                setValue('situacion_vulnerabilidad', data.situacion_vulnerabilidad);
                 setValue('localidad', data.localidad);
                 setValue('tipo_asentamiento', data.tipo_asentamiento);
                 setValue('cp', data.cp);

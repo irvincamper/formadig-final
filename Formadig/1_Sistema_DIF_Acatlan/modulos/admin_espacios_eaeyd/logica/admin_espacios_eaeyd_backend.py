@@ -55,7 +55,6 @@ def obtener_registros():
                 # Socioeconómico
                 "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
                 "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar') or r.get('ingreso'),
-                "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('vulnerabilidad'),
                 
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
@@ -204,9 +203,6 @@ def dictamen_registro(record_id):
         for frontend_key, db_key in field_mapping.items():
             if frontend_key in data:
                 update_payload[db_key] = data[frontend_key]
-
-        if 'situacion_vulnerabilidad' in data:
-            update_payload['situacion_vulnerabilidad'] = data['situacion_vulnerabilidad']
 
         if not update_payload:
             return jsonify({"error": "No se enviaron campos válidos para actualizar"}), 400

@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Blueprint, request, jsonify
 import os
 from datetime import datetime
@@ -36,9 +38,10 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Credenciales de SMS (Simulación por defecto)
-TWILIO_ACCOUNT_SID = 'AC_TU_SID_AQUI' 
-TWILIO_AUTH_TOKEN = 'TOKEN_AQUI'
-TWILIO_PHONE_NUMBER = '+0000000000'
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', 'AC_TU_SID_AQUI')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', 'TOKEN_AQUI')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '+0000000000')
+TWILIO_VERIFY_SERVICE_SID = os.environ.get('TWILIO_VERIFY_SERVICE_SID', 'VA1c7923d708c9ddbb121620974cf6c594')
 
 # Conexión Supabase
 try:
@@ -76,16 +79,18 @@ def send_sms():
     else:
         try:
             client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            message = client.messages.create(
-                body=message_text,
-                from_=TWILIO_PHONE_NUMBER,
-                to=phone
-            )
-            print(f"SMS Real enviado: {message.sid}")
+            # Usar la API de Verify V2 en lugar de SMS normal
+            verification = client.verify \
+                .v2 \
+                .services(TWILIO_VERIFY_SERVICE_SID) \
+                .verifications \
+                .create(to=phone, channel='sms')
+            status = "Enviado"
+            print(f"SMS Verify (V2) enviado. SID: {verification.sid}")
         except Exception as e:
             status = "Fallido"
             error_msg = str(e)
-            print(f"Error enviando SMS real: {e}")
+            print(f"Error enviando SMS Verify: {e}")
 
     # LOGUEO EN SUPABASE (Historial para el DIF)
     if supabase:
@@ -179,3 +184,18 @@ def sms_webhook():
 # ============================================================================
 # NOTA: El blueprint 'sms_bp' se registra en la app maestra
 # ============================================================================
+
+if __name__ == "__main__":
+    from flask import Flask
+    app = Flask(__name__)
+    try:
+        from flask_cors import CORS
+        CORS(app)
+    except ImportError:
+        pass
+        
+    app.register_blueprint(sms_bp)
+    
+    port = int(os.environ.get("PORT", 5009))
+    print(f"Iniciando SMS Web Service en el puerto {port}...")
+    app.run(host='0.0.0.0', port=port)

@@ -50,7 +50,6 @@ def obtener_registros():
                 # Socioeconómico
                 "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
                 "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar') or r.get('ingreso'),
-                "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('vulnerabilidad'),
                 
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad'),
@@ -106,7 +105,6 @@ def obtener_desayuno(record_id):
             "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
             "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
             "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
-            "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
             "localidad": r.get('localidad') or r.get('comunidad'),
             "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
             "cp": r.get('cp') or r.get('codigo_postal'),
@@ -192,9 +190,6 @@ def dictamen_registro(record_id):
         for frontend_key, db_key in field_mapping.items():
             if frontend_key in data:
                 update_payload[db_key] = data[frontend_key]
-
-        if 'situacion_vulnerabilidad' in data:
-            update_payload['situacion_vulnerabilidad'] = data['situacion_vulnerabilidad']
 
         if not update_payload:
             return jsonify({"error": "No se enviaron campos válidos para actualizar"}), 400
