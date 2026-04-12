@@ -9,6 +9,17 @@ function formatearFecha(fechaString) {
     return `${dia}/${mes}/${año}`;
 }
 
+// ========== FUNCIÓN GLOBAL: Llenar valores de forma ==========
+function setValue(fieldId, fieldValue) {
+    const element = document.getElementById(fieldId);
+    if (element) {
+        element.value = fieldValue || '';
+        console.log(`   ✓ ${fieldId} = "${fieldValue}"`);
+    } else {
+        console.warn(`   ⚠️ Campo no encontrado: ${fieldId}`);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const session = Auth.checkSession();
     if (!session) return;
@@ -277,6 +288,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cargarDatos();
+
+    // ========== Función de autollenado por URL param ==========
+    async function autollenarPorFolio(session) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const folioId = urlParams.get('id');
+        
+        if (folioId) {
+            console.log("🔍 ESPACIOS EAEYD - Detectado ID en URL:", folioId);
+            try {
+                const response = await fetch(`/api/espacios_eaeyd/${folioId}`, {
+                    headers: { 'Authorization': `Bearer ${session.token}` }
+                });
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                
+                const data = await response.json();
+                console.log("📡 Datos cargados del folio:", data);
+                console.log("📝 Llenando formulario con campos:");
+                
+                // Llenar campos específicos de EAEyD
+                setValue('nombre_beneficiario', data.nombre_beneficiario || `${data.nombres} ${data.apellidos}`);
+                setValue('nombres', data.nombres);
+                setValue('apellidos', data.apellidos);
+                setValue('curp', data.curp);
+                setValue('fecha_nacimiento', data.fecha_nacimiento);
+                setValue('sexo', data.sexo);
+                setValue('estado_civil', data.estado_civil);
+                setValue('peso_menor', data.peso_menor);
+                setValue('estatura_menor', data.estatura_menor);
+                setValue('nivel_estudios', data.nivel_estudios);
+                setValue('ingreso_mensual', data.ingreso_mensual);
+                setValue('situacion_vulnerabilidad', data.situacion_vulnerabilidad);
+                setValue('localidad', data.localidad);
+                setValue('tipo_asentamiento', data.tipo_asentamiento);
+                setValue('cp', data.cp);
+                setValue('referencias', data.referencias);
+                setValue('tutor', data.tutor);
+                setValue('clave_elector_tutor', data.clave_elector_tutor);
+                setValue('telefono', data.telefono);
+                setValue('escuela', data.escuela);
+                setValue('estatus', data.estatus);
+                
+                currentSelectedId = data.id;
+                console.log("✅ Formulario poblado automáticamente desde URL");
+            } catch (error) {
+                console.error("❌ Error cargando folio desde URL:", error);
+                // Continuar cargando lista normal
+                cargarDatos();
+            }
+        }
+    }
+    
+    autollenarPorFolio(session);
 
     // --- Lógica de Navegación tipo Carrusel ---
     function updateNavControls() {
