@@ -11,7 +11,6 @@ def kill_ports(ports):
         try:
             print(f"   [A] Consultando estado de red (timeout 5s)...")
             cmd = 'netstat -ano | findstr /R "LISTENING ESCUCHANDO"'
-            # Añadimos timeout para evitar que el sistema se quede colgado aquí
             output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, timeout=5).decode(errors='ignore')
             
             pids_to_kill = set()
@@ -46,56 +45,67 @@ def kill_ports(ports):
 def main():
     print("==================================================")
     print("Iniciando Sistema de Gestión DIF Acatlán (FORMADIG v2.1)")
+    print("Arquitectura Unificada - Un Puerto, Una Instancia")
     print("==================================================")
 
-    # Limpiar puertos clave para evitar conflictos (5003 para Admin Usuarios, 5009 para SMS, 5010 para Colonias)
-    ports = [5001, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010, 8000]
-    print(f"Limpiando puertos ({', '.join(map(str, ports))})...")
-    kill_ports(ports)
+    # Limpiar puertos antiguos (por si quedan procesos de versión anterior)
+    old_ports = [5001, 5003, 5004, 5005, 5006, 5007, 5008, 5009, 5010]
+    print(f"Limpiando puertos antiguos ({', '.join(map(str, old_ports))})...")
+    kill_ports(old_ports)
+    
+    # Limpiar puerto del nuevo servidor unificado
+    print(f"Limpiando puerto 8000 del servidor unificado...")
+    kill_ports([8000])
 
     base_dir  = os.path.dirname(os.path.abspath(__file__))
-    # El archivo está en 0_Inicio_Rapido, subimos un nivel para encontrar el resto
     root_dir  = os.path.dirname(base_dir)
     system_dir = os.path.join(root_dir, "1_Sistema_DIF_Acatlan")
-    modulos_dir = os.path.join(system_dir, "modulos")
+    app_unified = os.path.join(system_dir, "app_unified.py")
     
-    backends = {
-        "Auth": os.path.join(modulos_dir, "login", "logica", "login_backend.py"),
-        "Admin Usuarios": os.path.join(modulos_dir, "admin_usuarios", "logica", "admin_usuarios_backend.py"),
-        "Traslados": os.path.join(modulos_dir, "admin_traslados", "logica", "admin_traslados_backend.py"),
-        "Desayunos Fríos": os.path.join(modulos_dir, "admin_desayunos_frios", "logica", "admin_desayunos_frios_backend.py"),
-        "Desayunos Calientes": os.path.join(modulos_dir, "admin_desayunos_calientes", "logica", "admin_desayunos_calientes_backend.py"),
-        "EAEyD": os.path.join(modulos_dir, "admin_espacios_eaeyd", "logica", "admin_espacios_eaeyd_backend.py"),
-        "Chatbot": os.path.join(modulos_dir, "chatbot", "logica", "chatbot_backend.py"),
-        "SMS": os.path.join(modulos_dir, "sms", "logica", "sms_backend.py"),
-        "Colonias": os.path.join(modulos_dir, "colonias", "logica", "colonias_backend.py")
-    }
-
-    procesos = []
-
-    for name, path in backends.items():
-        if os.path.exists(path):
-            print(f"Iniciando {name} Backend...")
-            procesos.append(subprocess.Popen([sys.executable, path]))
-        else:
-            print(f"⚠️ Error: No se encontró el módulo {name} en {path}")
-
-    print("Iniciando Servidor Web (Puerto 8000)...")
-    procesos.append(subprocess.Popen([sys.executable, "-m", "http.server", "8000"], cwd=system_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
-
-    time.sleep(3)
-    url = "http://localhost:8000/modulos/login/vistas/login.html"
-    print(f"\n🚀 SITEMA LISTO: {url}")
-    print("Presiona Ctrl+C para apagar.")
+    if not os.path.exists(app_unified):
+        print(f"❌ Error: No se encontró {app_unified}")
+        sys.exit(1)
     
-    webbrowser.open(url)
-
+    print("\n" + "="*70)
+    print("🚀 Iniciando APLICACIÓN MAESTRA UNIFICADA...")
+    print("="*70 + "\n")
+    
+    # Iniciar la aplicación maestra unificada
+    print(f"▶️ Ejecutando: python {app_unified}\n")
+    
     try:
-        while True: time.sleep(1)
+        # Ejecutar la app en el directorio correcto para que encuentre los módulos
+        proceso = subprocess.Popen(
+            [sys.executable, app_unified],
+            cwd=system_dir,
+            env={**os.environ, 'PORT': '8000'}
+        )
+        
+        # Esperar a que el servidor esté listo
+        time.sleep(4)
+        
+        url = "http://localhost:8000/modulos/login/vistas/login.html"
+        print(f"\n✅ SISTEMA LISTO EN: {url}")
+        print("\n📋 Arquictectura:")
+        print("   - 1 Aplicación Flask Maestra")
+        print("   - 9 Blueprints registrados")
+        print("   - 1 Puerto único (8000)")
+        print("   - CORS habilitado globalmente")
+        print("\nPresiona Ctrl+C para apagar.")
+        
+        webbrowser.open(url)
+        
+        # Mantener el proceso activo
+        proceso.wait()
+        
     except KeyboardInterrupt:
-        print("\nApagando servidores...")
-        for p in procesos: p.terminate()
-        print("¡Adiós!")
+        print("\n\n🛑 Apagando aplicación...")
+        proceso.terminate()
+        proceso.wait(timeout=5)
+        print("✅ Aplicación cerrada.")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

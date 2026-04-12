@@ -2,16 +2,13 @@
 Backend para Gestión de Colonias
 Módulo: colonias_backend.py
 Funcionalidad: Obtener colonias por código postal desde Supabase
+
+⚠️ NOTA: Este archivo exporta un Blueprint para ser registrado en la app maestra unificada.
 """
 
-from flask import Flask, Blueprint, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from supabase import create_client
 import os
-
-# Crear aplicación Flask
-app = Flask(__name__)
-CORS(app)
 
 # Inicializar Blueprint
 colonias_bp = Blueprint('colonias', __name__, url_prefix='/api/colonias')
@@ -87,16 +84,5 @@ def listar_todas_colonias():
 
 
 # ============================================================================
-# Registro del Blueprint en la app
+# NOTA: El blueprint 'colonias_bp' se registra en la app maestra
 # ============================================================================
-app.register_blueprint(colonias_bp)
-
-# ============================================================================
-# Ejecutar servidor Flask
-# ============================================================================
-if __name__ == '__main__':
-    print("\n🏘️ Backend Colonias iniciado en puerto 5010")
-    print(f"📍 Rutas registradas:")
-    for rule in app.url_map.iter_rules():
-        print(f"   {rule.rule} [{', '.join(rule.methods - {'HEAD', 'OPTIONS'})}]")
-    app.run(host='0.0.0.0', port=5010, debug=False, use_reloader=False)

@@ -260,6 +260,6 @@ def dictamen_registro(record_id):
         print(f"❌ Error crítico en PUT: {e}")
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    print("🍎 Backend EAEyD (V8 FINAL) iniciado en puerto 5007")
-    app.run(host='0.0.0.0', port=5007, debug=False, use_reloader=False)
+# ============================================================================
+# NOTA: El blueprint 'espacios_eaeyd_bp' se registra en la app maestra
+# ============================================================================

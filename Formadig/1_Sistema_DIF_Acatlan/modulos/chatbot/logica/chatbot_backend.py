@@ -1,9 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 import requests
 import os
 import io
 from datetime import datetime
-from flask import Flask, request, jsonify, send_file
+
 try:
     import pandas as pd
     from docx import Document
@@ -22,8 +22,8 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-app = Flask(__name__)
-CORS(app)
+# Crear Blueprint para chatbot
+chatbot_bp = Blueprint('chatbot', __name__, url_prefix='/api/chatbot')
 
 # Credenciales Supabase (desde environment variables SOLAMENTE para producción)
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
@@ -294,7 +294,7 @@ def crear_pdf_reporte(data, table_name, titulo):
     output.seek(0)
     return output
 
-@app.route('/export', methods=['GET'])
+@chatbot_bp.route('/export', methods=['GET'])
 def export_report():
     table_name = request.args.get('table', 'traslados')
     file_format = request.args.get('format', 'excel')
@@ -357,7 +357,7 @@ REVERSE_MAPPING = {
     "hospital": "destino_hospital"
 }
 
-@app.route('/upload', methods=['POST'])
+@chatbot_bp.route('/upload', methods=['POST'])
 def upload_file():
     if not supabase:
         return jsonify({"error": "No hay conexión a la base de datos."}), 500
@@ -470,7 +470,7 @@ def generar_respuesta_local(mensaje, email, role):
 # =========================================================
 # 📡 RUTA PRINCIPAL
 # =========================================================
-@app.route('/ask', methods=['POST'])
+@chatbot_bp.route('/ask', methods=['POST'])
 def ask_gemini():
     data = request.json
     user_message = data.get('message', '')
@@ -545,6 +545,6 @@ def ask_gemini():
         bot_response = generar_respuesta_local(user_message, user_email, user_role)
         return jsonify({"response": bot_response})
 
-if __name__ == '__main__':
-    print(f"🤖 Chatbot Backend (v2.0 - REPORTES READY) iniciado en puerto 5008")
-    app.run(port=5008, debug=True)
+# ============================================================================
+# NOTA: El blueprint 'chatbot_bp' se registra en la app maestra
+# ============================================================================

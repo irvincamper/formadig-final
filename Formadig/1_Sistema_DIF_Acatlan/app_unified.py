@@ -38,13 +38,13 @@ def register_blueprints():
     blueprints_to_register = [
         ("login", "login", "login_backend", "auth_bp"),
         ("admin_usuarios", "admin_usuarios", "admin_usuarios_backend", "admin_usuarios_bp"),
-        ("admin_traslados", "admin_traslados", "admin_traslados_backend", "app"),
-        ("admin_desayunos_frios", "admin_desayunos_frios", "admin_desayunos_frios_backend", "app"),
-        ("admin_desayunos_calientes", "admin_desayunos_calientes", "admin_desayunos_calientes_backend", "app"),
-        ("admin_espacios_eaeyd", "admin_espacios_eaeyd", "admin_espacios_eaeyd_backend", "app"),
-        ("chatbot", "chatbot", "chatbot_backend", "app"),
-        ("sms", "sms", "sms_backend", "app"),
-        ("colonias", "colonias", "colonias_backend", "app"),
+        ("admin_traslados", "admin_traslados", "admin_traslados_backend", "traslados_bp"),
+        ("admin_desayunos_frios", "admin_desayunos_frios", "admin_desayunos_frios_backend", "desayunos_frios_bp"),
+        ("admin_desayunos_calientes", "admin_desayunos_calientes", "admin_desayunos_calientes_backend", "desayunos_calientes_bp"),
+        ("admin_espacios_eaeyd", "admin_espacios_eaeyd", "admin_espacios_eaeyd_backend", "espacios_eaeyd_bp"),
+        ("chatbot", "chatbot", "chatbot_backend", "chatbot_bp"),
+        ("sms", "sms", "sms_backend", "sms_bp"),
+        ("colonias", "colonias", "colonias_backend", "colonias_bp"),
     ]
     
     registered = 0
