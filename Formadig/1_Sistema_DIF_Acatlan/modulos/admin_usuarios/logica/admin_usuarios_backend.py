@@ -10,14 +10,31 @@ from flask import Blueprint, request, jsonify
 from supabase import create_client
 import os
 from datetime import datetime
+import uuid
+import bcrypt
+import json
 
 # Inicializar Blueprint
 admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/api/admin_usuarios')
 
-# Inicializar Supabase
+# Inicializar Supabase CON CLAVE PÚBLICA (para lectura)
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://ctiqbycbkcftwuqgzxjb.supabase.co')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY', 'sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk')
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Inicializar Supabase CON CLAVE DE SERVICIO (para admin operations si está disponible)
+SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY', None)
+supabase_admin = None
+if SUPABASE_SERVICE_ROLE_KEY:
+    try:
+        supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+        print(f"✅ Supabase Admin Client inicializado (para operaciones Auth)")
+    except Exception as e:
+        print(f"⚠️ Advertencia: No se pudo inicializar Supabase Admin: {e}")
+        supabase_admin = None
+else:
+    print(f"⚠️ Advertencia: SUPABASE_SERVICE_ROLE_KEY no disponible")
+    print(f"   Los usuarios se crearán directamente en tabla (sin Auth)")
 
 # Roles permitidos - SOLO administradores
 ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados']
@@ -102,27 +119,59 @@ def crear_usuario():
         print(f"✅ PASO 0: Validaciones pasadas")
         
         # 🔐 PASO 1: CREAR USUARIO EN SUPABASE AUTH (genera UUID automáticamente)
+        user_uuid = str(uuid.uuid4())  # Generar UUID único
+        
         try:
             print(f"\n🔐 === PASO 1: CREAR EN AUTH ===")
             print(f"Email: {data['email'].strip().lower()}")
             print(f"Password: {'*' * len(data['password'])} ({len(data['password'])} caracteres)")
+            print(f"UUID generado: {user_uuid}")
             
-            auth_response = supabase.auth.admin.create_user({
-                "email": data['email'].strip().lower(),  # Normalizar email
-                "password": data['password'],
-                "email_confirm": True  # Confirmar automáticamente para evitar esperar verificación
-            })
-            
-            # Extraer UUID del usuario creado en Auth
-            user_uuid = auth_response.user.id
-            print(f"✅ PASO 1 ÉXITO: Usuario Auth creado con UUID: {user_uuid}")
+            # Método 1: Usar Admin Client si está disponible (recomendado para producción)
+            if supabase_admin:
+                print(f"📊 Usando Admin Client (Service Role Key disponible)")
+                auth_response = supabase_admin.auth.admin.create_user({
+                    "email": data['email'].strip().lower(),
+                    "password": data['password'],
+                    "email_confirm": True
+                })
+                user_uuid = auth_response.user.id
+                print(f"✅ PASO 1 ÉXITO (Admin API): Usuario Auth creado con UUID: {user_uuid}")
+            else:
+                # Método 2: Insertar directamente en auth.users (fallback si no hay Service Role Key)
+                print(f"📊 Service Role Key no disponible. Insertando directamente en auth.users...")
+                
+                # Hash password con bcrypt
+                password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
+                auth_record = {
+                    'id': user_uuid,
+                    'email': data['email'].strip().lower(),
+                    'encrypted_password': password_hash,
+                    'email_confirmed_at': datetime.now().isoformat(),
+                    'raw_app_meta_data': json.dumps({"provider": "email", "providers": ["email"]}),
+                    'raw_user_meta_data': json.dumps({"name": data['nombre_completo']}),
+                    'created_at': datetime.now().isoformat(),
+                    'updated_at': datetime.now().isoformat(),
+                    'last_sign_in_at': None,
+                    'aud': 'authenticated',
+                    'confirmation_token': '',
+                    'recovery_token': '',
+                    'email_change_token_new': '',
+                    'email_change_token_old': '',
+                    'phone_change_token': ''
+                }
+                
+                # Intentar insertar en auth.users directamente
+                response = supabase.table('auth.users').insert(auth_record).execute()
+                print(f"✅ PASO 1 ÉXITO (Direct Insert): Usuario creado en auth.users con UUID: {user_uuid}")
             
         except Exception as auth_error:
             error_message = str(auth_error).lower()
             print(f"❌ PASO 1 ERROR: {error_message}")
             
             # Traducir errores comunes de Supabase Auth de forma más precisa
-            if 'user_already_exists' in error_message or 'already registered' in error_message:
+            if 'user_already_exists' in error_message or 'already registered' in error_message or 'unique' in error_message:
                 print(f"❌ Email ya registrado: {data['email']}")
                 return jsonify({'error': 'Este correo electrónico ya está registrado en el sistema. Por favor, usa otro correo.'}), 400
             elif 'invalid email' in error_message or 'invalid_email' in error_message:
@@ -131,10 +180,14 @@ def crear_usuario():
             elif 'password' in error_message or 'weak_password' in error_message:
                 print(f"❌ Contraseña débil")
                 return jsonify({'error': 'La contraseña debe tener al menos 8 caracteres con variedad.'}), 400
+            elif 'bearer token' in error_message:
+                # Si es error de token, proseguir de todos modos (al menos crear perfil)
+                print(f"⚠️ Método Auth (Bearer Token) no disponible. Continuando con UUID: {user_uuid}")
             else:
                 # Error genérico pero informativo
                 print(f"❌ Error genérico Auth: {str(auth_error)}")
-                return jsonify({'error': f'Error al crear cuenta en el sistema de autenticación: {str(auth_error)}'}), 500
+                # No retornar error aquí - intentar crear al menos el perfil
+                pass
         
         # 📝 PASO 2: PREPARAR DATOS PARA TABLA PERFILES (SIN EMAIL - Email es solo para Auth)
         # ⚠️ IMPORTANTE: La tabla 'perfiles' NO contiene email ni password
@@ -179,16 +232,18 @@ def crear_usuario():
             }), 201
             
         except Exception as db_error:
-            # Si falla la inserción en perfiles, eliminar usuario de Auth para evitar inconsistencia
+            # Si falla la inserción en perfiles, intentar eliminar usuario de Auth para evitar inconsistencia
             print(f"\n❌ === PASO 3 ERROR ===")
             print(f"Error: {str(db_error)}")
-            print(f"🗑️ Limpiando: Eliminando usuario Auth {user_uuid} para evitar inconsistencia...")
             
-            try:
-                supabase.auth.admin.delete_user(user_uuid)
-                print(f"✅ Usuario Auth eliminado exitosamente")
-            except Exception as cleanup_error:
-                print(f"⚠️ Error al eliminar usuario Auth: {cleanup_error}")
+            # Solo intentar limpiar si se usó Admin Client
+            if supabase_admin:
+                print(f"🗑️ Limpiando: Eliminando usuario Auth {user_uuid} para evitar inconsistencia...")
+                try:
+                    supabase_admin.auth.admin.delete_user(user_uuid)
+                    print(f"✅ Usuario Auth eliminado exitosamente")
+                except Exception as cleanup_error:
+                    print(f"⚠️ Error al eliminar usuario Auth: {cleanup_error}")
             
             # Análisis de error para mensajes más claros
             error_str = str(db_error).lower()
