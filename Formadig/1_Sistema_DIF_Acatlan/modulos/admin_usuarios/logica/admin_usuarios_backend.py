@@ -82,11 +82,11 @@ def crear_usuario():
         try:
             print(f"🔐 Intentando crear usuario Auth con email: {data['email']}")
             
-            auth_response = supabase.auth.admin.create_user(
-                email=data['email'].strip().lower(),  # Normalizar email
-                password=data['password'],
-                email_confirm=True  # Confirmar automáticamente para evitar esperar verificación
-            )
+            auth_response = supabase.auth.admin.create_user({
+                "email": data['email'].strip().lower(),  # Normalizar email
+                "password": data['password'],
+                "email_confirm": True  # Confirmar automáticamente para evitar esperar verificación
+            })
             
             # Extraer UUID del usuario creado en Auth
             user_uuid = auth_response.user.id
