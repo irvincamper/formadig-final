@@ -100,11 +100,14 @@ def crear_usuario():
         data = request.json
         
         print(f"\n📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===")
-        print(f"JSON recibido: {data}")
+        print(f"📦 JSON recibido: {data}")
+        print(f"📋 Claves recibidas: {list(data.keys()) if data else 'VACÍO'}")
         
         # Validar que se proporcionan los campos requeridos (PASO 0)
         required_fields = ['nombre_usuario', 'nombre_completo', 'email', 'password', 'rol', 'telefono']
         for field in required_fields:
+            valor = data.get(field) if data else None
+            print(f"   - {field}: {'✅' if valor else '❌'} (valor: {valor})")
             if field not in data or not data[field]:
                 print(f"❌ Campo requerido faltante: {field}")
                 return jsonify({'error': f'Campo requerido faltante: {field}'}), 400
@@ -167,14 +170,17 @@ def crear_usuario():
                 print(f"✅ PASO 1 ÉXITO (Direct Insert): Usuario creado en auth.users con UUID: {user_uuid}")
             
         except Exception as e:
-            error_msg = str(e).lower()
-            print(f"❌ PASO 1 ERROR: {error_msg}")
+            error_real = str(e)
+            print(f"🔥 ERROR REAL AL CREAR USUARIO: {error_real}")
+            print(f"Tipo de error: {type(e).__name__}")
+            print(f"Email intentado: {data.get('email', 'NO DISPONIBLE')}")
+            print(f"Password recibido: {'SÍ' if data.get('password') else 'NO'}")
             
-            if 'already registered' in error_msg or 'user_already_exists' in error_msg or 'unique' in error_msg or 'email' in error_msg:
-                print(f"❌ Email ya registrado o inválido: {data['email']}")
-                return jsonify({"error": "El correo ya está registrado o es inválido."}), 400
+            # Devolver el error REAL para debugging
+            import traceback
+            print(f"Stack trace:\n{traceback.format_exc()}")
             
-            return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 400
+            return jsonify({"error": f"Error en servidor: {error_real}"}), 400
         
         # 📝 PASO 2: PREPARAR DATOS PARA TABLA PERFILES (SIN EMAIL - Email es solo para Auth)
         # ⚠️ IMPORTANTE: La tabla 'perfiles' NO contiene email ni password
