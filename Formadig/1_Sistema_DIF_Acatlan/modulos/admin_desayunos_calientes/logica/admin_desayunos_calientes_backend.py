@@ -21,16 +21,33 @@ global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 @desayunos_calientes_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     try:
-        candidate_tables = ['desayunos_calientes', 'desayunos_eaeyd']
-        responses = []
-        for table in candidate_tables:
+        print("🔍 GET /api/desayunos_calientes - Intentando consultar tabla 'desayunos_calientes'...")
+        
+        # Primero intenta la tabla principal 'desayunos_calientes'
+        try:
+            res = global_client.table('desayunos_calientes').select('*').limit(1000).execute()
+            responses = res.data if res.data else []
+            print(f"✅ Tabla 'desayunos_calientes': {len(responses)} registros encontrados")
+        except Exception as e:
+            print(f"⚠️ Tabla 'desayunos_calientes' no disponible o error: {str(e)}")
+            responses = []
+        
+        # Si no hay registros, intenta tabla alternativa
+        if not responses:
+            print("🔍 Intentando tabla alternativa 'desayunos_eaeyd'...")
             try:
-                res = global_client.table(table).select('*').limit(1000).execute()
-                if table == 'desayunos_eaeyd':
-                    responses.extend([r for r in res.data if r.get('tipo_apoyo') == 'Calientes'])
-                else:
-                    responses.extend(res.data)
-            except: continue
+                res = global_client.table('desayunos_eaeyd').select('*').limit(1000).execute()
+                calientes_data = [r for r in res.data if r.get('tipo_apoyo') == 'Calientes'] if res.data else []
+                responses = calientes_data
+                print(f"✅ Tabla 'desayunos_eaeyd': {len(responses)} registros tipo 'Calientes' encontrados")
+            except Exception as e:
+                print(f"⚠️ Tabla 'desayunos_eaeyd' no disponible o error: {str(e)}")
+                responses = []
+        
+        # Si aún no hay datos, reportar claramente
+        if not responses:
+            print("❌ NO HAY TABLAS DISPONIBLES O ESTÁN VACÍAS")
+            return jsonify({"desayunos": [], "warning": "No hay tablas disponibles o están vacías"}), 200
         
         desayunos_mapeados = []
         for r in responses:
@@ -42,7 +59,7 @@ def obtener_registros():
                 nombre_completo = r.get('bordillo') or r.get('curp') or f"Caliente #{str(record_id)[:8] if record_id else '?'}"
             
             desayunos_mapeados.append({
-                "id": str(record_id),
+                "id": str(record_id) if record_id else None,
                 "nombre_beneficiario": nombre_completo,
                 "nombres": nombre, 
                 "apellidos": apell,
@@ -50,40 +67,35 @@ def obtener_registros():
                 "fecha_nacimiento": r.get('fecha_nacimiento') or r.get('nacimiento'),
                 "sexo": r.get('sexo') or r.get('genero'),
                 "estado_civil": r.get('estado_civil') or 'Soltero(a)',
-                
-                # Datos de Salud
                 "peso_menor": r.get('peso_menor') or r.get('peso'),
                 "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
-                
-                # Socioeconómico
                 "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
                 "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar') or r.get('ingreso'),
                 "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('vulnerabilidad'),
-                
-                # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad'),
                 "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
-                
-                # Tutor
                 "tutor": r.get('tutor_nombre') or r.get('tutor'),
                 "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector') or r.get('ine_tutor'),
                 "telefono": r.get('telefono') or r.get('celular'),
-                
-                # Documentos
                 "url_curp": r.get('url_curp') or r.get('url_doc_curp') or r.get('curp_url'),
                 "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud') or r.get('url_salud'),
                 "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor') or r.get('url_ine') or r.get('foto_ine_url'),
                 "url_comprobante_domicilio": r.get('url_comprobante_domicilio') or r.get('comprobante_domicilio') or r.get('url_comprobante'),
                 "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante') or r.get('url_foto'),
-                
                 "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
-                "estatus": r.get('estatus') or 'Pendiente'
+                "estatus": r.get('estatus') or 'APROBADO'
             })
+        
+        print(f"✅ Retornando {len(desayunos_mapeados)} desayunos calientes mapeados")
         return jsonify({"desayunos": desayunos_mapeados}), 200
+    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"❌ ERROR CRÍTICO en GET /: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Error al obtener registros: {str(e)}"}), 500
 
 @desayunos_calientes_bp.route('/<string:record_id>', methods=['GET'], strict_slashes=False)
 def obtener_desayuno(record_id):

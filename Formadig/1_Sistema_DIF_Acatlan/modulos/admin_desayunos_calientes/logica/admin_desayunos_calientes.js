@@ -143,11 +143,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
+            console.log('📥 Iniciando carga de Desayunos Calientes desde /api/desayunos_calientes...');
+            
             const res = await fetch('/api/desayunos_calientes', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
+            
+            console.log(`📊 Respuesta del servidor: ${res.status} ${res.statusText}`);
+            
+            if (!res.ok) {
+                const errorData = await res.json();
+                const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+                console.error('❌ Error del servidor:', errorMsg);
+                throw new Error(errorMsg);
+            }
+            
             const data = await res.json();
+            console.log('✅ Datos recibidos:', data);
+            
             allRecords = data.desayunos || data.registros || [];
+            console.log(`📋 Total de registros cargados: ${allRecords.length}`);
             renderTabla(allRecords);
 
             // Auto-seleccionar el primero si hay registros y ninguno está seleccionado
@@ -158,7 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateNavControls();
             }
         } catch (error) {
-            if (tbody) tbody.innerHTML = '<tr><td colspan="4">Error al conectar</td></tr>';
+            console.error('❌ Error crítico cargando desayunos calientes:', error.message);
+            console.error('Error stack:', error);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:red;">
+                    ❌ Error al cargar: ${error.message}
+                </td></tr>`;
+            }
         }
     }
 
