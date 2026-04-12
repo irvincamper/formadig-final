@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             document.getElementById('estatus')?.value
+            estatus:             'Aprobado'  // ✅ ESTABLECER EXPLÍCITAMENTE ESTADO ACEPTADO
         };
 
         if (!updateData.escuela) {
@@ -98,7 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(updateData)
             });
 
-            if (!res.ok) throw new Error('Error en el servidor');
+            const data = await res.json();
+
+            if (!res.ok) {
+                // ✅ MOSTRAR MENSAJE EXACTO DEL BACKEND
+                const errorMsg = data.error || data.message || 'Error desconocido del servidor';
+                console.error('❌ Error del backend:', errorMsg);
+                throw new Error(errorMsg);
+            }
 
             UI.notify('¡Dictamen EAEyD guardado correctamente! ✅', 'success');
             
@@ -110,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cargarDatos(true); 
 
         } catch (error) {
+            // ✅ MOSTRAR MENSAJE COMPLETO DEL ERROR
+            console.error('❌ Error en guardarDictamen:', error.message);
             UI.notify(`❌ Error: ${error.message}`, 'error');
             if (btnSubmit) {
                 btnSubmit.disabled = false;
