@@ -265,20 +265,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     cargarUsuarios();
                 }, 1500);
             } else {
-                // Parsear el mensaje de error de forma amigable
-                let mensajeError = data.error || 'Error desconocido';
-                console.error('❌ Error del servidor:', data);
+                // Mostrar el error REAL del backend sin enmascarar
+                const result = await response.json();
+                const errorDelBackend = result.error || 'Error desconocido al crear usuario';
                 
-                // Ya el backend devuelve mensajes amigables, pero como fallback los procesamos aquí
-                if (mensajeError.includes('already registered') || mensajeError.includes('ya está registrado')) {
-                    mensajeError = '⚠️ Este correo ya está registrado. Por favor, usa otro correo.';
-                } else if (mensajeError.includes('Password') || mensajeError.includes('weak') || mensajeError.includes('contraseña')) {
-                    mensajeError = '⚠️ La contraseña no cumple los requisitos. Debe tener al menos 8 caracteres.';
-                } else if (mensajeError.includes('Email') || mensajeError.includes('invalid') || mensajeError.includes('correo')) {
-                    mensajeError = '⚠️ El correo electrónico es inválido. Verifica el formato.';
-                }
+                console.error('❌ Error del servidor:', result);
+                console.error('🔥 Error real:', errorDelBackend);
                 
-                mostrarMensaje(formMessage, `❌ ${mensajeError}`, 'error');
+                mostrarMensaje(formMessage, `❌ ${errorDelBackend}`, 'error');
             }
         } catch (error) {
             console.error('Network error:', error);

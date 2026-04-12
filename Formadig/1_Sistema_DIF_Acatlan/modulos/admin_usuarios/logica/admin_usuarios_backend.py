@@ -171,16 +171,8 @@ def crear_usuario():
             
         except Exception as e:
             error_real = str(e)
-            print(f"🔥 ERROR REAL AL CREAR USUARIO: {error_real}")
-            print(f"Tipo de error: {type(e).__name__}")
-            print(f"Email intentado: {data.get('email', 'NO DISPONIBLE')}")
-            print(f"Password recibido: {'SÍ' if data.get('password') else 'NO'}")
-            
-            # Devolver el error REAL para debugging
-            import traceback
-            print(f"Stack trace:\n{traceback.format_exc()}")
-            
-            return jsonify({"error": f"Error en servidor: {error_real}"}), 400
+            print(f"🔥 ERROR REAL DE SUPABASE: {error_real}")
+            return jsonify({"error": error_real}), 400
         
         # 📝 PASO 2: PREPARAR DATOS PARA TABLA PERFILES (SIN EMAIL - Email es solo para Auth)
         # ⚠️ IMPORTANTE: La tabla 'perfiles' NO contiene email ni password
