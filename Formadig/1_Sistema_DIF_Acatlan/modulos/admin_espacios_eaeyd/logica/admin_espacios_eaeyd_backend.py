@@ -14,8 +14,8 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @espacios_eaeyd_bp.route('/', methods=['GET'], strict_slashes=False)

@@ -32,8 +32,8 @@ def ping():
 # =========================================================
 # 🏗️ CONFIGURACIÓN (REEMPLAZAR CON TUS CLAVES)
 # =========================================================
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Credenciales de SMS (Simulación por defecto)
 TWILIO_ACCOUNT_SID = 'AC_TU_SID_AQUI' 

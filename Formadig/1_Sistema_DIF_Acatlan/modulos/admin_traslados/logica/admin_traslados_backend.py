@@ -12,8 +12,12 @@ except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if not SUPABASE_URL or not SUPABASE_KEY:
+    print("❌ ERROR: SUPABASE_URL o SUPABASE_KEY no configuradas en variables de entorno")
+    raise RuntimeError("Supabase credentials not configured")
 
 try:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
