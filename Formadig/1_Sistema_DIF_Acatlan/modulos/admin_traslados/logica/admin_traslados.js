@@ -596,17 +596,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     setVal('telefono_principal', t.telefono_principal || '');
                     setVal('telefono_secundario', t.telefono_secundario || '');
                     
-                    // ════════════════════════════════════════════════════════════════════════
+                   // ════════════════════════════════════════════════════════════════════════
                     // PESTAÑA 2: UBICACIÓN
                     // ════════════════════════════════════════════════════════════════════════
                     setVal('paciente_domicilio', t.paciente_domicilio || '');
-                    setVal('colonia', t.colonia || '');
                     setVal('cp', t.codigo_postal || '');
                     
-                    // Campos adicionales de ubicación (para referencia)
-                    setVal('localidad', t.localidad || '');
-                    setVal('tipo_asentamiento', t.tipo_asentamiento || '');
-                    setVal('referencias', t.referencias || '');
+                    // Lógica robusta para seleccionar la colonia sin importar mayúsculas/minúsculas
+                    const selectColonia = document.getElementById('colonia');
+                    if (selectColonia && t.colonia) {
+                        const option = Array.from(selectColonia.options).find(opt => opt.value.toLowerCase() === t.colonia.toLowerCase());
+                        if (option) {
+                            selectColonia.value = option.value;
+                        } else {
+                            selectColonia.value = '';
+                        }
+                    } else {
+                        setVal('colonia', '');
+                    }
+                    
+                    // Limpiar los campos que no existen en la BD de traslados
+                    setVal('localidad', '');
+                    setVal('tipo_asentamiento', '');
+                    setVal('referencias', '');
                     
                     // ════════════════════════════════════════════════════════════════════════
                     // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
@@ -617,7 +629,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     setVal('acompanante_nombre', t.acompanante_nombre || '');
                     setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
                     setVal('estatus', t.estatus || '');
-                    setVal('lugares_requeridos', t.lugares_requeridos || 2);
+                    
+                    // Automatización de Cupos
+                    if (t.acompanante_nombre && t.acompanante_nombre.trim() !== '') {
+                        setVal('lugares_requeridos', 2); // Va con acompañante
+                    } else {
+                        setVal('lugares_requeridos', 1); // Va solo
+                    }
                     
                     // ════════════════════════════════════════════════════════════════════════
                     // PESTAÑA 4: DOCS (Evidencias fotográficas/PDF)
