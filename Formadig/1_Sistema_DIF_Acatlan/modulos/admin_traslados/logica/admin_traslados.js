@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cuposDisponiblesTextEl = document.getElementById('cuposDisponiblesText');
     const btnSubmit = form.querySelector('button[type="submit"]');
     const btnRechazar = document.getElementById('btnRechazar');
+    const searchInput = document.getElementById('searchInput');  // ← BUSCAR
 
     const TOTAL_CUPOS = 16;
     let currentSelectedId = null;
@@ -181,6 +182,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cpInput) {
         cpInput.addEventListener('change', (e) => {
             cargarColonias(e.target.value);
+        });
+    }
+
+    // ========================================================================
+    // EVENT LISTENER: BÚSQUEDA (LUPA) - Filtrar lista de traslados
+    // ========================================================================
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            
+            if (!query) {
+                // Si está vacío, mostrar todos
+                renderTabla(allRecords);
+            } else {
+                // Filtrar por paciente_nombre o paciente_curp
+                const filtrados = allRecords.filter(t => {
+                    const nombre = (t.paciente_nombre || '').toLowerCase();
+                    const curp = (t.paciente_curp || '').toLowerCase();
+                    return nombre.includes(query) || curp.includes(query);
+                });
+                renderTabla(filtrados);
+            }
         });
     }
 

@@ -77,6 +77,12 @@ def obtener_registros():
                 "paciente_curp": r.get('paciente_curp'),
                 "paciente_edad": r.get('paciente_edad'),
                 "paciente_domicilio": r.get('paciente_domicilio'),
+                # Ubicación
+                "localidad": r.get('localidad'),
+                "colonia": r.get('colonia'),
+                "tipo_asentamiento": r.get('tipo_asentamiento'),
+                "codigo_postal": r.get('codigo_postal') or r.get('cp'),
+                "referencias": r.get('referencias'),
                 # Destino
                 "destino_hospital": r.get('destino_hospital'),
                 # Fecha y hora (exactos del schema)
@@ -87,6 +93,7 @@ def obtener_registros():
                 "telefono_secundario": r.get('telefono_secundario'),
                 # Acompañante
                 "acompanante_nombre": r.get('acompanante_nombre'),
+                "acompanante_clave_elector": r.get('acompanante_clave_elector'),
                 "acompanante_entidad": r.get('acompanante_entidad'),
                 # Estatus y logística
                 "estatus": r.get('estatus', 'Pendiente'),
