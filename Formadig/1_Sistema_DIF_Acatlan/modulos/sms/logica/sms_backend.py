@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 import os
 from datetime import datetime
 
@@ -18,11 +18,10 @@ try:
 except ImportError:
     print("AVISO: 'pip install twilio' no encontrado. El modo real de SMS no funcionará.")
 
-app = Flask(__name__)
-if CORS:
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+# Crear Blueprint para SMS
+sms_bp = Blueprint('sms', __name__, url_prefix='/api/sms')
 
-@app.route('/ping', methods=['GET'])
+@sms_bp.route('/ping', methods=['GET'])
 def ping():
     return jsonify({
         "status": "online",
@@ -48,7 +47,7 @@ except Exception as e:
     print(f"Error Supabase: {e}")
     supabase = None
 
-@app.route('/send', methods=['POST'])
+@sms_bp.route('/send', methods=['POST'])
 def send_sms():
     data = request.json
     phone = data.get('phone')
@@ -116,7 +115,7 @@ def send_sms():
         "error": error_msg
     })
 
-@app.route('/history', methods=['GET'])
+@sms_bp.route('/history', methods=['GET'])
 def get_history():
     if not supabase:
         return jsonify({"error": "Sin conexión a DB"}), 500
@@ -127,7 +126,7 @@ def get_history():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/webhook', methods=['POST'])
+@sms_bp.route('/webhook', methods=['POST'])
 def sms_webhook():
     incoming_msg = request.values.get('Body', '').strip().upper()
     sender_phone = request.values.get('From', '') # p.ej. +52775...
@@ -177,8 +176,6 @@ def sms_webhook():
     # Respuesta neutra para el webhook
     return '<?xml version="1.0" encoding="UTF-8"?><Response></Response>', 200, {'Content-Type': 'application/xml'}
 
-
-if __name__ == '__main__':
-    print("📱 SMS Backend DIF Acatlán escuchando en puerto 5009...")
-    # Escuchar en 0.0.0.0 ayuda a que el navegador lo encuentre más fácilmente
-    app.run(host='0.0.0.0', port=5009, debug=True)
+# ============================================================================
+# NOTA: El blueprint 'sms_bp' se registra en la app maestra
+# ============================================================================

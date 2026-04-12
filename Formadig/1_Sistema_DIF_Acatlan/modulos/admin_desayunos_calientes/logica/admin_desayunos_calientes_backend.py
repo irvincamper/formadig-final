@@ -1,13 +1,12 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 import json
 import os
 import requests
 import base64
 
 # Lógica de Backend de Python - Desayunos Calientes (V8: ROBUSTO CON JWT)
-app = Flask(__name__)
-CORS(app)
+# Crear Blueprint para desayunos calientes
+desayunos_calientes_bp = Blueprint('desayunos_calientes', __name__, url_prefix='/api/desayunos_calientes')
 
 try:
     from supabase import create_client, Client
@@ -19,7 +18,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@app.route('/', methods=['GET'])
+@desayunos_calientes_bp.route('/', methods=['GET'])
 def obtener_registros():
     try:
         candidate_tables = ['desayunos_calientes', 'desayunos_eaeyd']
@@ -86,7 +85,7 @@ def obtener_registros():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['GET'])
+@desayunos_calientes_bp.route('/<string:record_id>', methods=['GET'])
 def obtener_desayuno(record_id):
     """Obtener UN desayuno específico por ID"""
     try:
@@ -143,7 +142,7 @@ def obtener_desayuno(record_id):
         print(f"❌ Error en GET /{record_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
+@desayunos_calientes_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def dictamen_registro(record_id):
     """
     Endpoint PUT/PATCH robusto para actualizar desayunos calientes.
@@ -265,6 +264,6 @@ def dictamen_registro(record_id):
         print(f"❌ Error crítico en PUT: {e}")
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    print("🍲 Backend Calientes (V8 ROBUSTO CON JWT) iniciado en puerto 5006")
-    app.run(host='0.0.0.0', port=5006, debug=False, use_reloader=False)
+# ============================================================================
+# NOTA: El blueprint 'desayunos_calientes_bp' se registra en la app maestra
+# ============================================================================

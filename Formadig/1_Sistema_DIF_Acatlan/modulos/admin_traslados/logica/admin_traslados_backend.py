@@ -1,11 +1,10 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 import requests
 import os
 from datetime import datetime
 
-app = Flask(__name__)
-CORS(app)
+# Crear Blueprint para traslados
+traslados_bp = Blueprint('traslados', __name__, url_prefix='/api/traslados')
 
 try:
     from supabase import create_client, Client
@@ -23,7 +22,7 @@ except Exception as e:
     print(f"ATENCIÓN: Error conectando a Supabase: {e}")
     supabase = None
 
-@app.route('/', methods=['GET'])
+@traslados_bp.route('/', methods=['GET'])
 def obtener_registros():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -72,7 +71,7 @@ def obtener_registros():
         print(f"❌ Error al obtener traslados: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/', methods=['POST'])
+@traslados_bp.route('/', methods=['POST'])
 def nuevo_registro():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -103,7 +102,7 @@ def nuevo_registro():
         print(f"❌ Error al guardar traslado: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['GET'])
+@traslados_bp.route('/<string:record_id>', methods=['GET'])
 def obtener_traslado(record_id):
     """Obtener UN traslado específico por ID"""
     if not supabase:
@@ -124,7 +123,7 @@ def obtener_traslado(record_id):
         print(f"❌ Error al obtener traslado {record_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
+@traslados_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def actualizar_traslado(record_id):
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -226,6 +225,6 @@ def actualizar_traslado(record_id):
         print(f"❌ Error al actualizar traslado: {e}")
         return jsonify({"error": f"Error de conectividad/servidor: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    print("🚑 Servidor Traslados iniciado en puerto 5004 — LISTO CON DATOS MÓVIL")
-    app.run(host='0.0.0.0', port=5004, debug=False, use_reloader=False)
+# ============================================================================
+# NOTA: El blueprint 'traslados_bp' se registra en la app maestra
+# ============================================================================

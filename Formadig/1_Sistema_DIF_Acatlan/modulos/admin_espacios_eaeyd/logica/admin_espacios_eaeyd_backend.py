@@ -1,13 +1,12 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 import json
 import os
 import requests
 import base64
 
 # Lógica de Backend de Python - Espacios EAEyD (ROBUSTO CON JWT)
-app = Flask(__name__)
-CORS(app)
+# Crear Blueprint para espacios EAEyD
+espacios_eaeyd_bp = Blueprint('espacios_eaeyd', __name__, url_prefix='/api/espacios_eaeyd')
 
 try:
     from supabase import create_client, Client
@@ -19,7 +18,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@app.route('/', methods=['GET'])
+@espacios_eaeyd_bp.route('/', methods=['GET'])
 def obtener_registros():
     try:
         candidate_tables = ['desayunos_eaeyd', 'espacios_eaeyd']
@@ -83,7 +82,7 @@ def obtener_registros():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['GET'])
+@espacios_eaeyd_bp.route('/<string:record_id>', methods=['GET'])
 def obtener_espacio(record_id):
     """Obtener UN espacio EAEyD específico por ID"""
     try:
@@ -139,7 +138,7 @@ def obtener_espacio(record_id):
         print(f"❌ Error en GET /{record_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@app.route('/<string:record_id>', methods=['PUT', 'PATCH'])
+@espacios_eaeyd_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'])
 def dictamen_registro(record_id):
     """
     Endpoint PUT/PATCH robusto para actualizar espacios EAEyD.

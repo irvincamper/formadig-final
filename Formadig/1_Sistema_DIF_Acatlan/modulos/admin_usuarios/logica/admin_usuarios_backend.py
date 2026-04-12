@@ -2,17 +2,14 @@
 Backend para Gestión de Usuarios - SOLO Administradores
 Módulo: admin_usuarios_backend.py
 Enfoque: Seguridad - Mostrar únicamente administradores (admin, admin_desayunos, admin_traslados)
+
+⚠️ NOTA: Este archivo exporta un Blueprint para ser registrado en la app maestra unificada.
 """
 
-from flask import Flask, Blueprint, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from supabase import create_client
 import os
 from datetime import datetime
-
-# Crear aplicación Flask
-app = Flask(__name__)
-CORS(app)
 
 # Inicializar Blueprint
 admin_usuarios_bp = Blueprint('admin_usuarios', __name__, url_prefix='/api/admin_usuarios')
@@ -200,16 +197,5 @@ def eliminar_usuario(id):
 
 
 # ============================================================================
-# Registro del Blueprint en la app
+# NOTA: El blueprint 'admin_usuarios_bp' se registra en la app maestra
 # ============================================================================
-app.register_blueprint(admin_usuarios_bp)
-
-# ============================================================================
-# Ejecutar servidor Flask
-# ============================================================================
-if __name__ == '__main__':
-    print("\n👤 Backend Admin Usuarios iniciado en puerto 5003")
-    print(f"📍 Rutas registradas:")
-    for rule in app.url_map.iter_rules():
-        print(f"   {rule.rule} [{', '.join(rule.methods - {'HEAD', 'OPTIONS'})}]")
-    app.run(host='0.0.0.0', port=5003, debug=False, use_reloader=False)

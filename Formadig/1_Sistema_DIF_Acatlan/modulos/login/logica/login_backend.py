@@ -1,9 +1,5 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 import os
-
-app = Flask(__name__)
-CORS(app)
 
 # =========================================================
 # 🔴 INSTALACIÓN REQUERIDA: pip install supabase
@@ -27,10 +23,13 @@ except Exception as e:
     print(f"ATENCIÓN: Claves de Supabase inválidas o vacías. Error: {e}")
     supabase = None
 
+# Crear Blueprint para autenticación
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+
 # =========================================================
 # RUTA DE PRUEBA DE VIDA - Confirmamos que el backend está online
 # =========================================================
-@app.route('/')
+@auth_bp.route('/', methods=['GET'])
 def health():
     """Endpoint de prueba - confirmamos que el backend está online."""
     return jsonify({
@@ -38,7 +37,7 @@ def health():
         "message": "El backend de login está funcionando correctamente."
     }), 200
 
-@app.route('/auth/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado"}), 500
@@ -119,7 +118,7 @@ def register_user():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route('/auth/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500
@@ -178,7 +177,6 @@ def login_user():
              return jsonify({"error": "⚠️ Correo no confirmado. Revisa tu bandeja de entrada o desactiva la confirmación en Supabase."}), 401
         return jsonify({"error": f"Error de autenticación: {error_msg}"}), 401
 
-if __name__ == '__main__':
-    print("🛡️ Módulo de Login/Supabase escuchando en el puerto 5001...")
-    # Solo para dev local (debug=True), recuerda cambiar en producción
-    app.run(port=5001, debug=True)
+# =========================================================
+# NOTA: El blueprint 'auth_bp' se registra en la app maestra
+# =========================================================
