@@ -324,9 +324,9 @@
                         <div id="formMessage" class="message hidden"></div>
                         
                         <form id="agregar-usuario-form">
-                            <!-- GRID 2 COLUMNAS -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <!-- Fila 1: Usuario | Nombre Completo -->
+                            <!-- GRID 1 COLUMNA -->
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
+                                <!-- Usuario -->
                                 <div class="form-group">
                                     <label class="form-label" for="nombre_usuario" style="font-size: 0.85rem;">Usuario</label>
                                     <input 
@@ -345,6 +345,7 @@
                                         required>
                                 </div>
 
+                                <!-- Nombre Completo -->
                                 <div class="form-group">
                                     <label class="form-label" for="nombre_completo" style="font-size: 0.85rem;">Nombre Completo</label>
                                     <input 
@@ -363,7 +364,7 @@
                                         required>
                                 </div>
 
-                                <!-- Fila 2: Email | Contraseña -->
+                                <!-- Email de Acceso -->
                                 <div class="form-group">
                                     <label class="form-label" for="email" style="font-size: 0.85rem;">Email de Acceso</label>
                                     <input 
@@ -382,6 +383,7 @@
                                         required>
                                 </div>
 
+                                <!-- Contraseña (Temporal) -->
                                 <div class="form-group">
                                     <label class="form-label" for="password" style="font-size: 0.85rem;">Contraseña (Temporal)</label>
                                     <input 
@@ -401,7 +403,7 @@
                                         required>
                                 </div>
 
-                                <!-- Fila 3: Rol | Teléfono -->
+                                <!-- Rol -->
                                 <div class="form-group">
                                     <label class="form-label" for="rol" style="font-size: 0.85rem;">Rol</label>
                                     <select id="rol" class="form-control" required style="
@@ -419,6 +421,7 @@
                                     </select>
                                 </div>
 
+                                <!-- Teléfono -->
                                 <div class="form-group">
                                     <label class="form-label" for="telefono" style="font-size: 0.85rem;">Teléfono</label>
                                     <input 
@@ -437,8 +440,8 @@
                                         required>
                                 </div>
 
-                                <!-- Fila 4: CURP (2 columnas) -->
-                                <div class="form-group" style="grid-column: 1 / -1;">
+                                <!-- CURP -->
+                                <div class="form-group">
                                     <label class="form-label" for="curp" style="font-size: 0.85rem;">CURP</label>
                                     <input 
                                         type="text" 
