@@ -8,7 +8,6 @@ Enfoque: Seguridad - Mostrar únicamente administradores (admin, admin_desayunos
 
 from flask import Blueprint, request, jsonify
 from supabase import create_client
-from gotrue.errors import AuthApiError
 import os
 from datetime import datetime
 import uuid
@@ -167,49 +166,15 @@ def crear_usuario():
                 response = supabase.table('auth.users').insert(auth_record).execute()
                 print(f"✅ PASO 1 ÉXITO (Direct Insert): Usuario creado en auth.users con UUID: {user_uuid}")
             
-        except Exception as auth_error:
-            error_message = str(auth_error).lower()
-            print(f"❌ PASO 1 ERROR: {error_message}")
+        except Exception as e:
+            error_msg = str(e).lower()
+            print(f"❌ PASO 1 ERROR: {error_msg}")
             
-            # 🎯 CAPTURAR ESPECÍFICAMENTE AuthApiError para correos duplicados
-            if isinstance(auth_error, AuthApiError):
-                error_code = getattr(auth_error, 'code', '')
-                error_status = getattr(auth_error, 'status', 0)
-                
-                print(f"📊 AuthApiError detectado - Código: {error_code}, Status: {error_status}")
-                
-                # Código específico de Supabase para usuario ya existe
-                if error_code == 'user_already_exists' or error_status == 422:
-                    print(f"❌ Email ya registrado: {data['email']}")
-                    return jsonify({'error': 'Este correo ya está registrado en el sistema. Por favor, usa otro correo.'}), 400
-                elif 'email' in error_code.lower():
-                    print(f"❌ Email inválido: {data['email']}")
-                    return jsonify({'error': 'El formato del correo electrónico es inválido.'}), 400
-                elif 'password' in error_code.lower() or 'weak_password' in error_code:
-                    print(f"❌ Contraseña débil")
-                    return jsonify({'error': 'La contraseña debe tener al menos 8 caracteres con variedad.'}), 400
-                else:
-                    print(f"❌ Error de Auth (tipo: {error_code}): {str(auth_error)}")
-                    return jsonify({'error': f'Error de autenticación: {str(auth_error)}'}), 400
+            if 'already registered' in error_msg or 'user_already_exists' in error_msg or 'unique' in error_msg or 'email' in error_msg:
+                print(f"❌ Email ya registrado o inválido: {data['email']}")
+                return jsonify({"error": "El correo ya está registrado o es inválido."}), 400
             
-            # Traducir errores comunes de Supabase Auth (mensaje de string genérico)
-            if 'user_already_exists' in error_message or 'already registered' in error_message or 'unique' in error_message:
-                print(f"❌ Email ya registrado (por mensaje): {data['email']}")
-                return jsonify({'error': 'Este correo ya está registrado en el sistema. Por favor, usa otro correo.'}), 400
-            elif 'invalid email' in error_message or 'invalid_email' in error_message:
-                print(f"❌ Email inválido: {data['email']}")
-                return jsonify({'error': 'El formato del correo electrónico es inválido.'}), 400
-            elif 'password' in error_message or 'weak_password' in error_message:
-                print(f"❌ Contraseña débil")
-                return jsonify({'error': 'La contraseña debe tener al menos 8 caracteres con variedad.'}), 400
-            elif 'bearer token' in error_message:
-                # Si es error de token, proseguir de todos modos (al menos crear perfil)
-                print(f"⚠️ Método Auth (Bearer Token) no disponible. Continuando con UUID: {user_uuid}")
-            else:
-                # Error genérico pero informativo
-                print(f"❌ Error genérico Auth: {str(auth_error)}")
-                # No retornar error aquí - intentar crear al menos el perfil
-                pass
+            return jsonify({"error": f"Error al crear usuario: {str(e)}"}), 400
         
         # 📝 PASO 2: PREPARAR DATOS PARA TABLA PERFILES (SIN EMAIL - Email es solo para Auth)
         # ⚠️ IMPORTANTE: La tabla 'perfiles' NO contiene email ni password
