@@ -626,15 +626,44 @@ document.addEventListener('DOMContentLoaded', () => {
                             setVal('referencias', '');
                             
                             // ════════════════════════════════════════════════════════════════════════
+                            // 🕵️ CHIVATO: Esto imprimirá en la consola los datos exactos del paciente
+                            console.log("👉 Datos que llegan de la BD para este paciente:", t);
+
+                            // ════════════════════════════════════════════════════════════════════════
+                            // ════════════════════════════════════════════════════════════════════════
                             // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
                             // ════════════════════════════════════════════════════════════════════════
                             setVal('destino_hospital', t.destino_hospital || '');
                             
-                            // Limpiar fecha a formato YYYY-MM-DD
-                            setVal('fecha_viaje', t.fecha_viaje ? t.fecha_viaje.split('T')[0] : '');
+                            // 📅 FECHA (Lee de la columna t.fecha)
+                            let fViaje = '';
+                            if (t.fecha) { // <-- Corregido al nombre real de tu columna
+                                if (t.fecha.includes('/')) {
+                                    let p = t.fecha.split('/'); 
+                                    fViaje = `${p[2]}-${p[1]}-${p[0]}`; 
+                                } else {
+                                    fViaje = t.fecha.split('T')[0];
+                                }
+                            }
+                            setVal('fecha_viaje', fViaje); // Asume que el input en tu HTML sigue teniendo id="fecha_viaje"
                             
-                            // Limpiar hora a formato HH:MM
-                            setVal('hora_cita', t.hora_cita ? t.hora_cita.substring(0, 5) : '');
+                            // ⏰ HORA DE IDA (Lee de la columna t.hora)
+                            let hCita = '';
+                            if (t.hora) { // <-- Corregido al nombre real de tu columna
+                                let match = String(t.hora).match(/\d{2}:\d{2}/);
+                                if (match) hCita = match[0];
+                            }
+                            setVal('hora_cita', hCita); // Asume que el input en tu HTML sigue teniendo id="hora_cita"
+
+                            // ⏰ HORA DE REGRESO (NUEVO CAMPO: Lee de t.hora_regreso)
+                            let hRegreso = '';
+                            if (t.hora_regreso) {
+                                let matchReg = String(t.hora_regreso).match(/\d{2}:\d{2}/);
+                                if (matchReg) hRegreso = matchReg[0];
+                            }
+                            setVal('hora_regreso', hRegreso); // ¡OJO! Asegúrate de tener un <input type="time" id="hora_regreso"> en tu HTML
+
+                            // LOS OTROS CAMPOS
                             setVal('acompanante_nombre', t.acompanante_nombre || '');
                             setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
                             setVal('estatus', t.estatus || '');
@@ -645,7 +674,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             } else {
                                 setVal('lugares_requeridos', 1); // Va solo
                             }
-                    
+
+
                     // ════════════════════════════════════════════════════════════════════════
                     // PESTAÑA 4: DOCS (Evidencias fotográficas/PDF)
                     // ════════════════════════════════════════════════════════════════════════
