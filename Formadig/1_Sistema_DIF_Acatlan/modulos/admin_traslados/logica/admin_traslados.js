@@ -629,8 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
                             // ════════════════════════════════════════════════════════════════════════
                             setVal('destino_hospital', t.destino_hospital || '');
-                            setVal('fecha_viaje', t.fecha_viaje || '');
-                            setVal('hora_cita', t.hora_cita || '');
+                            
+                            // Limpiar fecha a formato YYYY-MM-DD
+                            setVal('fecha_viaje', t.fecha_viaje ? t.fecha_viaje.split('T')[0] : '');
+                            
+                            // Limpiar hora a formato HH:MM
+                            setVal('hora_cita', t.hora_cita ? t.hora_cita.substring(0, 5) : '');
                             setVal('acompanante_nombre', t.acompanante_nombre || '');
                             setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
                             setVal('estatus', t.estatus || '');
