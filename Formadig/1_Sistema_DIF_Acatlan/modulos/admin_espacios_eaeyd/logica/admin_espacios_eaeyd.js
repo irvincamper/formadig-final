@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputSearch = document.getElementById('searchInput');
     const tbody = document.getElementById('listaRegistros');
     const btnSubmit = (form) ? form.querySelector('button[type="submit"]') : null;
+    const btnRechazar = document.getElementById('btnRechazar');
 
     let allRecords = [];
     let currentSelectedId = null;
@@ -275,6 +276,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (form) form.addEventListener('submit', guardarDictamen);
+    
+    // Event listener para botón Rechazar
+    if (btnRechazar) {
+        btnRechazar.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!currentSelectedId) {
+                UI.notify('Selecciona un registro primero', 'error');
+                return;
+            }
+            
+            if (!confirm('¿Estás seguro de que deseas rechazar y denegar permanentemente esta solicitud?')) return;
+
+            if (btnSubmit) btnSubmit.disabled = true;
+            btnRechazar.disabled = true;
+            btnRechazar.textContent = 'Rechazando...';
+
+            try {
+                const res = await fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.token}`
+                    },
+                    body: JSON.stringify({ estatus: 'Rechazado' })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    UI.notify('✅ Solicitud rechazada correctamente.', 'success');
+                    if (btnSubmit) {
+                        btnSubmit.disabled = true;
+                        btnSubmit.textContent = 'Aceptar Solicitud ✅';
+                    }
+                    cargarDatos(true);
+                } else {
+                    UI.notify(`❌ Error al rechazar: ${data.error || 'Operación fallida'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+                UI.notify('❌ Error de conexión al servidor', 'error');
+            } finally {
+                if (btnSubmit) btnSubmit.disabled = false;
+                btnRechazar.disabled = false;
+                btnRechazar.textContent = 'Rechazar ✖';
+            }
+        });
+    }
     
     if (inputSearch) {
         inputSearch.addEventListener('input', (e) => {

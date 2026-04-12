@@ -464,7 +464,10 @@
 
                         <div id="formMessage" class="hidden" style="margin-bottom:1rem;"></div>
                         
-                        <button type="submit" class="button button--primary" style="width:100%; padding: 1.25rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,118,108,0.3);" disabled>Guardar Dictamen 🥛</button>
+                        <div style="display:flex; gap:1rem; width:100%;">
+                            <button type="submit" class="button button--primary" style="flex: 2; padding: 1.25rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,118,108,0.3);">Aceptar Solicitud ✅</button>
+                            <button type="button" id="btnRechazar" style="flex: 1; padding: 1.25rem; font-weight: 700; border-radius: 12px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">Rechazar ✖</button>
+                        </div>
                     </div>
                 </form>
             </section>
