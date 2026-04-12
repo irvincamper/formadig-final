@@ -294,7 +294,7 @@ def crear_pdf_reporte(data, table_name, titulo):
     output.seek(0)
     return output
 
-@chatbot_bp.route('/export', methods=['GET'])
+@chatbot_bp.route('/export', methods=['GET'], strict_slashes=False)
 def export_report():
     table_name = request.args.get('table', 'traslados')
     file_format = request.args.get('format', 'excel')
@@ -357,7 +357,7 @@ REVERSE_MAPPING = {
     "hospital": "destino_hospital"
 }
 
-@chatbot_bp.route('/upload', methods=['POST'])
+@chatbot_bp.route('/upload', methods=['POST'], strict_slashes=False)
 def upload_file():
     if not supabase:
         return jsonify({"error": "No hay conexión a la base de datos."}), 500
@@ -470,7 +470,7 @@ def generar_respuesta_local(mensaje, email, role):
 # =========================================================
 # 📡 RUTA PRINCIPAL
 # =========================================================
-@chatbot_bp.route('/ask', methods=['POST'])
+@chatbot_bp.route('/ask', methods=['POST'], strict_slashes=False)
 def ask_gemini():
     data = request.json
     user_message = data.get('message', '')

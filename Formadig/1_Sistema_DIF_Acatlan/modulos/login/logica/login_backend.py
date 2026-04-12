@@ -29,7 +29,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 # =========================================================
 # RUTA DE PRUEBA DE VIDA - Confirmamos que el backend está online
 # =========================================================
-@auth_bp.route('/', methods=['GET'])
+@auth_bp.route('/', methods=['GET'], strict_slashes=False)
 def health():
     """Endpoint de prueba - confirmamos que el backend está online."""
     return jsonify({
@@ -37,7 +37,7 @@ def health():
         "message": "El backend de login está funcionando correctamente."
     }), 200
 
-@auth_bp.route('/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado"}), 500
@@ -118,7 +118,7 @@ def register_user():
         return jsonify({"error": str(e)}), 400
 
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'], strict_slashes=False)
 def login_user():
     if not supabase:
          return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500

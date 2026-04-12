@@ -22,7 +22,7 @@ except Exception as e:
     print(f"ATENCIÓN: Error conectando a Supabase: {e}")
     supabase = None
 
-@traslados_bp.route('/', methods=['GET'])
+@traslados_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -71,7 +71,7 @@ def obtener_registros():
         print(f"❌ Error al obtener traslados: {e}")
         return jsonify({"error": str(e)}), 500
 
-@traslados_bp.route('/', methods=['POST'])
+@traslados_bp.route('/', methods=['POST'], strict_slashes=False)
 def nuevo_registro():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
@@ -102,7 +102,7 @@ def nuevo_registro():
         print(f"❌ Error al guardar traslado: {e}")
         return jsonify({"error": str(e)}), 500
 
-@traslados_bp.route('/<string:record_id>', methods=['GET'])
+@traslados_bp.route('/<string:record_id>', methods=['GET'], strict_slashes=False)
 def obtener_traslado(record_id):
     """Obtener UN traslado específico por ID"""
     if not supabase:
@@ -123,7 +123,7 @@ def obtener_traslado(record_id):
         print(f"❌ Error al obtener traslado {record_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@traslados_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'])
+@traslados_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'], strict_slashes=False)
 def actualizar_traslado(record_id):
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500

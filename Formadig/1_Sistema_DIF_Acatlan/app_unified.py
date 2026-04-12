@@ -10,6 +10,7 @@ CORS: Habilitado globalmente.
 
 import os
 import sys
+import importlib.util
 from flask import Flask, jsonify
 from flask_cors import CORS
 
@@ -49,27 +50,35 @@ def register_blueprints():
     
     registered = 0
     for module_name, module_folder, module_file, bp_name in blueprints_to_register:
-        try:
-            # Construir ruta del módulo
-            module_path = os.path.join(modules_path, module_folder, "logica")
+        try:completa del archivo del módulo
+            module_file_path = os.path.join(modules_path, module_folder, "logica", f"{module_file}.py")
             
-            # Agregar el path del módulo al sys.path temporalmente
-            if module_path not in sys.path:
-                sys.path.insert(0, module_path)
+            if not os.path.exists(module_file_path):
+                print(f"   ❌ [{module_name}] Archivo no encontrado: {module_file_path}")
+                continue
             
-            # Importar dinámicamente el módulo
-            module = __import__(module_file)
-            
-            # Obtener el blueprint
-            if hasattr(module, bp_name):
-                bp = getattr(module, bp_name)
-                app.register_blueprint(bp)
-                print(f"   ✅ [{module_name}] Registrado como blueprint")
-                registered += 1
+            # Importar usando importlib de forma segura
+            spec = importlib.util.spec_from_file_location(module_file, module_file_path)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Obtener el blueprint
+                if hasattr(module, bp_name):
+                    bp = getattr(module, bp_name)
+                    app.register_blueprint(bp)
+                    print(f"   ✅ [{module_name}] Registrado como blueprint ({bp_name})")
+                    registered += 1
+                else:
+                    print(f"   ❌ [{module_name}] No tiene atributo '{bp_name}'")
+                    print(f"      Atributos disponibles: {[attr for attr in dir(module) if 'bp' in attr.lower()]}")
             else:
-                print(f"   ❌ [{module_name}] No tiene atributo '{bp_name}'")
+                print(f"   ❌ [{module_name}] No se pudo cargar el spec del módulo")
                 
         except Exception as e:
+            print(f"   ⚠️ [{module_name}] Error al registrar: {str(e)}")
+            import traceback
+            traceback.print_exc(
             print(f"   ⚠️ [{module_name}] Error al registrar: {str(e)}")
     
     return registered

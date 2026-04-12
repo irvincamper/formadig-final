@@ -18,7 +18,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "https://ctiqbycbkcftwuqgzxjb.supabase.
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk")
 global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-@desayunos_calientes_bp.route('/', methods=['GET'])
+@desayunos_calientes_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     try:
         candidate_tables = ['desayunos_calientes', 'desayunos_eaeyd']
@@ -85,7 +85,7 @@ def obtener_registros():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@desayunos_calientes_bp.route('/<string:record_id>', methods=['GET'])
+@desayunos_calientes_bp.route('/<string:record_id>', methods=['GET'], strict_slashes=False)
 def obtener_desayuno(record_id):
     """Obtener UN desayuno específico por ID"""
     try:
@@ -142,7 +142,7 @@ def obtener_desayuno(record_id):
         print(f"❌ Error en GET /{record_id}: {e}")
         return jsonify({"error": str(e)}), 500
 
-@desayunos_calientes_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'])
+@desayunos_calientes_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'], strict_slashes=False)
 def dictamen_registro(record_id):
     """
     Endpoint PUT/PATCH robusto para actualizar desayunos calientes.

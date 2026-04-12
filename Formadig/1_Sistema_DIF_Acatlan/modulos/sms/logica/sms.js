@@ -117,7 +117,7 @@ const SMS = {
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('❌ No se pudo conectar con el servidor de SMS. Asegúrate de que el backend esté corriendo en el puerto 5009.');
+            alert('❌ No se pudo conectar con el servidor de SMS. Verifica que el backend esté en línea.');
         } finally {
             btn.disabled = false;
             btn.innerText = originalText;

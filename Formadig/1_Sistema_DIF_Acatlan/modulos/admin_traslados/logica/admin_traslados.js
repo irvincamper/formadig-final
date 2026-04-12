@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Network Error:', error);
-            UI.notify('❌ Error de conexión al servidor de Traslados (Puerto 5004)', 'error');
+            UI.notify('❌ Error de conexión al servidor. Verifica la conexión de red.', 'error');
         } finally {
             // El texto se mantiene como 'Traslado Actualizado 🚐' en éxito,
             // pero si falló o es el inicio, debe decir algo sensato.

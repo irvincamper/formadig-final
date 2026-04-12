@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error al contactar con el chatbot:", error);
             const typingEl = document.getElementById(typingId);
             if (typingEl) typingEl.remove();
-            addMessage("Lo siento, tuve un problema al conectar con el servidor. Verifica que el backend esté corriendo en el puerto 5008.", 'bot');
+            addMessage("Lo siento, tuve un problema al conectar con el servidor. Verifica su disponibilidad.", 'bot');
         }
     }
 
