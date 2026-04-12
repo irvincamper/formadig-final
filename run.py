@@ -1,4 +1,4 @@
-"""
+gunicorn app_unified:app --workers 1 --threads 2 --worker-class gthread --timeout 30"""
 =============================================================================
 WRAPPER PARA GUNICORN - FORMADIG v2.1
 =============================================================================
