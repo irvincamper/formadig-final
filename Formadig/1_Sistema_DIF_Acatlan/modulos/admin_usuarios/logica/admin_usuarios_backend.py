@@ -121,131 +121,42 @@ def crear_usuario():
         
         print(f"✅ PASO 0: Validaciones pasadas")
         
-        # 🔐 PASO 1: CREAR USUARIO EN SUPABASE AUTH (genera UUID automáticamente)
-        user_uuid = str(uuid.uuid4())  # Generar UUID único
-        
+        # 🔐 CREAR USUARIO EN SUPABASE AUTH CON METADATA
+        # El Trigger de Supabase automáticamente insertará en tabla perfiles
         try:
-            print(f"\n🔐 === PASO 1: CREAR EN AUTH ===")
+            print(f"\n🔐 === CREANDO USUARIO EN AUTH (con user_metadata) ===")
             print(f"Email: {data['email'].strip().lower()}")
             print(f"Password: {'*' * len(data['password'])} ({len(data['password'])} caracteres)")
-            print(f"UUID generado: {user_uuid}")
             
-            # Método 1: Usar Admin Client si está disponible (recomendado para producción)
-            if supabase_admin:
-                print(f"📊 Usando Admin Client (Service Role Key disponible)")
-                auth_response = supabase_admin.auth.admin.create_user({
-                    "email": data['email'].strip().lower(),
-                    "password": data['password'],
-                    "email_confirm": True
-                })
-                user_uuid = auth_response.user.id
-                print(f"✅ PASO 1 ÉXITO (Admin API): Usuario Auth creado con UUID: {user_uuid}")
-            else:
-                # Método 2: Insertar directamente en auth.users (fallback si no hay Service Role Key)
-                print(f"📊 Service Role Key no disponible. Insertando directamente en auth.users...")
-                
-                # Hash password con bcrypt
-                password_hash = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                
-                auth_record = {
-                    'id': user_uuid,
-                    'email': data['email'].strip().lower(),
-                    'encrypted_password': password_hash,
-                    'email_confirmed_at': datetime.now().isoformat(),
-                    'raw_app_meta_data': json.dumps({"provider": "email", "providers": ["email"]}),
-                    'raw_user_meta_data': json.dumps({"name": data['nombre_completo']}),
-                    'created_at': datetime.now().isoformat(),
-                    'updated_at': datetime.now().isoformat(),
-                    'last_sign_in_at': None,
-                    'aud': 'authenticated',
-                    'confirmation_token': '',
-                    'recovery_token': '',
-                    'email_change_token_new': '',
-                    'email_change_token_old': '',
-                    'phone_change_token': ''
+            auth_response = supabase_admin.auth.admin.create_user({
+                "email": data['email'].strip().lower(),
+                "password": data['password'],
+                "email_confirm": True,
+                "user_metadata": {
+                    "nombre_usuario": data.get('nombre_usuario', ''),
+                    "nombre_completo": data.get('nombre_completo', ''),
+                    "rol": data.get('rol', ''),
+                    "curp": data.get('curp', ''),
+                    "telefono": data.get('telefono', ''),
+                    "domicilio": data.get('domicilio', ''),
+                    "apellidos": data.get('apellidos', ''),
+                    "clave_elector": data.get('clave_elector', '')
                 }
-                
-                # Intentar insertar en auth.users directamente
-                response = supabase.table('auth.users').insert(auth_record).execute()
-                print(f"✅ PASO 1 ÉXITO (Direct Insert): Usuario creado en auth.users con UUID: {user_uuid}")
+            })
             
-        except Exception as e:
-            error_real = str(e)
-            print(f"🔥 ERROR REAL DE SUPABASE: {error_real}")
-            return jsonify({"error": error_real}), 400
-        
-        # 📝 PASO 2: PREPARAR DATOS PARA TABLA PERFILES (SIN EMAIL - Email es solo para Auth)
-        # ⚠️ IMPORTANTE: La tabla 'perfiles' NO contiene email ni password
-        # Esos datos están solo en auth.users
-        print(f"\n📝 === PASO 2: PREPARAR DATOS PARA PERFILES ===")
-        nuevo_usuario = {
-            'id': user_uuid,  # ⭐ CRÍTICO: UUID obtenido del Auth
-            'nombre_usuario': data['nombre_usuario'],  # Campo: 'Usuario (ej. director)' del frontend
-            'nombre_completo': data['nombre_completo'],
-            'rol': data['rol'],
-            'telefono': data['telefono'],
-            'curp': data.get('curp', ''),
-            'apellidos': data.get('apellidos', ''),
-            'clave_elector': data.get('clave_elector', ''),
-            'domicilio': data.get('domicilio', ''),
-            'fecha_creacion': datetime.now().isoformat()
-            # ❌ NO INCLUIR: email, password (esos están en auth.users, NO aquí)
-        }
-        
-        print(f"✅ PASO 2: Datos preparados para tabla perfiles:")
-        print(f"  - id: {nuevo_usuario['id']}")
-        print(f"  - nombre_usuario: {nuevo_usuario['nombre_usuario']}")
-        print(f"  - nombre_completo: {nuevo_usuario['nombre_completo']}")
-        print(f"  - rol: {nuevo_usuario['rol']}")
-        print(f"  - telefono: {nuevo_usuario['telefono']}")
-        
-        # 💾 PASO 3: INSERTAR EN TABLA PERFILES CON UUID LINKEADO
-        try:
-            print(f"\n💾 === PASO 3: INSERTAR EN TABLA PERFILES ===")
-            print(f"Tabla: 'perfiles'")
-            print(f"Registros a insertar: {nuevo_usuario}")
-            
-            response = supabase.table('perfiles').insert(nuevo_usuario).execute()
-            
-            print(f"✅ PASO 3 ÉXITO: Datos insertados en perfiles")
-            print(f"Respuesta: {response.data}")
+            user_uuid = auth_response.user.id
+            print(f"✅ ÉXITO: Usuario Auth creado con UUID: {user_uuid}")
+            print(f"   El Trigger de Supabase insertará automáticamente en tabla perfiles")
             
             return jsonify({
                 'message': 'Administrador creado exitosamente ✅',
-                'usuario': response.data[0] if response.data else nuevo_usuario,
-                'auth_uuid': user_uuid  # Para logging
-            }), 201
+                'user_id': user_uuid
+            }), 200
             
-        except Exception as db_error:
-            # Si falla la inserción en perfiles, intentar eliminar usuario de Auth para evitar inconsistencia
-            print(f"\n❌ === PASO 3 ERROR ===")
-            print(f"Error: {str(db_error)}")
-            
-            # Solo intentar limpiar si se usó Admin Client
-            if supabase_admin:
-                print(f"🗑️ Limpiando: Eliminando usuario Auth {user_uuid} para evitar inconsistencia...")
-                try:
-                    supabase_admin.auth.admin.delete_user(user_uuid)
-                    print(f"✅ Usuario Auth eliminado exitosamente")
-                except Exception as cleanup_error:
-                    print(f"⚠️ Error al eliminar usuario Auth: {cleanup_error}")
-            
-            # Análisis de error para mensajes más claros
-            error_str = str(db_error).lower()
-            
-            if 'column' in error_str and 'does not exist' in error_str:
-                print(f"❌ ERROR: Intento de insertar columna que no existe en la tabla 'perfiles'")
-                return jsonify({
-                    'error': f'Error de estructura de datos: {str(db_error)}. Asegúrate de que la tabla perfiles tiene las columnas correctas.'
-                }), 500
-            elif 'duplicate' in error_str or 'unique' in error_str:
-                return jsonify({
-                    'error': f'El usuario ya existe en el sistema'
-                }), 400
-            else:
-                return jsonify({
-                    'error': f'Error al guardar datos en perfiles: {str(db_error)}'
-                }), 500
+        except Exception as e:
+            error_real = str(e)
+            print(f"🔥 ERROR AL CREAR USUARIO: {error_real}")
+            return jsonify({"error": error_real}), 400
         
     except Exception as e:
         print(f"\n❌ === ERROR CRÍTICO EN CREAR_USUARIO ===")
