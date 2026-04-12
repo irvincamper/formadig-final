@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             'APROBADO'  // ✅ ESTADO ACEPTADO (en mayúsculas)
+            estatus:             document.getElementById('estatus')?.value
         };
 
         if (!updateData.escuela) {
@@ -102,14 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(updateData)
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                // ✅ MOSTRAR MENSAJE EXACTO DEL BACKEND
-                const errorMsg = data.error || data.message || 'Error desconocido del servidor';
-                console.error('❌ Error del backend:', errorMsg);
-                throw new Error(errorMsg);
-            }
+            if (!res.ok) throw new Error('Error en el servidor');
 
             UI.notify('¡Dictamen guardado correctamente! ✅', 'success');
             
@@ -125,14 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cargarDatos(true); 
 
         } catch (error) {
-            // ✅ MOSTRAR MENSAJE COMPLETO DEL ERROR
-            console.error('❌ Error en guardarDictamen:', error.message);
-            UI.notify(`❌ Error: ${error.message}`, 'error');
-            if (btnSubmit) {
-                btnSubmit.disabled = false;
-                btnSubmit.textContent = 'Reintentar Guardado';
-            }
-        }
             UI.notify(`❌ Error: ${error.message}`, 'error');
             if (btnSubmit) {
                 btnSubmit.disabled = false;
@@ -143,26 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            console.log('📥 Iniciando carga de Desayunos Calientes desde /api/desayunos_calientes...');
-            
             const res = await fetch('/api/desayunos_calientes', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
-            
-            console.log(`📊 Respuesta del servidor: ${res.status} ${res.statusText}`);
-            
-            if (!res.ok) {
-                const errorData = await res.json();
-                const errorMsg = errorData.error || `HTTP ${res.status}: ${res.statusText}`;
-                console.error('❌ Error del servidor:', errorMsg);
-                throw new Error(errorMsg);
-            }
-            
             const data = await res.json();
-            console.log('✅ Datos recibidos:', data);
-            
             allRecords = data.desayunos || data.registros || [];
-            console.log(`📋 Total de registros cargados: ${allRecords.length}`);
             renderTabla(allRecords);
 
             // Auto-seleccionar el primero si hay registros y ninguno está seleccionado
@@ -173,13 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateNavControls();
             }
         } catch (error) {
-            console.error('❌ Error crítico cargando desayunos calientes:', error.message);
-            console.error('Error stack:', error);
-            if (tbody) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:red;">
-                    ❌ Error al cargar: ${error.message}
-                </td></tr>`;
-            }
+            if (tbody) tbody.innerHTML = '<tr><td colspan="4">Error al conectar</td></tr>';
         }
     }
 
