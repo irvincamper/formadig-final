@@ -50,7 +50,8 @@ def register_blueprints():
     
     registered = 0
     for module_name, module_folder, module_file, bp_name in blueprints_to_register:
-        try:completa del archivo del módulo
+        try:
+            # Construir ruta completa del archivo del módulo
             module_file_path = os.path.join(modules_path, module_folder, "logica", f"{module_file}.py")
             
             if not os.path.exists(module_file_path):
@@ -78,8 +79,7 @@ def register_blueprints():
         except Exception as e:
             print(f"   ⚠️ [{module_name}] Error al registrar: {str(e)}")
             import traceback
-            traceback.print_exc(
-            print(f"   ⚠️ [{module_name}] Error al registrar: {str(e)}")
+            traceback.print_exc()
     
     return registered
 
