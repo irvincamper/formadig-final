@@ -213,7 +213,26 @@
 
             <!-- SECCIÓN 1: Lista de Usuarios -->
             <section class="table-section">
-                <h2>Administradores Registrados</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0;">Administradores Registrados</h2>
+                    <button id="btnAñadirUsuario" style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        padding: 0.75rem 1.5rem;
+                        background: var(--color-primary);
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-size: 1rem;
+                        transition: all 0.3s;
+                        box-shadow: 0 4px 12px rgba(0,118,108,0.2);
+                    " onmouseover="this.style.background='var(--color-primary-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,118,108,0.3)';" onmouseout="this.style.background='var(--color-primary)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,118,108,0.2)';">
+                        ➕ Añadir Usuario
+                    </button>
+                </div>
                 <div id="usuariosMessage" class="message hidden"></div>
                 <div class="table-wrapper">
                     <table>
@@ -234,66 +253,122 @@
                 </div>
             </section>
 
-            <!-- SECCIÓN 2: Formulario para Agregar Usuario -->
-            <section class="form-section premium-card">
-                <div id="formMessage" class="message hidden"></div>
-                
-                <h2>Agregar Nuevo Administrador</h2>
-                
-                <form id="agregar-usuario-form">
-                    <div class="form-group">
-                        <label class="form-label" for="nombre_usuario">Usuario (ej. director)</label>
-                        <input 
-                            type="text" 
-                            id="nombre_usuario" 
-                            class="form-control" 
-                            placeholder="Usuario (ej. director)"
-                            required>
-                    </div>
+            <!-- MODAL: Formulario para Agregar Usuario -->
+            <div id="modalAgregarUsuario" style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            " onclick="cerrarModal(event)">
+                <div class="premium-card" style="
+                    margin: 0;
+                    max-width: 500px;
+                    width: 90%;
+                    position: relative;
+                    animation: slideUp 0.3s ease-out;
+                " onclick="event.stopPropagation();">
+                    <button id="btnCerrarModal" style="
+                        position: absolute;
+                        top: 1.5rem;
+                        right: 1.5rem;
+                        width: 32px;
+                        height: 32px;
+                        border: none;
+                        background: #e2e8f0;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 1.2rem;
+                        color: #64748b;
+                        transition: all 0.2s;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    " onclick="cerrarModal()" onmouseover="this.style.background='#cbd5e1';" onmouseout="this.style.background='#e2e8f0';">
+                        ✕
+                    </button>
 
-                    <div class="form-group">
-                        <label class="form-label" for="nombre_completo">Nombre Completo</label>
-                        <input 
-                            type="text" 
-                            id="nombre_completo" 
-                            class="form-control" 
-                            placeholder="Nombre Completo"
-                            required>
-                    </div>
+                    <h2 style="margin-top: 0; color: var(--color-primary);">Agregar Nuevo Administrador</h2>
+                    
+                    <div id="formMessage" class="message hidden"></div>
+                    
+                    <form id="agregar-usuario-form">
+                        <div class="form-group">
+                            <label class="form-label" for="nombre_usuario">Usuario (ej. director)</label>
+                            <input 
+                                type="text" 
+                                id="nombre_usuario" 
+                                class="form-control" 
+                                placeholder="Usuario (ej. director)"
+                                required>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="rol">Rol</label>
-                        <select id="rol" class="form-control" required>
-                            <option value="">-- Selecciona Rol --</option>
-                            <option value="admin">Administrador General (admin)</option>
-                            <option value="admin_desayunos">Admin Desayunos (admin_desayunos)</option>
-                            <option value="admin_traslados">Admin Traslados (admin_traslados)</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label" for="nombre_completo">Nombre Completo</label>
+                            <input 
+                                type="text" 
+                                id="nombre_completo" 
+                                class="form-control" 
+                                placeholder="Nombre Completo"
+                                required>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="telefono">Teléfono</label>
-                        <input 
-                            type="text" 
-                            id="telefono" 
-                            class="form-control" 
-                            placeholder="Teléfono"
-                            required>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label" for="rol">Rol</label>
+                            <select id="rol" class="form-control" required>
+                                <option value="">-- Selecciona Rol --</option>
+                                <option value="admin">Administrador General (admin)</option>
+                                <option value="admin_desayunos">Admin Desayunos (admin_desayunos)</option>
+                                <option value="admin_traslados">Admin Traslados (admin_traslados)</option>
+                            </select>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="curp">CURP</label>
-                        <input 
-                            type="text" 
-                            id="curp" 
-                            class="form-control" 
-                            placeholder="CURP"
-                            required>
-                    </div>
+                        <div class="form-group">
+                            <label class="form-label" for="telefono">Teléfono</label>
+                            <input 
+                                type="text" 
+                                id="telefono" 
+                                class="form-control" 
+                                placeholder="Teléfono"
+                                required>
+                        </div>
 
-                    <button type="submit" class="btn-submit" id="btnAgregar">Agregar Administrador</button>
-                </form>
-            </section>
+                        <div class="form-group">
+                            <label class="form-label" for="curp">CURP</label>
+                            <input 
+                                type="text" 
+                                id="curp" 
+                                class="form-control" 
+                                placeholder="CURP"
+                                required>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <button type="submit" class="btn-submit" id="btnAgregar" style="margin-bottom: 0;">Guardar Administrador</button>
+                            <button type="button" class="btn-submit" id="btnCancelarForm" style="margin-bottom: 0; background: #6c757d;" onclick="cerrarModal()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- CSS para animación del modal -->
+            <style>
+                @keyframes slideUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            </style>
         </div>
     </main>
 

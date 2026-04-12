@@ -1,3 +1,53 @@
+// ============================================================================
+// FUNCIONES GLOBALES: Manejo del Modal
+// ============================================================================
+
+function abrirModal() {
+    const modal = document.getElementById('modalAgregarUsuario');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Evitar scroll cuando el modal está abierto
+    }
+}
+
+function cerrarModal(event) {
+    // Si se hace clic en el overlay o en el botón X, cerrar
+    if (event && event.target.id !== 'modalAgregarUsuario') {
+        return;
+    }
+    
+    const modal = document.getElementById('modalAgregarUsuario');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restaurar scroll
+        
+        // Limpiar los campos del formulario
+        limpiarFormulario();
+        
+        // Limpiar mensajes
+        const formMessage = document.getElementById('formMessage');
+        if (formMessage) {
+            formMessage.classList.add('hidden');
+        }
+    }
+}
+
+function limpiarFormulario() {
+    const formulario = document.getElementById('agregar-usuario-form');
+    if (formulario) {
+        formulario.reset();
+    }
+    
+    // Limpiar valores específicos
+    const campos = ['nombre_usuario', 'nombre_completo', 'rol', 'telefono', 'curp'];
+    campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.value = '';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar sesión y roles (Solo admin/directora/desarrollador)
     const session = Auth.checkSession();
@@ -19,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuariosList = document.getElementById('usuarios-tbody');
     const formulario = document.getElementById('agregar-usuario-form');
     const btnAgregar = document.getElementById('btnAgregar');
+    const btnAñadirUsuario = document.getElementById('btnAñadirUsuario');
+    const modalAgregarUsuario = document.getElementById('modalAgregarUsuario');
     const usuariosMessage = document.getElementById('usuariosMessage');
     const formMessage = document.getElementById('formMessage');
 
@@ -166,8 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 mostrarMensaje(formMessage, 
                     `✅ Administrador "${nombre_completo}" creado exitosamente.`, 'success');
                 formulario.reset();
-                // Recargar tabla después de 1.5 segundos
-                setTimeout(cargarUsuarios, 1500);
+                // Cerrar modal después de 1.5 segundos
+                setTimeout(() => {
+                    cerrarModal();
+                    cargarUsuarios();
+                }, 1500);
             } else {
                 mostrarMensaje(formMessage, `❌ Error: ${data.error}`, 'error');
             }
@@ -177,9 +232,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 '❌ No se pudo conectar con el servidor Backend.', 'error');
         } finally {
             btnAgregar.disabled = false;
-            btnAgregar.textContent = 'Agregar Administrador';
+            btnAgregar.textContent = 'Guardar Administrador';
         }
     });
+
+    // ========================================================================
+    // EVENT LISTENER: Botón "Añadir Usuario" - Abre Modal
+    // ========================================================================
+    if (btnAñadirUsuario) {
+        btnAñadirUsuario.addEventListener('click', (e) => {
+            e.preventDefault();
+            abrirModal();
+        });
+    }
+
+    // ========================================================================
+    // EVENT LISTENER: Cerrar Modal al hacer clic en el overlay
+    // ========================================================================
+    if (modalAgregarUsuario) {
+        modalAgregarUsuario.addEventListener('click', cerrarModal);
+    }
 
     // ========================================================================
     // FUNCIÓN: Eliminar Usuario (Global)
