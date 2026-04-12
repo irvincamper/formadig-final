@@ -454,14 +454,14 @@ def generar_respuesta_local(mensaje, email, role):
         if es_reporte or es_traslado:
             respuesta += "\n**Puedes descargar los reportes detallados aquí:**\n"
             respuesta += "EXPORT_BUTTONS:\n"
-            respuesta += f"- [Descargar Reporte de Traslados (Excel)](http://localhost:5008/api/chatbot/export?table=traslados&format=excel)\n"
-            respuesta += f"- [Descargar Reporte de Traslados (PDF)](http://localhost:5008/api/chatbot/export?table=traslados&format=pdf)\n"
+            respuesta += f"- [Descargar Reporte de Traslados (Excel)](/api/chatbot/export?table=traslados&format=excel)\n"
+            respuesta += f"- [Descargar Reporte de Traslados (PDF)](/api/chatbot/export?table=traslados&format=pdf)\n"
         
         if es_reporte or es_desayuno:
             respuesta += "\n**Reportes de Programas Alimentarios:**\n"
             respuesta += "EXPORT_BUTTONS:\n"
-            respuesta += f"- [Descargar Reporte de Beneficiarios (Excel)](http://localhost:5008/api/chatbot/export?table=desayunos_eaeyd&format=excel)\n"
-            respuesta += f"- [Descargar Reporte de Beneficiarios (PDF)](http://localhost:5008/api/chatbot/export?table=desayunos_eaeyd&format=pdf)\n"
+            respuesta += f"- [Descargar Reporte de Beneficiarios (Excel)](/api/chatbot/export?table=desayunos_eaeyd&format=excel)\n"
+            respuesta += f"- [Descargar Reporte de Beneficiarios (PDF)](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)\n"
     else:
         respuesta += "No pude entender tu solicitud en modo de emergencia. Prueba pidiendo un 'reporte', 'traslados' o 'desayunos' para ver estadísticas reales."
         
@@ -493,15 +493,15 @@ def ask_gemini():
     2. DESCARGA DE ARCHIVOS: Si el usuario pide el reporte en EXCEL, WORD o PDF (para imprimir), DEBES incluir exactamente este bloque al final de tu respuesta. Usa table=traslados o table=desayunos_eaeyd según corresponda.
        EJEMPLO PARA TRASLADOS:
        EXPORT_BUTTONS:
-       - [Descargar en Excel](http://localhost:5008/api/chatbot/export?table=traslados&format=excel)
-       - [Descargar en Word](http://localhost:5008/api/chatbot/export?table=traslados&format=word)
-       - [Descargar en PDF](http://localhost:5008/api/chatbot/export?table=traslados&format=pdf)
+       - [Descargar en Excel](/api/chatbot/export?table=traslados&format=excel)
+       - [Descargar en Word](/api/chatbot/export?table=traslados&format=word)
+       - [Descargar en PDF](/api/chatbot/export?table=traslados&format=pdf)
        
        EJEMPLO PARA DESAYUNOS:
        EXPORT_BUTTONS:
-       - [Descargar en Excel](http://localhost:5008/api/chatbot/export?table=desayunos_eaeyd&format=excel)
-       - [Descargar en Word](http://localhost:5008/api/chatbot/export?table=desayunos_eaeyd&format=word)
-       - [Descargar en PDF](http://localhost:5008/api/chatbot/export?table=desayunos_eaeyd&format=pdf)
+       - [Descargar en Excel](/api/chatbot/export?table=desayunos_eaeyd&format=excel)
+       - [Descargar en Word](/api/chatbot/export?table=desayunos_eaeyd&format=word)
+       - [Descargar en PDF](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)
        (Nota: Si dice que desea imprimir, recomiéndale siempre el PDF).
 
     3. CARGA MASIVA: Si el usuario pregunta cómo cargar muchos datos, explícale que debe usar un archivo CSV/Excel con las siguientes columnas según la tabla:
