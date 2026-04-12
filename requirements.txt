@@ -15,6 +15,7 @@ PyJWT
 pydantic
 typing_extensions
 bcrypt
+flask-cors
 
 # Twilio (SMS)
 twilio
