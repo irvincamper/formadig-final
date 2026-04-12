@@ -56,13 +56,18 @@ def obtener_usuarios():
 def crear_usuario():
     """
     Endpoint POST para crear nuevo administrador.
+    FLUJO CRÍTICO:
+    1. Crear usuario en Supabase Auth (email/password) → obtiene UUID
+    2. Extraer UUID de la respuesta Auth
+    3. Insertar en tabla perfiles CON id=UUID
+    
     Validación: ROL debe ser uno de los permitidos.
     """
     try:
         data = request.json
         
-        # Validar que se proporcionan los campo requeridos
-        required_fields = ['nombre_usuario', 'nombre_completo', 'rol', 'telefono']
+        # Validar que se proporcionan los campos requeridos
+        required_fields = ['nombre_usuario', 'nombre_completo', 'email', 'password', 'rol', 'telefono']
         for field in required_fields:
             if field not in data or not data[field]:
                 return jsonify({'error': f'Campo requerido faltante: {field}'}), 400
@@ -73,8 +78,33 @@ def crear_usuario():
                 'error': f"Rol no permitido. Use: {', '.join(ALLOWED_ROLES)}"
             }), 400
         
-        # Preparar datos del nuevo usuario
+        # PASO 1: CREAR USUARIO EN SUPABASE AUTH (genera UUID automáticamente)
+        try:
+            auth_response = supabase.auth.admin.create_user(
+                email=data['email'],
+                password=data['password'],
+                email_confirm=True  # Confirmar automáticamente para evitar esperar verificación
+            )
+            
+            # Extraer UUID del usuario creado en Auth
+            user_uuid = auth_response.user.id
+            
+        except Exception as auth_error:
+            error_message = str(auth_error)
+            
+            # Traducir errores comunes de Supabase Auth
+            if 'already registered' in error_message.lower():
+                return jsonify({'error': 'Este correo ya está registrado en el sistema.'}), 400
+            elif 'password' in error_message.lower():
+                return jsonify({'error': 'Contraseña no cumple los requisitos de seguridad.'}), 400
+            elif 'email' in error_message.lower():
+                return jsonify({'error': 'Email inválido o ya registrado.'}), 400
+            else:
+                return jsonify({'error': f'Error al crear usuario en Auth: {error_message}'}), 500
+        
+        # PASO 2: PREPARAR DATOS PARA TABLA PERFILES (CON UUID como id)
         nuevo_usuario = {
+            'id': user_uuid,  # ⭐ CRÍTICO: UUID obtenido del Auth
             'nombre_usuario': data['nombre_usuario'],
             'nombre_completo': data['nombre_completo'],
             'rol': data['rol'],
@@ -83,16 +113,31 @@ def crear_usuario():
             'apellidos': data.get('apellidos', ''),
             'clave_elector': data.get('clave_elector', ''),
             'domicilio': data.get('domicilio', ''),
-            'fecha_creacion': datetime.now().isoformat()
+            'fecha_creacion': datetime.now().isoformat(),
+            'email': data['email']  # Guardar email para referencia
         }
         
-        # Insertar en la tabla perfiles
-        response = supabase.table('perfiles').insert(nuevo_usuario).execute()
-        
-        return jsonify({
-            'message': 'Administrador creado exitosamente',
-            'usuario': response.data[0] if response.data else nuevo_usuario
-        }), 201
+        # PASO 3: INSERTAR EN TABLA PERFILES CON UUID LINKEADO
+        try:
+            response = supabase.table('perfiles').insert(nuevo_usuario).execute()
+            
+            return jsonify({
+                'message': 'Administrador creado exitosamente',
+                'usuario': response.data[0] if response.data else nuevo_usuario,
+                'auth_uuid': user_uuid  # Para logging
+            }), 201
+            
+        except Exception as db_error:
+            # Si falla la inserción en perfiles, eliminar usuario de Auth para evitar inconsistencia
+            try:
+                supabase.auth.admin.delete_user(user_uuid)
+            except:
+                pass  # Ignorar errores al limpiar
+            
+            error_message = str(db_error)
+            return jsonify({
+                'error': f'Error al guardar datos en perfiles: {error_message}'
+            }), 500
         
     except Exception as e:
         return jsonify({'error': f'Error al crear usuario: {str(e)}'}), 500

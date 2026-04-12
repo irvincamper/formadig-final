@@ -39,7 +39,7 @@ function limpiarFormulario() {
     }
     
     // Limpiar valores específicos
-    const campos = ['nombre_usuario', 'nombre_completo', 'rol', 'telefono', 'curp'];
+    const campos = ['nombre_usuario', 'nombre_completo', 'email', 'password', 'rol', 'telefono', 'curp'];
     campos.forEach(id => {
         const campo = document.getElementById(id);
         if (campo) {
@@ -177,6 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nombre_usuario = document.getElementById('nombre_usuario').value.trim();
         const nombre_completo = document.getElementById('nombre_completo').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
         const rol = document.getElementById('rol').value;
         const telefono = document.getElementById('telefono').value.trim();
         const curp = document.getElementById('curp').value.trim();
@@ -188,8 +190,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Validación de campos requeridos
-        if (!nombre_usuario || !nombre_completo || !telefono) {
+        if (!nombre_usuario || !nombre_completo || !email || !password || !telefono) {
             mostrarMensaje(formMessage, '❌ Completa todos los campos requeridos', 'error');
+            return;
+        }
+
+        // Validación de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            mostrarMensaje(formMessage, '❌ Email inválido. Usa formato: usuario@ejemplo.com', 'error');
+            return;
+        }
+
+        // Validación de contraseña
+        if (password.length < 8) {
+            mostrarMensaje(formMessage, '❌ Contraseña debe tener al menos 8 caracteres', 'error');
             return;
         }
 
@@ -206,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     nombre_usuario,
                     nombre_completo,
+                    email,
+                    password,
                     rol,
                     telefono,
                     curp
@@ -224,7 +241,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     cargarUsuarios();
                 }, 1500);
             } else {
-                mostrarMensaje(formMessage, `❌ Error: ${data.error}`, 'error');
+                // Parsear el mensaje de error de forma amigable
+                let mensajeError = data.error || 'Error desconocido';
+                
+                // Traducir errores comunes de Supabase
+                if (mensajeError.includes('User already registered')) {
+                    mensajeError = 'Este correo ya está registrado en el sistema.';
+                } else if (mensajeError.includes('Password')) {
+                    mensajeError = 'Contraseña no cumple los requisitos de seguridad.';
+                } else if (mensajeError.includes('Email')) {
+                    mensajeError = 'Email inválido o ya registrado.';
+                }
+                
+                mostrarMensaje(formMessage, `❌ ${mensajeError}`, 'error');
             }
         } catch (error) {
             console.error('Network error:', error);
@@ -232,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '❌ No se pudo conectar con el servidor Backend.', 'error');
         } finally {
             btnAgregar.disabled = false;
-            btnAgregar.textContent = 'Guardar Administrador';
+            btnAgregar.textContent = '✓ Guardar';
         }
     });
 
