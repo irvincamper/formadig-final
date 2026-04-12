@@ -579,62 +579,76 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     updateNavControls();
                     
-                    // ── LLENAR PANEL IZQUIERDO CON DATOS COMPLETOS ──
-                    // Con validación para evitar errores si el elemento no existe
+                    // ════════════════════════════════════════════════════════════════════════
+                    // FUNCIÓN HELPER: Llenar valor en input con validación
+                    // ════════════════════════════════════════════════════════════════════════
                     const setVal = (id, val) => {
                         const el = document.getElementById(id);
                         if (el) el.value = val || '';
                     };
                     
-                    // Sección: Identidad Oficial
-                    setVal('paciente_curp', t.paciente_curp);
+                    // ════════════════════════════════════════════════════════════════════════
+                    // PESTAÑA 1: DATOS (Identidad y Contacto)
+                    // ════════════════════════════════════════════════════════════════════════
+                    setVal('paciente_curp', t.paciente_curp || '');
+                    setVal('paciente_nombre', t.paciente_nombre || '');
+                    setVal('paciente_edad', t.paciente_edad || '');
+                    setVal('telefono_principal', t.telefono_principal || '');
+                    setVal('telefono_secundario', t.telefono_secundario || '');
                     
-                    // Sección: Datos del Paciente
-                    setVal('paciente_nombre', t.paciente_nombre);
-                    setVal('paciente_edad', t.paciente_edad);
+                    // ════════════════════════════════════════════════════════════════════════
+                    // PESTAÑA 2: UBICACIÓN
+                    // ════════════════════════════════════════════════════════════════════════
+                    setVal('paciente_domicilio', t.paciente_domicilio || '');
+                    setVal('colonia', t.colonia || '');
+                    setVal('cp', t.codigo_postal || '');
                     
-                    // Sección: Ubicación
-                    setVal('localidad', t.localidad);
-                    setVal('colonia', t.colonia);
-                    setVal('tipo_asentamiento', t.tipo_asentamiento);
-                    setVal('cp', t.cp || t.codigo_postal);
-                    setVal('paciente_domicilio', t.paciente_domicilio);
-                    setVal('referencias', t.referencias);
+                    // Campos adicionales de ubicación (para referencia)
+                    setVal('localidad', t.localidad || '');
+                    setVal('tipo_asentamiento', t.tipo_asentamiento || '');
+                    setVal('referencias', t.referencias || '');
                     
-                    // Sección: Detalles del Traslado
-                    setVal('destino_hospital', t.destino_hospital);
-                    setVal('acompanante_nombre', t.acompanante_nombre);
-                    setVal('acompanante_clave_elector', t.acompanante_clave_elector);
-                    setVal('telefono_principal', t.telefono_principal);
-                    setVal('telefono_secundario', t.telefono_secundario);
-                    setVal('estatus', t.estatus);
+                    // ════════════════════════════════════════════════════════════════════════
+                    // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
+                    // ════════════════════════════════════════════════════════════════════════
+                    setVal('destino_hospital', t.destino_hospital || '');
+                    setVal('fecha_viaje', t.fecha_viaje || '');
+                    setVal('hora_cita', t.hora_cita || '');
+                    setVal('acompanante_nombre', t.acompanante_nombre || '');
+                    setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
+                    setVal('estatus', t.estatus || '');
+                    setVal('lugares_requeridos', t.lugares_requeridos || 2);
                     
-                    // ── Lógica de Documentos (Estandarizada) ──
+                    // ════════════════════════════════════════════════════════════════════════
+                    // PESTAÑA 4: DOCS (Evidencias fotográficas/PDF)
+                    // ════════════════════════════════════════════════════════════════════════
                     renderDocBtn('btnDocPacienteCont', t.url_doc_beneficiario || null, 'DOCUMENTO');
                     renderDocBtn('btnDocAcompCont', t.url_doc_acompanante || null, 'DOCUMENTO');
                     renderDocBtn('btnDocCompDomCont', t.url_comprobante_domicilio || null, 'DOMICILIO');
                     
-                    // ── Automatización: Pre-llenar Fecha y Hora ──
+                    // ════════════════════════════════════════════════════════════════════════
+                    // AUTOMATIZACIONES
+                    // ════════════════════════════════════════════════════════════════════════
+                    // Si no hay fecha, asignar fecha de hoy
                     let fechaVal = t.fecha_viaje || '';
-                    let horaVal = t.hora_cita || '';
-
                     if (!fechaVal) {
                         const today = new Date().toISOString().split('T')[0];
-                        fechaVal = today;
+                        setVal('fecha_viaje', today);
                     }
+                    
+                    // Si no hay hora, asignar hora + 1
+                    let horaVal = t.hora_cita || '';
                     if (!horaVal) {
                         const now = new Date();
                         now.setHours(now.getHours() + 1);
                         horaVal = now.toTimeString().slice(0, 5);
+                        setVal('hora_cita', horaVal);
                     }
-
-                    setVal('fecha_viaje', fechaVal);
-                    setVal('hora_cita', horaVal);
-                    setVal('lugares_requeridos', parseInt(t.lugares_requeridos) || 2);
                     
-                    // Actualizar automáticamente los cupos cuando se carga la fecha
+                    // Actualizar UI de cupos
                     actualizarUI_Cupos();
                     
+                    // Habilitar botones de acción
                     btnSubmit.disabled = false;
                     btnRechazar.disabled = false;
                     btnSubmit.textContent = 'Aceptar Traslado 🚐';
