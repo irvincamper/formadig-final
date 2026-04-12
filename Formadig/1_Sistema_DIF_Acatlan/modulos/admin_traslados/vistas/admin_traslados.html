@@ -395,7 +395,7 @@
 
                         <div id="asignacionBloque" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
                             <h4 style="font-size: 0.95rem; font-weight: 700; color: #166534; margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
-                                ✍️ AGENDAR FECHA Y HORA
+                             ✍️ AGENDAR FECHA Y HORA
                             </h4>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                 <div class="form-group">
@@ -407,9 +407,16 @@
                                     <input type="time" id="hora_cita" class="form-control" required style="border-color: #bbf7d0;">
                                 </div>
                             </div>
-                            <div class="form-group" style="margin-top:1rem">
-                                <label class="form-label" for="lugares_requeridos" style="color: #166534;">Cupos a Avalar (Inc. acompañante)</label>
-                                <input type="number" id="lugares_requeridos" class="form-control" value="2" min="1" max="5" required style="border-color: #e2e8f0; color: #64748b;">
+                            
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="hora_regreso" style="color: #047857;">Hora de Regreso</label>
+                                    <input type="time" id="hora_regreso" class="form-control" style="border-color: #bbf7d0; color: #475569;">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="lugares_requeridos" style="color: #166534;">Cupos a Avalar (Inc. acompañante)</label>
+                                    <input type="number" id="lugares_requeridos" class="form-control" value="2" min="1" max="5" required style="border-color: #e2e8f0; color: #64748b;">
+                                </div>
                             </div>
                         </div>
 
