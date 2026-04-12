@@ -22,5 +22,6 @@ twilio
 # Exportación de reportes (Excel, PDF, Word)
 pandas
 openpyxl
+xlsxwriter
 fpdf2
 python-docx
