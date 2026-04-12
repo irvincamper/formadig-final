@@ -567,75 +567,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
 
-
-            tr.addEventListener('click', () => {
-                try {
-                    currentSelectedId = t.id;
-                    document.querySelectorAll('#listaRegistros tr').forEach(row => row.classList.remove('selected-row-v3'));
-                    tr.classList.add('selected-row-v3');
-                    
-                    // Resaltar el título del formulario
-                    document.getElementById('formTitle')?.classList.add('editing-mode-title');
-                    
-                    updateNavControls();
-                    
-                    // ════════════════════════════════════════════════════════════════════════
-                    // FUNCIÓN HELPER: Llenar valor en input con validación
-                    // ════════════════════════════════════════════════════════════════════════
-                    const setVal = (id, val) => {
-                        const el = document.getElementById(id);
-                        if (el) el.value = val || '';
-                    };
-                    
-                    // ════════════════════════════════════════════════════════════════════════
-                    // PESTAÑA 1: DATOS (Identidad y Contacto)
-                    // ════════════════════════════════════════════════════════════════════════
-                    setVal('paciente_curp', t.paciente_curp || '');
-                    setVal('paciente_nombre', t.paciente_nombre || '');
-                    setVal('paciente_edad', t.paciente_edad || '');
-                    setVal('telefono_principal', t.telefono_principal || '');
-                    setVal('telefono_secundario', t.telefono_secundario || '');
-                    
-                   // ════════════════════════════════════════════════════════════════════════
-                    // PESTAÑA 2: UBICACIÓN
-                    // ════════════════════════════════════════════════════════════════════════
-                    setVal('paciente_domicilio', t.paciente_domicilio || '');
-                    setVal('cp', t.codigo_postal || '');
-                    
-                    // Lógica robusta para seleccionar la colonia sin importar mayúsculas/minúsculas
-                    const selectColonia = document.getElementById('colonia');
-                    if (selectColonia && t.colonia) {
-                        const option = Array.from(selectColonia.options).find(opt => opt.value.toLowerCase() === t.colonia.toLowerCase());
-                        if (option) {
-                            selectColonia.value = option.value;
-                        } else {
-                            selectColonia.value = '';
-                        }
-                    } else {
-                        setVal('colonia', '');
-                    }
-                    
-                    // Limpiar los campos que no existen en la BD de traslados
-                    setVal('localidad', '');
-                    setVal('tipo_asentamiento', '');
-                    setVal('referencias', '');
-                    
-                    // ════════════════════════════════════════════════════════════════════════
-                    // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
-                    // ════════════════════════════════════════════════════════════════════════
-                    setVal('destino_hospital', t.destino_hospital || '');
-                    setVal('fecha_viaje', t.fecha_viaje || '');
-                    setVal('hora_cita', t.hora_cita || '');
-                    setVal('acompanante_nombre', t.acompanante_nombre || '');
-                    setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
-                    setVal('estatus', t.estatus || '');
-                    
-                    // Automatización de Cupos
-                    if (t.acompanante_nombre && t.acompanante_nombre.trim() !== '') {
-                        setVal('lugares_requeridos', 2); // Va con acompañante
-                    } else {
-                        setVal('lugares_requeridos', 1); // Va solo
-                    }
+// 👇 CAMBIO 1: Agregamos "async" aquí
+                    tr.addEventListener('click', async () => {
+                        try {
+                            currentSelectedId = t.id;
+                            document.querySelectorAll('#listaRegistros tr').forEach(row => row.classList.remove('selected-row-v3'));
+                            tr.classList.add('selected-row-v3');
+                            
+                            // Resaltar el título del formulario
+                            document.getElementById('formTitle')?.classList.add('editing-mode-title');
+                            
+                            updateNavControls();
+                            
+                            // ════════════════════════════════════════════════════════════════════════
+                            // FUNCIÓN HELPER: Llenar valor en input con validación
+                            // ════════════════════════════════════════════════════════════════════════
+                            const setVal = (id, val) => {
+                                const el = document.getElementById(id);
+                                if (el) el.value = val || '';
+                            };
+                            
+                            // ════════════════════════════════════════════════════════════════════════
+                            // PESTAÑA 1: DATOS (Identidad y Contacto)
+                            // ════════════════════════════════════════════════════════════════════════
+                            setVal('paciente_curp', t.paciente_curp || '');
+                            setVal('paciente_nombre', t.paciente_nombre || '');
+                            setVal('paciente_edad', t.paciente_edad || '');
+                            setVal('telefono_principal', t.telefono_principal || '');
+                            setVal('telefono_secundario', t.telefono_secundario || '');
+                            
+                           // ════════════════════════════════════════════════════════════════════════
+                            // PESTAÑA 2: UBICACIÓN
+                            // ════════════════════════════════════════════════════════════════════════
+                            setVal('paciente_domicilio', t.paciente_domicilio || '');
+                            setVal('cp', t.codigo_postal || '');
+                            
+                            // 👇 CAMBIO 2: Le decimos que espere a que bajen las colonias antes de seguir
+                            if (t.codigo_postal) {
+                                await cargarColonias(t.codigo_postal);
+                            }
+                            
+                            // Lógica robusta para seleccionar la colonia sin importar mayúsculas/minúsculas
+                            const selectColonia = document.getElementById('colonia');
+                            if (selectColonia && t.colonia) {
+                                const option = Array.from(selectColonia.options).find(opt => opt.value.toLowerCase() === t.colonia.toLowerCase());
+                                if (option) {
+                                    selectColonia.value = option.value;
+                                } else {
+                                    selectColonia.value = '';
+                                }
+                            } else {
+                                setVal('colonia', '');
+                            }
+                            
+                            // Limpiar los campos que no existen en la BD de traslados
+                            setVal('localidad', '');
+                            setVal('tipo_asentamiento', '');
+                            setVal('referencias', '');
+                            
+                            // ════════════════════════════════════════════════════════════════════════
+                            // PESTAÑA 3: VIAJE (Detalles médicos y acompañante)
+                            // ════════════════════════════════════════════════════════════════════════
+                            setVal('destino_hospital', t.destino_hospital || '');
+                            setVal('fecha_viaje', t.fecha_viaje || '');
+                            setVal('hora_cita', t.hora_cita || '');
+                            setVal('acompanante_nombre', t.acompanante_nombre || '');
+                            setVal('acompanante_clave_elector', t.acompanante_clave_elector || '');
+                            setVal('estatus', t.estatus || '');
+                            
+                            // Automatización de Cupos
+                            if (t.acompanante_nombre && t.acompanante_nombre.trim() !== '') {
+                                setVal('lugares_requeridos', 2); // Va con acompañante
+                            } else {
+                                setVal('lugares_requeridos', 1); // Va solo
+                            }
                     
                     // ════════════════════════════════════════════════════════════════════════
                     // PESTAÑA 4: DOCS (Evidencias fotográficas/PDF)
