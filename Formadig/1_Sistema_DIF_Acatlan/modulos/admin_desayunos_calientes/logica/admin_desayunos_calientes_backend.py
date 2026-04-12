@@ -4,7 +4,7 @@ import os
 import requests
 import base64
 
-# Lógica de Backend de Python - Desayunos Calientes (V8: ROBUSTO CON JWT)
+# Lógica de Backend de Python - Desayunos Calientes (V8: FINAL ROBUST FIX - CON JWT HANDLING)
 # Crear Blueprint para desayunos calientes
 desayunos_calientes_bp = Blueprint('desayunos_calientes', __name__, url_prefix='/api/desayunos_calientes')
 
@@ -21,45 +21,20 @@ global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 @desayunos_calientes_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     try:
-        print("🔍 GET /api/desayunos_calientes - Intentando consultar tabla 'desayunos_calientes'...")
-        
-        # Primero intenta la tabla principal 'desayunos_calientes'
-        try:
-            res = global_client.table('desayunos_calientes').select('*').limit(1000).execute()
-            responses = res.data if res.data else []
-            print(f"✅ Tabla 'desayunos_calientes': {len(responses)} registros encontrados")
-        except Exception as e:
-            print(f"⚠️ Tabla 'desayunos_calientes' no disponible o error: {str(e)}")
-            responses = []
-        
-        # Si no hay registros, intenta tabla alternativa
-        if not responses:
-            print("🔍 Intentando tabla alternativa 'desayunos_eaeyd'...")
-            try:
-                res = global_client.table('desayunos_eaeyd').select('*').limit(1000).execute()
-                calientes_data = [r for r in res.data if r.get('tipo_apoyo') == 'Calientes'] if res.data else []
-                responses = calientes_data
-                print(f"✅ Tabla 'desayunos_eaeyd': {len(responses)} registros tipo 'Calientes' encontrados")
-            except Exception as e:
-                print(f"⚠️ Tabla 'desayunos_eaeyd' no disponible o error: {str(e)}")
-                responses = []
-        
-        # Si aún no hay datos, reportar claramente
-        if not responses:
-            print("❌ NO HAY TABLAS DISPONIBLES O ESTÁN VACÍAS")
-            return jsonify({"desayunos": [], "warning": "No hay tablas disponibles o están vacías"}), 200
+        # Query tabla principal desayunos_calientes con límite de 1000 registros
+        res = global_client.table('desayunos_calientes').select('*').limit(1000).execute()
+        responses = res.data if res.data else []
         
         desayunos_mapeados = []
         for r in responses:
-            record_id = r.get('Identificación') or r.get('id') or r.get('uuid')
-            nombre = r.get('nombres') or r.get('nombre') or r.get('nombre_beneficiario') or ''
-            apell = r.get('apellidos') or r.get('apellido') or ''
+            # Usar campos exactos del schema
+            record_id = r.get('id')
+            nombre = r.get('nombres') or ''
+            apell = r.get('apellidos') or ''
             nombre_completo = f"{nombre} {apell}".strip()
-            if not nombre_completo:
-                nombre_completo = r.get('bordillo') or r.get('curp') or f"Caliente #{str(record_id)[:8] if record_id else '?'}"
             
             desayunos_mapeados.append({
-                "id": str(record_id) if record_id else None,
+                "id": str(record_id),
                 "nombre_beneficiario": nombre_completo,
                 "nombres": nombre, 
                 "apellidos": apell,
@@ -67,91 +42,86 @@ def obtener_registros():
                 "fecha_nacimiento": r.get('fecha_nacimiento') or r.get('nacimiento'),
                 "sexo": r.get('sexo') or r.get('genero'),
                 "estado_civil": r.get('estado_civil') or 'Soltero(a)',
+                
+                # Datos de Salud
                 "peso_menor": r.get('peso_menor') or r.get('peso'),
                 "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
+                
+                # Socioeconómico
                 "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
                 "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar') or r.get('ingreso'),
-                "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('es_vulnerable') or r.get('vulnerabilidad'),
+                "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('vulnerabilidad'),
+                
+                # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad'),
                 "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
+                
+                # Tutor
                 "tutor": r.get('tutor_nombre') or r.get('tutor'),
                 "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector') or r.get('ine_tutor'),
-                "telefono": r.get('tutor_telefono') or r.get('telefono') or r.get('celular'),
+                "telefono": r.get('telefono') or r.get('celular'),
+                
+                # Documentos
                 "url_curp": r.get('url_curp') or r.get('url_doc_curp') or r.get('curp_url'),
-                "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_salud') or r.get('url_doc_salud'),
-                "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_ine') or r.get('url_doc_ine_tutor') or r.get('foto_ine_url'),
+                "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud') or r.get('url_salud'),
+                "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor') or r.get('url_ine') or r.get('foto_ine_url'),
                 "url_comprobante_domicilio": r.get('url_comprobante_domicilio') or r.get('comprobante_domicilio') or r.get('url_comprobante'),
                 "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante') or r.get('url_foto'),
-                "colonia": r.get('colonia') or '',
+                
                 "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
                 "estatus": r.get('estatus') or 'APROBADO'
             })
-        
-        print(f"✅ Retornando {len(desayunos_mapeados)} desayunos calientes mapeados")
         return jsonify({"desayunos": desayunos_mapeados}), 200
-    
     except Exception as e:
-        print(f"❌ ERROR CRÍTICO en GET /: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": f"Error al obtener registros: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 500
 
 @desayunos_calientes_bp.route('/<string:record_id>', methods=['GET'], strict_slashes=False)
 def obtener_desayuno(record_id):
-    """Obtener UN desayuno específico por ID"""
+    """Obtener UN desayuno caliente específico por ID"""
     try:
-        # Buscar en múltiples tablas y columnas como hace el PUT
-        for table in ['desayunos_calientes', 'desayunos_eaeyd']:
-            for col in ['id', 'uuid', 'Identificación']:
-                try:
-                    res = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
-                    if res.data:
-                        r = res.data[0]
-                        print(f"📍 GET /api/desayunos_calientes/{record_id} → Encontrado en {table}")
-                        
-                        # Mapeo idéntico al GET /
-                        nombre = r.get('nombres') or r.get('nombre') or ''
-                        apell = r.get('apellidos') or r.get('apellido') or ''
-                        nombre_completo = f"{nombre} {apell}".strip()
-                        if not nombre_completo:
-                            nombre_completo = r.get('bordillo') or r.get('curp') or 'S/N'
-                        
-                        return jsonify({
-                            "id": str(r.get('Identificación') or r.get('id') or r.get('uuid')),
-                            "nombre_beneficiario": nombre_completo,
-                            "nombres": nombre,
-                            "apellidos": apell,
-                            "curp": r.get('curp') or r.get('bordillo'),
-                            "fecha_nacimiento": r.get('fecha_nacimiento') or r.get('nacimiento'),
-                            "sexo": r.get('sexo') or r.get('genero'),
-                            "estado_civil": r.get('estado_civil') or 'Soltero(a)',
-                            "peso_menor": r.get('peso_menor') or r.get('peso'),
-                            "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
-                            "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
-                            "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
-                            "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad') or r.get('es_vulnerable'),
-                            "localidad": r.get('localidad') or r.get('comunidad'),
-                            "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
-                            "cp": r.get('cp') or r.get('codigo_postal'),
-                            "referencias": r.get('referencias') or r.get('vialidades'),
-                            "tutor": r.get('tutor_nombre') or r.get('tutor'),
-                            "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector') or r.get('ine_tutor'),
-                            "telefono": r.get('tutor_telefono') or r.get('telefono') or r.get('celular'),
-                            "url_curp": r.get('url_curp') or r.get('url_doc_curp'),
-                            "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_salud') or r.get('url_doc_salud'),
-                            "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_ine') or r.get('url_doc_ine_tutor'),
-                            "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
-                            "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante'),
-                            "colonia": r.get('colonia') or '',
-                            "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
-                            "estatus": r.get('estatus') or 'Pendiente'
-                        }), 200
-                except:
-                    continue
+        res = global_client.table('desayunos_calientes').select('*').eq('id', record_id).limit(1).execute()
         
-        return jsonify({"error": f"Desayuno con ID {record_id} no encontrado"}), 404
+        if not res.data:
+            return jsonify({"error": f"Desayuno con ID {record_id} no encontrado"}), 404
+        
+        r = res.data[0]
+        print(f"📍 GET /api/desayunos_calientes/{record_id} → Desayuno caliente cargado")
+        
+        nombre = r.get('nombres') or ''
+        apell = r.get('apellidos') or ''
+        nombre_completo = f"{nombre} {apell}".strip()
+        
+        return jsonify({
+            "id": str(r.get('id')),
+            "nombre_beneficiario": nombre_completo,
+            "nombres": nombre,
+            "apellidos": apell,
+            "curp": r.get('curp') or r.get('bordillo'),
+            "fecha_nacimiento": r.get('fecha_nacimiento') or r.get('nacimiento'),
+            "sexo": r.get('sexo') or r.get('genero'),
+            "estado_civil": r.get('estado_civil') or 'Soltero(a)',
+            "peso_menor": r.get('peso_menor') or r.get('peso'),
+            "estatura_menor": r.get('estatura_menor') or r.get('estatura') or r.get('talla'),
+            "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
+            "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
+            "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
+            "localidad": r.get('localidad') or r.get('comunidad'),
+            "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
+            "cp": r.get('cp') or r.get('codigo_postal'),
+            "referencias": r.get('referencias') or r.get('vialidades'),
+            "tutor": r.get('tutor_nombre') or r.get('tutor'),
+            "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector'),
+            "telefono": r.get('telefono') or r.get('celular'),
+            "url_curp": r.get('url_curp') or r.get('url_doc_curp'),
+            "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud'),
+            "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor'),
+            "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
+            "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante'),
+            "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
+            "estatus": r.get('estatus') or 'APROBADO'
+        }), 200
     except Exception as e:
         print(f"❌ Error en GET /{record_id}: {e}")
         return jsonify({"error": str(e)}), 500
@@ -159,7 +129,7 @@ def obtener_desayuno(record_id):
 @desayunos_calientes_bp.route('/<string:record_id>', methods=['PUT', 'PATCH'], strict_slashes=False)
 def dictamen_registro(record_id):
     """
-    Endpoint PUT/PATCH robusto para actualizar desayunos calientes.
+    Endpoint PUT/PATCH robusto para actualizar desayunos.
     Maneja JWT correctamente para pasar RLS.
     """
     data = request.json
@@ -171,7 +141,7 @@ def dictamen_registro(record_id):
         target_table = None
         id_col = None
         
-        for table in ['desayunos_calientes', 'desayunos_eaeyd']:
+        for table in ['desayunos_calientes', 'desayunos_calientes', 'desayunos_eaeyd']:
             for col in ['id', 'uuid', 'Identificación']:
                 try:
                     check = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
@@ -271,7 +241,7 @@ def dictamen_registro(record_id):
         if not res_data:
             return jsonify({"error": "❌ Registro no actualizado. RLS activo o registro no encontrado"}), 404
             
-        print(f"✅ Desayuno Caliente {record_id} actualizado en {target_table}")
+        print(f"✅ Desayuno {record_id} actualizado en {target_table}")
         return jsonify({"message": "¡Cambios guardados exitosamente!", "data": res_data[0] if res_data else {}}), 200
         
     except Exception as e:
