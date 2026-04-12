@@ -15,6 +15,22 @@ import sys
 import importlib.util
 from flask import Flask, send_from_directory, redirect, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde .env (si existe en desarrollo)
+load_dotenv()
+
+# ============================================================================
+# VALIDACIÓN DE VARIABLES DE ENTORNO REQUERIDAS
+# ============================================================================
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+if not SUPABASE_URL:
+    print("⚠️  ADVERTENCIA: SUPABASE_URL no está configurada. Algunos endpoints pueden no funcionar.")
+if not SUPABASE_SERVICE_ROLE_KEY:
+    print("⚠️  ADVERTENCIA: SUPABASE_SERVICE_ROLE_KEY no está configurada. Algunos endpoints pueden no funcionar.")
 
 # ============================================================================
 # CONFIGURACIÓN DE DIRECTORIOS
@@ -29,6 +45,10 @@ print("🚀 FORMADIG v2.1 - APLICACIÓN UNIFICADA")
 print("="*70)
 print(f"   Sistema en: {SYSTEM_DIR}")
 print(f"   Módulos en: {MODULES_DIR}")
+print(f"\n📦 Variables de entorno:")
+print(f"   SUPABASE_URL: {'✅ Configurada' if SUPABASE_URL else '❌ NO configurada'}")
+print(f"   SUPABASE_SERVICE_ROLE_KEY: {'✅ Configurada' if SUPABASE_SERVICE_ROLE_KEY else '❌ NO configurada'}")
+print("="*70)
 
 # ============================================================================
 # CREAR APLICACIÓN FLASK
