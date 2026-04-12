@@ -80,27 +80,36 @@ def crear_usuario():
         
         # PASO 1: CREAR USUARIO EN SUPABASE AUTH (genera UUID automáticamente)
         try:
+            print(f"🔐 Intentando crear usuario Auth con email: {data['email']}")
+            
             auth_response = supabase.auth.admin.create_user(
-                email=data['email'],
+                email=data['email'].strip().lower(),  # Normalizar email
                 password=data['password'],
                 email_confirm=True  # Confirmar automáticamente para evitar esperar verificación
             )
             
             # Extraer UUID del usuario creado en Auth
             user_uuid = auth_response.user.id
+            print(f"✅ Usuario Auth creado exitosamente con UUID: {user_uuid}")
             
         except Exception as auth_error:
-            error_message = str(auth_error)
+            error_message = str(auth_error).lower()
+            print(f"❌ Error en Auth: {error_message}")
             
-            # Traducir errores comunes de Supabase Auth
-            if 'already registered' in error_message.lower():
-                return jsonify({'error': 'Este correo ya está registrado en el sistema.'}), 400
-            elif 'password' in error_message.lower():
-                return jsonify({'error': 'Contraseña no cumple los requisitos de seguridad.'}), 400
-            elif 'email' in error_message.lower():
-                return jsonify({'error': 'Email inválido o ya registrado.'}), 400
+            # Traducir errores comunes de Supabase Auth de forma más precisa
+            if 'user_already_exists' in error_message or 'already registered' in error_message:
+                print(f"⚠️ Email ya registrado: {data['email']}")
+                return jsonify({'error': 'Este correo electrónico ya está registrado en el sistema. Por favor, usa otro correo.'}), 400
+            elif 'invalid email' in error_message or 'invalid_email' in error_message:
+                print(f"⚠️ Email inválido: {data['email']}")
+                return jsonify({'error': 'El formato del correo electrónico es inválido.'}), 400
+            elif 'password' in error_message or 'weak_password' in error_message:
+                print(f"⚠️ Contraseña débil")
+                return jsonify({'error': 'La contraseña debe tener al menos 8 caracteres con variedad.'}), 400
             else:
-                return jsonify({'error': f'Error al crear usuario en Auth: {error_message}'}), 500
+                # Error genérico pero informativo
+                print(f"❌ Error genérico Auth: {str(auth_error)}")
+                return jsonify({'error': f'Error al crear cuenta en el sistema de autenticación: {str(auth_error)}'}), 500
         
         # PASO 2: PREPARAR DATOS PARA TABLA PERFILES (CON UUID como id)
         nuevo_usuario = {

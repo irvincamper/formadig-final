@@ -243,14 +243,15 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Parsear el mensaje de error de forma amigable
                 let mensajeError = data.error || 'Error desconocido';
+                console.error('❌ Error del servidor:', data);
                 
-                // Traducir errores comunes de Supabase
-                if (mensajeError.includes('User already registered')) {
-                    mensajeError = 'Este correo ya está registrado en el sistema.';
-                } else if (mensajeError.includes('Password')) {
-                    mensajeError = 'Contraseña no cumple los requisitos de seguridad.';
-                } else if (mensajeError.includes('Email')) {
-                    mensajeError = 'Email inválido o ya registrado.';
+                // Ya el backend devuelve mensajes amigables, pero como fallback los procesamos aquí
+                if (mensajeError.includes('already registered') || mensajeError.includes('ya está registrado')) {
+                    mensajeError = '⚠️ Este correo ya está registrado. Por favor, usa otro correo.';
+                } else if (mensajeError.includes('Password') || mensajeError.includes('weak') || mensajeError.includes('contraseña')) {
+                    mensajeError = '⚠️ La contraseña no cumple los requisitos. Debe tener al menos 8 caracteres.';
+                } else if (mensajeError.includes('Email') || mensajeError.includes('invalid') || mensajeError.includes('correo')) {
+                    mensajeError = '⚠️ El correo electrónico es inválido. Verifica el formato.';
                 }
                 
                 mostrarMensaje(formMessage, `❌ ${mensajeError}`, 'error');

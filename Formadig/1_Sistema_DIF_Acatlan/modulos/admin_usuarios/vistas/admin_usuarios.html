@@ -272,171 +272,205 @@
                     border-radius: 16px;
                     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
                     margin: 0;
-                    max-width: 500px;
+                    max-width: 550px;
                     width: 100%;
                     position: relative;
                     animation: slideUp 0.3s ease-out;
                     overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                    max-height: 90vh;
                 " onclick="event.stopPropagation();">
                     <!-- Header del Modal -->
                     <div style="
                         background: linear-gradient(135deg, var(--color-primary) 0%, #005f54 100%);
-                        padding: 1.5rem;
+                        padding: 1.25rem;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
+                        flex-shrink: 0;
                     ">
                         <h2 style="
                             margin: 0;
                             color: white;
-                            font-size: 1.25rem;
+                            font-size: 1.1rem;
                             font-weight: 700;
                         ">Agregar Nuevo Administrador</h2>
                         <button id="btnCerrarModal" style="
-                            width: 36px;
-                            height: 36px;
+                            width: 32px;
+                            height: 32px;
                             border: none;
                             background: rgba(255, 255, 255, 0.2);
                             border-radius: 50%;
                             cursor: pointer;
-                            font-size: 1.3rem;
+                            font-size: 1.2rem;
                             color: white;
                             transition: all 0.2s;
                             display: flex;
                             align-items: center;
                             justify-content: center;
+                            flex-shrink: 0;
                         " onclick="cerrarModal()" onmouseover="this.style.background='rgba(255, 255, 255, 0.3)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)';">
                             ✕
                         </button>
                     </div>
 
-                    <!-- Contenido del Modal -->
-                    <div style="padding: 2rem;">
+                    <!-- Contenido del Modal - CON SCROLL INTERNO -->
+                    <div style="
+                        padding: 1.5rem;
+                        overflow-y: auto;
+                        flex: 1;
+                    ">
                         <div id="formMessage" class="message hidden"></div>
                         
                         <form id="agregar-usuario-form">
-                            <div class="form-group">
-                                <label class="form-label" for="nombre_usuario">Usuario (ej. director)</label>
-                                <input 
-                                    type="text" 
-                                    id="nombre_usuario" 
-                                    class="form-control" 
-                                    placeholder="Usuario (ej. director)"
-                                    style="
+                            <!-- GRID 2 COLUMNAS -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <!-- Fila 1: Usuario | Nombre Completo -->
+                                <div class="form-group">
+                                    <label class="form-label" for="nombre_usuario" style="font-size: 0.85rem;">Usuario</label>
+                                    <input 
+                                        type="text" 
+                                        id="nombre_usuario" 
+                                        class="form-control" 
+                                        placeholder="director"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="nombre_completo" style="font-size: 0.85rem;">Nombre Completo</label>
+                                    <input 
+                                        type="text" 
+                                        id="nombre_completo" 
+                                        class="form-control" 
+                                        placeholder="Juan Pérez"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        required>
+                                </div>
+
+                                <!-- Fila 2: Email | Contraseña -->
+                                <div class="form-group">
+                                    <label class="form-label" for="email" style="font-size: 0.85rem;">Email de Acceso</label>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        class="form-control" 
+                                        placeholder="usuario@ejemplo.com"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="password" style="font-size: 0.85rem;">Contraseña (Temporal)</label>
+                                    <input 
+                                        type="password" 
+                                        id="password" 
+                                        class="form-control" 
+                                        placeholder="Mín. 8 caracteres"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        minlength="8"
+                                        required>
+                                </div>
+
+                                <!-- Fila 3: Rol | Teléfono -->
+                                <div class="form-group">
+                                    <label class="form-label" for="rol" style="font-size: 0.85rem;">Rol</label>
+                                    <select id="rol" class="form-control" required style="
+                                        padding: 0.5rem 0.75rem;
+                                        font-size: 0.9rem;
                                         transition: all 0.2s;
                                         border-color: #e2e8f0;
                                     "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    required>
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
+                                        <option value="">-- Selecciona --</option>
+                                        <option value="admin">Admin General</option>
+                                        <option value="admin_desayunos">Admin Desayunos</option>
+                                        <option value="admin_traslados">Admin Traslados</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="telefono" style="font-size: 0.85rem;">Teléfono</label>
+                                    <input 
+                                        type="text" 
+                                        id="telefono" 
+                                        class="form-control" 
+                                        placeholder="10 dígitos"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        required>
+                                </div>
+
+                                <!-- Fila 4: CURP (2 columnas) -->
+                                <div class="form-group" style="grid-column: 1 / -1;">
+                                    <label class="form-label" for="curp" style="font-size: 0.85rem;">CURP</label>
+                                    <input 
+                                        type="text" 
+                                        id="curp" 
+                                        class="form-control" 
+                                        placeholder="18 caracteres"
+                                        style="
+                                            padding: 0.5rem 0.75rem;
+                                            font-size: 0.9rem;
+                                            transition: all 0.2s;
+                                            border-color: #e2e8f0;
+                                        "
+                                        onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
+                                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
+                                        required>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label" for="nombre_completo">Nombre Completo</label>
-                                <input 
-                                    type="text" 
-                                    id="nombre_completo" 
-                                    class="form-control" 
-                                    placeholder="Nombre Completo"
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="email">Email de Acceso</label>
-                                <input 
-                                    type="email" 
-                                    id="email" 
-                                    class="form-control" 
-                                    placeholder="correo@ejemplo.com"
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="password">Contraseña (Temporal)</label>
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    class="form-control" 
-                                    placeholder="Al menos 8 caracteres"
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    minlength="8"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="rol">Rol</label>
-                                <select id="rol" class="form-control" required
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
-                                    <option value="">-- Selecciona Rol --</option>
-                                    <option value="admin">Administrador General (admin)</option>
-                                    <option value="admin_desayunos">Admin Desayunos (admin_desayunos)</option>
-                                    <option value="admin_traslados">Admin Traslados (admin_traslados)</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="telefono">Teléfono</label>
-                                <input 
-                                    type="text" 
-                                    id="telefono" 
-                                    class="form-control" 
-                                    placeholder="10 dígitos"
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label" for="curp">CURP</label>
-                                <input 
-                                    type="text" 
-                                    id="curp" 
-                                    class="form-control" 
-                                    placeholder="CURP (18 caracteres)"
-                                    style="
-                                        transition: all 0.2s;
-                                        border-color: #e2e8f0;
-                                    "
-                                    onfocus="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 3px rgba(0, 118, 108, 0.1)';"
-                                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
-                                    required>
-                            </div>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem;">
+                            <!-- Botones -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
                                 <button type="submit" class="btn-submit" id="btnAgregar" style="
                                     margin-bottom: 0;
+                                    padding: 0.6rem 1rem;
+                                    font-size: 0.9rem;
                                     background: var(--color-primary);
                                 " onmouseover="this.style.background='var(--color-primary-dark)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='var(--color-primary)'; this.style.transform='translateY(0)';">
                                     ✓ Guardar
                                 </button>
                                 <button type="button" class="btn-submit" id="btnCancelarForm" style="
-                                    margin-bottom: 0; 
+                                    margin-bottom: 0;
+                                    padding: 0.6rem 1rem;
+                                    font-size: 0.9rem;
                                     background: #6c757d;
                                 " onclick="cerrarModal()" onmouseover="this.style.background='#5a6268'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#6c757d'; this.style.transform='translateY(0)';">
                                     ✕ Cancelar
