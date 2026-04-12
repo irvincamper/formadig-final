@@ -17,3 +17,9 @@ typing_extensions
 
 # Twilio (SMS)
 twilio
+
+# Exportación de reportes (Excel, PDF, Word)
+pandas
+openpyxl
+fpdf2
+python-docx

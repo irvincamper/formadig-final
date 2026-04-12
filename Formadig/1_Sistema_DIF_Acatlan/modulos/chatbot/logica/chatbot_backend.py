@@ -4,14 +4,32 @@ import os
 import io
 from datetime import datetime
 
+# ⚠️ IMPORTACIONES CRÍTICAS PARA EXPORTACIÓN DE REPORTES
+# Estas son necesarias para que el chatbot pueda generar archivos Excel, PDF, Word
 try:
     import pandas as pd
-    from docx import Document
-    from docx.shared import Pt, RGBColor
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+except ImportError as e:
+    print(f"❌ ERROR CRÍTICO: pandas/openpyxl no instalados. Necesarios para Excel. Error: {e}")
+    print(f"   Ejecuta: pip install pandas openpyxl")
+    raise
+
+try:
     from fpdf import FPDF
-except ImportError:
-    pass # Serán manejados en las rutas
+except ImportError as e:
+    print(f"❌ ERROR CRÍTICO: fpdf2 no instalado. Necesario para PDF. Error: {e}")
+    print(f"   Ejecuta: pip install fpdf2")
+    raise
+
+try:
+    from docx import Document
+    from docx.shared import Pt, RGBColor, Inches
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+except ImportError as e:
+    print(f"❌ ERROR CRÍTICO: python-docx no instalado. Necesario para Word. Error: {e}")
+    print(f"   Ejecuta: pip install python-docx")
+    raise
 
 # =========================================================
 # 🏗️ CONFIGURACIÓN Y CONEXIÓN
