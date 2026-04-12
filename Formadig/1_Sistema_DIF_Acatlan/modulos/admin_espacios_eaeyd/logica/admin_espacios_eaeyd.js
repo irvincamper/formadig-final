@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             'Aprobado'  // ✅ ESTABLECER EXPLÍCITAMENTE ESTADO ACEPTADO
+            estatus:             'APROBADO'  // ✅ ESTADO ACEPTADO (en mayúsculas)
         };
 
         if (!updateData.escuela) {
