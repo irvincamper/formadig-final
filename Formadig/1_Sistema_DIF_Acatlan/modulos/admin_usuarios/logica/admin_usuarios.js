@@ -2,6 +2,30 @@
 // FUNCIONES GLOBALES: Manejo del Modal
 // ============================================================================
 
+function toggleShowPassword(event) {
+    event.preventDefault();
+    
+    const passwordInput = document.getElementById('password');
+    const eyeOpenIcon = document.getElementById('eyeOpenIcon');
+    const eyeClosedIcon = document.getElementById('eyeClosedIcon');
+    
+    if (!passwordInput) return;
+    
+    // Toggle entre password y text
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeOpenIcon.style.display = 'none';
+        eyeClosedIcon.style.display = 'block';
+    } else {
+        passwordInput.type = 'password';
+        eyeOpenIcon.style.display = 'block';
+        eyeClosedIcon.style.display = 'none';
+    }
+    
+    // Mantener el enfoque en el input
+    passwordInput.focus();
+}
+
 function abrirModal() {
     const modal = document.getElementById('modalAgregarUsuario');
     if (modal) {
