@@ -138,17 +138,33 @@ def get_traslados_for_sms():
     try:
         from datetime import date
         hoy = date.today().isoformat()  # 'YYYY-MM-DD'
+        
+        # CONSULTA CORREGIDA:
+        # 1. 'fecha_viaje' es un alias para 'fecha'
+        # 2. 'hora_cita' es un alias para 'hora'
+        # 3. Se eliminó 'paciente_apellidos' ya que no existe en la tabla traslados
         res = (
             supabase.table('traslados')
-            .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, destino_hospital, estatus')
+            .select('id, paciente_nombre, telefono_principal, telefono_secundario, fecha_viaje:fecha, hora_cita:hora, destino_hospital, estatus')
             .eq('estatus', 'ACEPTADO')
-            .gt('fecha_viaje', hoy)      # ESTRICTAMENTE futuro (> hoy)
-            .order('fecha_viaje', desc=False)
+            .gt('fecha', hoy)      # Filtro sobre la columna real 'fecha'
+            .order('fecha', desc=False)
             .execute()
         )
-        return jsonify(res.data)
+        
+        # Verificar si Supabase devolvió un error en la respuesta
+        if hasattr(res, 'error') and res.error:
+            raise Exception(res.error)
+
+        return jsonify(res.data if res.data else [])
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"❌ ERROR EN /api/sms/traslados: {str(e)}")
+        # Retornamos el error detallado para que el frontend informe al usuario
+        return jsonify({
+            "error": "Error interno al consultar traslados",
+            "details": str(e)
+        }), 500
 
 @sms_bp.route('/webhook', methods=['POST'], strict_slashes=False)
 def sms_webhook():
