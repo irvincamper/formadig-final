@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const firstRow = document.querySelector('#listaRegistros tr[data-id]');
                 if (firstRow) firstRow.click();
             } else {
-                updateNavControls();
+                // updateNavControls(); // Comentado por el usuario
             }
             
             // ========== INICIAR ESCUCHA REALTIME ==========
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Resaltar el título del formulario
                             document.getElementById('formTitle')?.classList.add('editing-mode-title');
                             
-                            updateNavControls();
+                            // updateNavControls(); // Comentado por el usuario
                             
                             // ════════════════════════════════════════════════════════════════════════
                             // FUNCIÓN HELPER: Llenar valor en input con validación
@@ -783,7 +783,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Lógica de Sincronización en Tiempo Real (Live Sync) ---
-    // --- Lógica de Navegación tipo Carrusel ---
+    // --- Lógica de Navegación tipo Carrusel (COMENTADA POR EL USUARIO) ---
+    /*
     function updateNavControls() {
         const navCont = document.getElementById('navCarousel');
         const counter = document.getElementById('navCounter');
@@ -829,6 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btnPrevRec')?.addEventListener('click', () => navigate(-1));
     document.getElementById('btnNextRec')?.addEventListener('click', () => navigate(1));
+    */
 
     // --- Lógica de Sincronización en Tiempo Real (Versión Ultra-Robusta) ---
     function syncActiveRow() {

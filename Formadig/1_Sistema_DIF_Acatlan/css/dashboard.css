@@ -14,51 +14,24 @@
     color: white;
     position: fixed;
     top: 64px;
+    left: 0;
     height: calc(100vh - 64px);
     overflow-y: auto;
-    overflow-x: hidden;
     z-index: 90;
     border-right: 1px solid rgba(0,0,0,0.1);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar.collapsed {
-    width: 70px;
+.sidebar.hidden {
+    transform: translateX(-100%);
 }
 
 .sidebar-header {
     padding: 1.5rem 1.25rem 1rem;
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    white-space: nowrap;
 }
 
-.sidebar.collapsed .sidebar-logo-text,
-.sidebar.collapsed .sidebar-section-label,
-.sidebar.collapsed .menu-item span,
-.sidebar.collapsed .dropdown-chevron {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.sidebar.collapsed .sidebar-section-label {
-    height: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.sidebar.collapsed .menu-item {
-    justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
-    gap: 0;
-}
-
-.sidebar.collapsed .menu-item span {
-    width: 0;
-    display: none;
-}
 
 .sidebar-logo-text {
     font-size: 0.75rem;
@@ -164,9 +137,10 @@
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.workspace.collapsed {
-    margin-left: 70px;
+.workspace.full-width {
+    margin-left: 0;
 }
+
 
 /* ── Hamburguesa Button ── */
 .btn-sidebar-toggle {

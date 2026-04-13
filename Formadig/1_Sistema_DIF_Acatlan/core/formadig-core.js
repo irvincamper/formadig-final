@@ -45,11 +45,11 @@ UI = {
     // Generar el Header común para todos los módulos
     setupHeader: (title) => {
         const user = Auth.getUser();
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        const isHidden = localStorage.getItem('sidebarHidden') === 'true';
 
         const headerInner = `
             <div style="display:flex; align-items:center;">
-                <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()">☰</button>
+                <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()" title="Alternar menú lateral">☰</button>
                 <div class="header__logo">FORMADIG</div>
             </div>
             <div class="header__user-info">
@@ -184,24 +184,30 @@ UI = {
                 menuHTML += `</nav>`;
                 sidebarElement.innerHTML = menuHTML;
 
-                // Aplicar estado colapsado inicial
-                if (isCollapsed) {
-                    sidebarElement.classList.add('collapsed');
+                // Aplicar estado oculto inicial de forma robusta
+                if (isHidden) {
+                    sidebarElement.classList.add('hidden');
                     const workspace = document.querySelector('.workspace');
-                    if (workspace) workspace.classList.add('collapsed');
+                    if (workspace) workspace.classList.add('full-width');
                 }
             }
         }
     },
 
-    // Alternar visibilidad de la barra lateral (Mini-sidebar)
+    // Alternar visibilidad de la barra lateral (Ocultar por completo)
     toggleSidebar: function() {
         const sidebar = document.getElementById('sidebarMenu');
         const workspace = document.querySelector('.workspace');
         if (sidebar) {
-            const isNowCollapsed = sidebar.classList.toggle('collapsed');
-            if (workspace) workspace.classList.toggle('collapsed');
-            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
+            const isNowHidden = sidebar.classList.toggle('hidden');
+            if (workspace) {
+                if (isNowHidden) {
+                    workspace.classList.add('full-width');
+                } else {
+                    workspace.classList.remove('full-width');
+                }
+            }
+            localStorage.setItem('sidebarHidden', isNowHidden);
         }
     },
 
