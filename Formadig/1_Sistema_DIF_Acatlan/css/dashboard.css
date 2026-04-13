@@ -27,11 +27,12 @@
 }
 
 .sidebar-header {
-    padding: 1.5rem 1.25rem 1rem;
-    text-align: center;
+    padding: 1.2rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-
 
 .sidebar-logo-text {
     font-size: 0.75rem;
@@ -144,23 +145,33 @@
 
 /* ── Hamburguesa Button ── */
 .btn-sidebar-toggle {
-    background: transparent;
+    background: rgba(255,255,255,0.1);
     border: none;
     color: white;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 0.5rem;
-    margin-right: 1.5rem;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .btn-sidebar-toggle:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.25);
     transform: scale(1.05);
+}
+
+/* Botón de rescate en el Header (solo cuando sidebar está oculto) */
+.btn-header-rescue {
+    display: none; /* Se controla por JS o por clase en el body */
+}
+
+body.sidebar-is-hidden .btn-header-rescue {
+    display: flex;
 }
 
 @media (max-width: 600px) {
@@ -171,10 +182,11 @@
 }
 
 .workspace-content {
-    max-width: 1300px;
+    max-width: 100%; /* Expansión total solicitada por el usuario */
     margin: 0;
-    padding: 2rem 2rem 2rem 2.5rem;
-    flex: 1;
+    padding: 2rem;
+    width: 100%;
+    animation: fadeIn 0.4s ease-out;
 }
 
 /* ── Welcome section ──────────────────────────────────────── */

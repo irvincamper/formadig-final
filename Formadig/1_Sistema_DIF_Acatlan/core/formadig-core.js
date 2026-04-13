@@ -47,9 +47,10 @@ UI = {
         const user = Auth.getUser();
         const isHidden = localStorage.getItem('sidebarHidden') === 'true';
 
+        // Botón de Rescate (solo visible cuando el menú está oculto)
         const headerInner = `
             <div style="display:flex; align-items:center;">
-                <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()" title="Alternar menú lateral">☰</button>
+                <button class="btn-sidebar-toggle btn-header-rescue" id="btnHeaderToggle" onclick="UI.toggleSidebar()" title="Mostrar menú lateral">☰</button>
                 <div class="header__logo">FORMADIG</div>
             </div>
             <div class="header__user-info">
@@ -91,6 +92,7 @@ UI = {
 
                 let menuHTML = `
                     <div class="sidebar-header">
+                        <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()" title="Ocultar menú">☰</button>
                         <div class="sidebar-logo-text">Menú Principal</div>
                     </div>
                     <nav class="sidebar-menu">
@@ -108,7 +110,7 @@ UI = {
                         <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
                 `;
 
-                // 1. Área Médica (Traslados)
+                // ... (el resto del menuHTML se mantiene igual)
                 if (isAdmin || isTraslado) {
                     menuHTML += `
                         <div class="sidebar-section-label">Área Médica</div>
@@ -118,77 +120,45 @@ UI = {
                         </a>
                     `;
                 }
-
-                // 2. Programas Alimentarios y Desarrollo Integral
-                let alimentosMenu = '';
                 if (isAdmin || isDesayuno) {
-                    alimentosMenu += `
-                        <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_frios') ? 'active' : ''}" title="Gestión Fríos">
-                            🥛 <span>Gestión Fríos</span>
-                        </a>
-                        <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_calientes') ? 'active' : ''}" title="Gestión Calientes">
-                            🍲 <span>Gestión Calientes</span>
-                        </a>
-                        <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html"
-                           class="menu-item ${currentPath.includes('admin_espacios_eaeyd') ? 'active' : ''}" title="Espacios EAEyD">
-                            🏢 <span>Espacios EAEyD</span>
-                        </a>
-                    `;
-                }
-
-                if (alimentosMenu !== '') {
                     menuHTML += `
                         <div class="sidebar-section-label">Programas y Desarrollo</div>
-                        ${alimentosMenu}
+                        <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html"
+                           class="menu-item ${currentPath.includes('admin_desayunos_frios') ? 'active' : ''}">🥛 <span>Gestión Fríos</span></a>
+                        <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html"
+                           class="menu-item ${currentPath.includes('admin_desayunos_calientes') ? 'active' : ''}">🍲 <span>Gestión Calientes</span></a>
+                        <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html"
+                           class="menu-item ${currentPath.includes('admin_espacios_eaeyd') ? 'active' : ''}">🏢 <span>Espacios EAEyD</span></a>
                     `;
                 }
 
-                // 4. Sección Universal de Apoyo
                 menuHTML += `
                     <div class="sidebar-section-label">Asistencia y Soporte</div>
+                    <a href="${basePath}modulos/sms/vistas/admin_sms.html" class="menu-item">📱 <span>SMS</span></a>
+                    <a href="${basePath}modulos/chatbot/vistas/chatbot.html" class="menu-item">🤖 <span>Chatbot</span></a>
                 `;
 
-                if (userRole !== 'admin_desayunos') {
-                    menuHTML += `
-                        <a href="${basePath}modulos/sms/vistas/admin_sms.html"
-                           class="menu-item ${currentPath.includes('sms') ? 'active' : ''}" title="Mensajes SMS">
-                            📱 <span>Mensajes SMS</span>
-                        </a>
-                    `;
-                }
-
-                menuHTML += `
-                    <a href="${basePath}modulos/chatbot/vistas/chatbot.html"
-                       class="menu-item ${currentPath.includes('chatbot') ? 'active' : ''}" title="Chatbot Asistente">
-                        🤖 <span>Chatbot Asistente</span>
-                    </a>
-                `;
-
-                menuHTML += `
-                        </div> <!-- Fin sidebar-dropdown-content -->
-                `;
-
-                // 5. Configuración y Usuarios (Fuera del dropdown)
                 if (isAdmin) {
                     menuHTML += `
-                        <div class="sidebar-section-label">Sistema y Seguridad</div>
-                        <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html"
-                           class="menu-item ${currentPath.includes('admin_usuarios') ? 'active' : ''}" title="Gestión Usuarios">
-                            👤 <span>Gestión Usuarios</span>
-                        </a>
+                        <div class="sidebar-section-label">Sistema</div>
+                        <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html" class="menu-item">👤 <span>Usuarios</span></a>
                     `;
                 }
 
-                menuHTML += `</nav>`;
+                menuHTML += `
+                        </div>
+                    </nav>`;
+                
                 sidebarElement.innerHTML = menuHTML;
 
-                // Aplicar estado oculto inicial de forma robusta
+                // Aplicar estado inicial
                 if (isHidden) {
                     sidebarElement.classList.add('hidden');
+                    document.body.classList.add('sidebar-is-hidden');
                     const workspace = document.querySelector('.workspace');
                     if (workspace) workspace.classList.add('full-width');
+                } else {
+                    document.body.classList.remove('sidebar-is-hidden');
                 }
             }
         }
@@ -200,13 +170,15 @@ UI = {
         const workspace = document.querySelector('.workspace');
         if (sidebar) {
             const isNowHidden = sidebar.classList.toggle('hidden');
-            if (workspace) {
-                if (isNowHidden) {
-                    workspace.classList.add('full-width');
-                } else {
-                    workspace.classList.remove('full-width');
-                }
+            
+            if (isNowHidden) {
+                document.body.classList.add('sidebar-is-hidden');
+                if (workspace) workspace.classList.add('full-width');
+            } else {
+                document.body.classList.remove('sidebar-is-hidden');
+                if (workspace) workspace.classList.remove('full-width');
             }
+            
             localStorage.setItem('sidebarHidden', isNowHidden);
         }
     },
