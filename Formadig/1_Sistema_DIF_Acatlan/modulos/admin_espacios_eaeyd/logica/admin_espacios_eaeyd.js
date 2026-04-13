@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             'APROBADO'  // ✅ ESTADO ACEPTADO (en mayúsculas)
+            estatus:             'Aceptado'  
         };
 
         if (!updateData.escuela) {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             UI.notify('¡Dictamen EAEyD guardado correctamente! ✅', 'success');
             
             if (btnSubmit) {
-                btnSubmit.textContent = 'EAEyD Actualizado 🏢';
+                btnSubmit.textContent = 'Solicitud Aceptada';
             }
 
             // Recargar datos y refrescar la tabla VISUALMENTE
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let badgeStyle = 'background: #f1f5f9; color: #64748b;';
             if (statusUpper === 'APROBADO' || statusUpper === 'ACTIVO') badgeStyle = 'background: #dcfce7; color: #166534;';
 
-            const nombreCompleto = `${r.nombres || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
+            const nombreCompleto = r.nombres || 'Sin nombre';
 
             // Formatear Fecha usando función estándar
             const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
@@ -204,12 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <!-- Columna Fecha/Hora -->
-                        <div style="display:flex; flex-direction:column; min-width:85px; text-align:left;">
-                            <span style="font-weight:700; color:#b91c1c; font-size: 0.9rem;">${fechaStr}</span>
-                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${horaStr}</span>
-                        </div>
-                        
+                        <!-- Columna Fecha/Hora removida -->
                         <!-- Columna Avatar -->
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
@@ -275,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
-                    btnSubmit.textContent = 'Guardar Dictamen 🏢';
+                    btnSubmit.textContent = 'Aceptar Solicitud';
                 }
             });
             tbody.appendChild(tr);
@@ -315,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     UI.notify('✅ Solicitud rechazada correctamente.', 'success');
                     if (btnSubmit) {
                         btnSubmit.disabled = true;
-                        btnSubmit.textContent = 'Aceptar Solicitud ✅';
+                        btnSubmit.textContent = 'Aceptar Solicitud';
                     }
                     cargarDatos(true);
                 } else {
@@ -327,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 if (btnSubmit) btnSubmit.disabled = false;
                 btnRechazar.disabled = false;
-                btnRechazar.textContent = 'Rechazar ✖';
+                btnRechazar.textContent = 'Rechazar Solicitud';
             }
         });
     }
@@ -477,8 +472,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge) {
             const val = (document.getElementById('estatus')?.value || 'ACTIVO').toUpperCase();
             badge.textContent = val;
-            badge.style.background = (val === 'APROBADO' || val === 'ACTIVO') ? '#dcfce7' : '#f1f5f9';
-            badge.style.color = (val === 'APROBADO' || val === 'ACTIVO') ? '#166534' : '#64748b';
+            badge.style.background = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#dcfce7' : '#f1f5f9';
+            badge.style.color = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#166534' : '#64748b';
         }
     }
 

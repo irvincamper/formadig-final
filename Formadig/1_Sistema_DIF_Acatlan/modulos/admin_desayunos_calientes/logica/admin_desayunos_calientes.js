@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             document.getElementById('estatus')?.value
+            estatus:             'Aceptado'
         };
 
         if (!updateData.escuela) {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mantenemos los datos visibles para confirmar
             
             if (btnSubmit) {
-                btnSubmit.textContent = 'Dictamen Actualizado 🍲';
+                btnSubmit.textContent = 'Solicitud Aceptada';
                 // El botón se queda deshabilitado para evitar doble clic
             }
 
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (currentSelectedId === r.id) tr.classList.add('selected-row-v3');
 
-            const nombreCompleto = `${r.nombres || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
+            const nombreCompleto = r.nombres || 'Sin nombre';
 
             // Formatear Fecha usando función estándar
             const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
@@ -204,12 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <!-- Columna Fecha/Hora (Estilo Captura) -->
-                        <div style="display:flex; flex-direction:column; min-width:85px; text-align:left;">
-                            <span style="font-weight:700; color:#00766c; font-size: 0.9rem;">${fechaStr}</span>
-                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${horaStr}</span>
-                        </div>
-                        
+                        <!-- Columna Fecha/Hora (Estilo Captura) removida -->
                         <!-- Columna Avatar -->
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
@@ -222,8 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.escuela || 'No asignada'}</td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tutor || '--'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.eaeyd_nombre || r.escuela || 'No asignada'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tutor_nombre || r.tutor || '--'}</td>
                 <td style="padding: 1rem 1.25rem; text-align: right;"><span class="status-badge" style="${badgeStyle}">${statusUpper}</span></td>
             `;
 
@@ -277,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
-                    btnSubmit.textContent = 'Guardar Dictamen 🍲';
+                    btnSubmit.textContent = 'Aceptar Solicitud';
                 }
             });
             tbody.appendChild(tr);
@@ -317,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     UI.notify('✅ Solicitud rechazada correctamente.', 'success');
                     if (btnSubmit) {
                         btnSubmit.disabled = true;
-                        btnSubmit.textContent = 'Aceptar Solicitud ✅';
+                        btnSubmit.textContent = 'Aceptar Solicitud';
                     }
                     cargarDatos(true);
                 } else {
@@ -329,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
                 if (btnSubmit) btnSubmit.disabled = false;
                 btnRechazar.disabled = false;
-                btnRechazar.textContent = 'Rechazar ✖';
+                btnRechazar.textContent = 'Rechazar Solicitud';
             }
         });
     }
@@ -587,8 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (badge) {
             const val = (document.getElementById('estatus')?.value || 'ACTIVO').toUpperCase();
             badge.textContent = val;
-            badge.style.background = (val === 'APROBADO' || val === 'ACTIVO') ? '#dcfce7' : '#f1f5f9';
-            badge.style.color = (val === 'APROBADO' || val === 'ACTIVO') ? '#166534' : '#64748b';
+            badge.style.background = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#dcfce7' : '#166534';
+            badge.style.color = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#166534' : '#64748b';
         }
     }
 

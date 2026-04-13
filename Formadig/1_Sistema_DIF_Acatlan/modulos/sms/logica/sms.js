@@ -31,11 +31,22 @@ const SMS = {
                 if (t) {
                     const phone = t.telefono_principal || t.telefono_secundario || '';
                     const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Beneficiario';
-                    const dateObj = new Date(t.fecha_salida);
-                    const date = isNaN(dateObj) ? 'su fecha programada' : dateObj.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
                     
+                    // Parse date and time safely
+                    let date = t.fecha_viaje || 'su fecha programada';
+                    let time = t.hora_cita || 'su hora asignada';
+                    
+                    if (t.fecha_viaje) {
+                        try {
+                            const dateObj = new Date(t.fecha_viaje);
+                            if (!isNaN(dateObj)) {
+                                date = dateObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                            }
+                        } catch(e){}
+                    }
+
                     document.getElementById('targetPhone').value = phone;
-                    document.getElementById('messageText').value = `Hola ${name}, le recordamos su traslado médico programado para la fecha ${date}. Saludos, Equipo Formadig.`;
+                    document.getElementById('messageText').value = `FORMADIG: Hola ${name}, le recordamos su cita de traslado el día ${date} a las ${time}. ¿Confirma su asistencia?`;
                 }
             });
         }

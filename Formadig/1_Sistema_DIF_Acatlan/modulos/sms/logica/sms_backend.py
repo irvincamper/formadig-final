@@ -79,18 +79,18 @@ def send_sms():
     else:
         try:
             client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-            # Usar la API de Verify V2 en lugar de SMS normal
-            verification = client.verify \
-                .v2 \
-                .services(TWILIO_VERIFY_SERVICE_SID) \
-                .verifications \
-                .create(to=phone, channel='sms')
+            # Usar la API de Messaging en lugar de Verify
+            message = client.messages.create(
+                body=message_text,
+                from_="+14786661928",
+                to=phone
+            )
             status = "Enviado"
-            print(f"SMS Verify (V2) enviado. SID: {verification.sid}")
+            print(f"SMS Messaging enviado. SID: {message.sid}")
         except Exception as e:
             status = "Error"
             error_msg = str(e)
-            print(f"Error enviando SMS Verify: {e}")
+            print(f"Error enviando SMS: {e}")
 
     # LOGUEO EN SUPABASE (Historial para el DIF)
     if supabase:
@@ -136,7 +136,7 @@ def get_traslados_for_sms():
     if not supabase:
         return jsonify({"error": "Sin conexión a DB"}), 500
     try:
-        res = supabase.table('traslados').select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_salida, estatus').in_('estatus', ['PROGRAMADO', 'ACEPTADO']).execute()
+        res = supabase.table('traslados').select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, estatus').in_('estatus', ['PROGRAMADO', 'ACEPTADO']).execute()
         return jsonify(res.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
