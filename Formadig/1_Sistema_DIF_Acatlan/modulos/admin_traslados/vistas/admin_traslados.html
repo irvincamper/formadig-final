@@ -251,6 +251,57 @@
             background: rgba(0, 118, 108, 0.1) !important;
             border-left: 4px solid var(--color-primary) !important;
         }
+
+        /* Modal Agenda Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Table Tabs Styles */
+        .table-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .table-tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .table-tab-btn.active {
+            background: rgba(13, 148, 136, 0.1);
+            color: #0d9488;
+        }
     </style>
 </head>
 
@@ -536,11 +587,20 @@
                             <p style="font-size: 0.85rem; color: #64748b; margin-top: 0.25rem;">Listado oficial de
                                 pacientes en espera.</p>
                         </div>
-                        <div style="position:relative;">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar paciente..."
-                                style="width: 250px; padding-left: 2.5rem;">
-                            <span
-                                style="position:absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.4;">🔍</span>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Table Tabs List -->
+                            <div class="table-tabs">
+                                <button type="button" class="table-tab-btn active" data-filter="PENDIENTE">Por Agendar</button>
+                                <button type="button" class="table-tab-btn" data-filter="ACEPTADO">Agendados</button>
+                                <button type="button" class="table-tab-btn" data-filter="RECHAZADO">Rechazados</button>
+                                <button type="button" class="table-tab-btn" data-filter="TODOS">Todos</button>
+                            </div>
+                            <div style="position:relative;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre o CURP..."
+                                    style="width: 100%; padding-left: 2.5rem;">
+                                <span
+                                    style="position:absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.4;">🔍</span>
+                            </div>
                         </div>
                     </header>
 
@@ -590,6 +650,37 @@
     <script src="../../../core/formadig-core.js?v=278"></script>
     <script src="../../../scripts/utilities-standard.js?v=1"></script>
     <script src="../logica/admin_traslados.js?v=165"></script>
+
+    <!-- Modal para Agendar Fecha y Hora -->
+    <div id="modalAgenda" class="modal-overlay">
+        <div class="modal-content premium-card">
+            <h3 style="margin-top: 0; color: var(--color-primary); font-size: 1.25rem; font-weight: 800;">
+                📅 Programar Agenda
+            </h3>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">
+                Seleccione la fecha y hora exacta del traslado para notificar al paciente.
+            </p>
+            
+            <form id="agendaForm">
+                <input type="hidden" id="id_traslado_agenda">
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="font-weight: 700; color: #1e293b;">Fecha y Hora de Salida</label>
+                    <input type="datetime-local" id="agenda_datetime" class="form-control" required 
+                           style="width: 100%; height: 50px; font-size: 1.1rem; border: 2px solid #e2e8f0;">
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button type="button" class="button button--secondary" onclick="cerrarModalAgenda()" style="flex:1;">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="button button--primary" style="flex:2; font-weight: 700;">
+                        Confirmar Agenda ✅
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

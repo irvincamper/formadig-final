@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Estado local para búsqueda y filtro
     let allRecords = [];
     let paginaActual = 1;
+    let filtroEstatusActual = 'PENDIENTE'; // Por defecto: Por Agendar
     const registrosPorPagina = 10;
 
     // Referencias a DOM
@@ -199,20 +200,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            
-            if (!query) {
-                // Si está vacío, mostrar todos
-                renderTabla(allRecords);
-            } else {
-                // Filtrar por paciente_nombre o paciente_curp
-                const filtrados = allRecords.filter(t => {
-                    const nombre = (t.paciente_nombre || '').toLowerCase();
-                    const curp = (t.paciente_curp || '').toLowerCase();
-                    return nombre.includes(query) || curp.includes(query);
-                });
-                renderTabla(filtrados);
-            }
+            aplicarBusquedaYRender();
         });
+    }
+
+    // Lógica de Tabs de la Tabla (Filtros de Estatus)
+    const tableTabButtons = document.querySelectorAll('.table-tab-btn');
+    tableTabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tableTabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtroEstatusActual = btn.getAttribute('data-filter');
+            paginaActual = 1; // Reset a primera página al filtrar
+            aplicarBusquedaYRender();
+        });
+    });
+
+    function aplicarBusquedaYRender() {
+        const query = searchInput?.value?.toLowerCase()?.trim() || '';
+        
+        let filtrados = allRecords;
+
+        // 1. Filtrar por Estatus si no es "TODOS"
+        if (filtroEstatusActual !== 'TODOS') {
+            filtrados = filtrados.filter(t => (t.estatus || 'PENDIENTE').toUpperCase() === filtroEstatusActual);
+        }
+
+        // 2. Filtrar por búsqueda de texto
+        if (query) {
+            filtrados = filtrados.filter(t => {
+                const nombre = (t.paciente_nombre || '').toLowerCase();
+                const curp = (t.paciente_curp || '').toLowerCase();
+                return nombre.includes(query) || curp.includes(query);
+            });
+        }
+
+        renderTabla(filtrados);
     }
 
     // 3. Validación en tiempo real (touched logic)
@@ -374,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             
             allRecords = data.traslados || [];
-            renderTabla(allRecords);
+            aplicarBusquedaYRender(); // Usar la nueva función de filtrado
             actualizarUI_Cupos();
 
             // Auto-seleccionar el primero si hay registros y ninguno está seleccionado
@@ -555,13 +578,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <!-- Columna Fecha/Hora -->
                         <div style="display:flex; flex-direction:column; min-width:85px;">
                             <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha)}</span>
                             <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora || '').substring(0, 5).toUpperCase()}</span>
                         </div>
-                        
-                        <!-- Columna Avatar -->
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
                         </div>
@@ -579,9 +599,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${t.destino_hospital || 'No asignado'}</td>
                 <td style="padding: 1rem 1.25rem; text-align: right;">
-                    <span class="status-badge" style="${badgeStyle}">${statusUpper}</span>
-                    ${t.kilometraje_salida != null ? `<br><span style="font-size:0.75rem; color:#64748b;">Km: ${t.kilometraje_salida ?? 0}→${t.kilometraje_llegada ?? 0}</span>` : ''}
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+                        <span class="status-badge" style="${badgeStyle}">${statusUpper}</span>
+                        ${statusUpper === 'PENDIENTE' ? `
+                            <button type="button" class="button button--primary" 
+                                onclick="event.stopPropagation(); abrirModalAgenda('${t.id}')"
+                                style="padding: 0.35rem 0.75rem; font-size: 0.7rem; border-radius: 8px; box-shadow: none; font-weight:700;">
+                                Agendar 📅
+                            </button>
+                        ` : ''}
+                        ${t.kilometraje_salida != null ? `<span style="font-size:0.7rem; color:#64748b;">Km: ${t.kilometraje_salida}→${t.kilometraje_llegada || '?'}</span>` : ''}
+                    </div>
                 </td>
+            `;
             `;
 
 // 👇 CAMBIO 1: Agregamos "async" aquí
@@ -881,4 +911,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+});
+
+// ========================================================================
+// 📅 LÓGICA DEL MODAL DE AGENDA (EXTERNA PARA SER LLAMADA POR ONCLICK)
+// ========================================================================
+function abrirModalAgenda(id) {
+    const modal = document.getElementById('modalAgenda');
+    const inputId = document.getElementById('id_traslado_agenda');
+    const inputDatetime = document.getElementById('agenda_datetime');
+    
+    if (modal && inputId) {
+        inputId.value = id;
+        inputDatetime.value = '';
+        modal.style.display = 'flex';
+        console.log(`📡 Abriendo modal para traslado ID: ${id}`);
+    }
+}
+
+function cerrarModalAgenda() {
+    const modal = document.getElementById('modalAgenda');
+    if (modal) modal.style.display = 'none';
+}
+
+// Handler para el formulario de agenda (usando DOMContentLoaded para asegurar existencia)
+document.addEventListener('DOMContentLoaded', () => {
+    const agendaForm = document.getElementById('agendaForm');
+    if (agendaForm) {
+        agendaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('📡 Enviando agenda...');
+
+            const id = document.getElementById('id_traslado_agenda').value;
+            const fullVal = document.getElementById('agenda_datetime').value;
+
+            if (!fullVal) {
+                UI.notify('Por favor selecciona fecha y hora', 'warning');
+                return;
+            }
+
+            // ── Lógica de Split mandatory por el USER ──
+            const [fecha, hora] = fullVal.split('T');
+            console.log(`📝 Datos preparados: Fecha=${fecha}, Hora=${hora}`);
+
+            const btn = agendaForm.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                // Petición API con método PATCH como se solicitó
+                const res = await fetch(`/api/traslados/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        fecha_viaje: fecha,
+                        hora_cita: hora,
+                        estatus: 'ACEPTADO'
+                    })
+                });
+
+                if (res.ok) {
+                    UI.notify('¡Traslado agendado correctamente! 🚐', 'success');
+                    cerrarModalAgenda();
+                    
+                    // Llamar a la función de refresco (esta en el scope del DOMContentLoaded anterior)
+                    // Como cargarTraslados no es global, disparamos un evento o simplemente confiamos en Realtime
+                    // En este sistema, recargamos la página o usamos el evento automático si Realtime funciona.
+                    // Para mayor seguridad, intentamos emitir un cambio.
+                    window.location.reload(); 
+                } else {
+                    const err = await res.json();
+                    UI.notify(`Error: ${err.error || 'No se pudo actualizar'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error al agendar:', error);
+                UI.notify('Error de conexión', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirmar Agenda ✅';
+            }
+        });
+    }
 });
