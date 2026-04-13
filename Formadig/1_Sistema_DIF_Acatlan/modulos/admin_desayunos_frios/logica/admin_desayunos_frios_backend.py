@@ -53,6 +53,7 @@ def obtener_registros():
                 
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad'),
+                "colonia": r.get('colonia') or r.get('asentamiento'),
                 "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
@@ -106,6 +107,7 @@ def obtener_desayuno(record_id):
             "nivel_estudios": r.get('nivel_estudios') or r.get('estudios'),
             "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
             "localidad": r.get('localidad') or r.get('comunidad'),
+            "colonia": r.get('colonia') or r.get('asentamiento'),
             "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
             "cp": r.get('cp') or r.get('codigo_postal'),
             "referencias": r.get('referencias') or r.get('vialidades'),

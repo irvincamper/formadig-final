@@ -55,6 +55,7 @@ def obtener_registros():
                 
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
+                "colonia": r.get('colonia') or r.get('asentamiento'),
                 "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
@@ -113,6 +114,7 @@ def obtener_espacio(record_id):
                             "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
                             "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
                             "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
+                            "colonia": r.get('colonia') or r.get('asentamiento'),
                             "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
                             "cp": r.get('cp') or r.get('codigo_postal'),
                             "referencias": r.get('referencias') or r.get('vialidades'),

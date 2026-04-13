@@ -88,7 +88,7 @@ def send_sms():
             status = "Enviado"
             print(f"SMS Verify (V2) enviado. SID: {verification.sid}")
         except Exception as e:
-            status = "Fallido"
+            status = "Error"
             error_msg = str(e)
             print(f"Error enviando SMS Verify: {e}")
 
@@ -127,6 +127,16 @@ def get_history():
     
     try:
         res = supabase.table('sms_logs').select("*").order('fecha', desc=True).limit(50).execute()
+        return jsonify(res.data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@sms_bp.route('/traslados', methods=['GET'], strict_slashes=False)
+def get_traslados_for_sms():
+    if not supabase:
+        return jsonify({"error": "Sin conexión a DB"}), 500
+    try:
+        res = supabase.table('traslados').select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_salida, estatus').in_('estatus', ['PROGRAMADO', 'ACEPTADO']).execute()
         return jsonify(res.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

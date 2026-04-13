@@ -4,6 +4,7 @@ const SMS = {
     get API_URL() {
         return `/api/sms`;
     },
+    trasladosData: [],
 
     async init() {
         if (typeof UI !== 'undefined' && UI.setupHeader) {
@@ -14,6 +15,50 @@ const SMS = {
         const isOnline = await this.checkServerStatus();
         if (isOnline) {
             await this.renderHistory();
+            await this.loadTraslados();
+        }
+
+        const selectInfo = document.getElementById('trasladoSelect');
+        if (selectInfo) {
+            selectInfo.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (!val) {
+                    document.getElementById('targetPhone').value = '';
+                    document.getElementById('messageText').value = '';
+                    return;
+                }
+                const t = this.trasladosData.find(x => x.id == val);
+                if (t) {
+                    const phone = t.telefono_principal || t.telefono_secundario || '';
+                    const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Beneficiario';
+                    const dateObj = new Date(t.fecha_salida);
+                    const date = isNaN(dateObj) ? 'su fecha programada' : dateObj.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+                    
+                    document.getElementById('targetPhone').value = phone;
+                    document.getElementById('messageText').value = `Hola ${name}, le recordamos su traslado médico programado para la fecha ${date}. Saludos, Equipo Formadig.`;
+                }
+            });
+        }
+    },
+
+    async loadTraslados() {
+        try {
+            const res = await fetch(`${this.API_URL}/traslados`);
+            if (res.ok) {
+                this.trasladosData = await res.json();
+                const select = document.getElementById('trasladoSelect');
+                if (select && this.trasladosData.length > 0) {
+                    this.trasladosData.forEach(t => {
+                        const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Sin Nombre';
+                        const opt = document.createElement('option');
+                        opt.value = t.id;
+                        opt.textContent = `${name} - ${t.estatus} (${t.telefono_principal || 'Sin Tel'})`;
+                        select.appendChild(opt);
+                    });
+                }
+            }
+        } catch(e) {
+            console.error('Error cargando traslados:', e);
         }
     },
 

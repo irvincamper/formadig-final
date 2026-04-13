@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (currentSelectedId === r.id) tr.classList.add('selected-row-v3');
 
-            const nombreCompleto = `${r.nombre_beneficiario || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
+            const nombreCompleto = `${r.nombres || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
 
             // Formatear Fecha usando función estándar
             const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
