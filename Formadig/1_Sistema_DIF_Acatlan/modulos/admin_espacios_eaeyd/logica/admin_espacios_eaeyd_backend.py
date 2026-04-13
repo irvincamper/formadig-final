@@ -56,6 +56,7 @@ def obtener_registros():
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
                 "colonia": r.get('colonia'),
+                "tipo_asentamiento": r.get('tipo_asentamiento') or r.get('asentamiento'),
                 "municipio": r.get('municipio') or 'Acatlán',
                 "estado": r.get('estado') or 'Puebla',
                 "cp": r.get('cp') or r.get('codigo_postal'),
@@ -116,6 +117,7 @@ def obtener_espacio(record_id):
                             "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
                             "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
                             "colonia": r.get('colonia'),
+                            "tipo_asentamiento": r.get('tipo_asentamiento') or r.get('asentamiento'),
                             "municipio": r.get('municipio') or 'Acatlán',
                             "estado": r.get('estado') or 'Puebla',
                             "cp": r.get('cp') or r.get('codigo_postal'),

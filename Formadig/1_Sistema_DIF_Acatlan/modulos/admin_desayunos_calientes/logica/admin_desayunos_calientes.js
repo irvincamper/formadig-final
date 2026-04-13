@@ -210,8 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.eaeyd_nombre || r.escuela || 'No asignada'}</td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tutor_nombre || r.tutor || '--'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.colonia || '-'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tipo_asentamiento || '-'}</td>
                 <td style="padding: 1rem 1.25rem; text-align: right;"><span class="status-badge" style="${badgeStyle}">${statusUpper}</span></td>
             `;
 

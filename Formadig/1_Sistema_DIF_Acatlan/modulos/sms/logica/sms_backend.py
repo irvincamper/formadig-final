@@ -38,6 +38,10 @@ def ping():
 SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
 SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_KEY')
 
+# Configuración Twilio
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+
 try:
     # Se prefiere SERVICE_ROLE_KEY para evitar errores 42501 (RLS) en backend
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
