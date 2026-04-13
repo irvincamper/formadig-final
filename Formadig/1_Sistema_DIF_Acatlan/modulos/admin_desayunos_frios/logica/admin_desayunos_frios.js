@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <!-- Columna Nombre/CURP -->
                         <div style="display:flex; flex-direction:column;">
-                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${nombreCompleto}</span>
+                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${r.nombres}</span>
                             <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top: 2px;">${r.curp || 'SIN CURP'}</span>
                         </div>
                     </div>

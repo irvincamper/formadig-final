@@ -18,24 +18,45 @@ const SMS = {
             await this.loadTraslados();
         }
 
+        // ── Contador de caracteres + Vista previa en tiempo real ──
+        const msgTextarea = document.getElementById('messageText');
+        const charCounter = document.getElementById('charCount');
+        const previewBubble = document.getElementById('previewBubble');
+
+        if (msgTextarea) {
+            const updateLive = () => {
+                const len = msgTextarea.value.length;
+                if (charCounter) {
+                    charCounter.textContent = `${len}/160 caracteres`;
+                    charCounter.classList.toggle('limit-reached', len > 160);
+                }
+                if (previewBubble) {
+                    previewBubble.textContent = msgTextarea.value || 'El mensaje aparecerá aquí...';
+                }
+            };
+            msgTextarea.addEventListener('input', updateLive);
+        }
+
+        // ── Selector de traslado → auto-llenado ──
         const selectInfo = document.getElementById('trasladoSelect');
         if (selectInfo) {
             selectInfo.addEventListener('change', (e) => {
                 const val = e.target.value;
                 if (!val) {
                     document.getElementById('targetPhone').value = '';
-                    document.getElementById('messageText').value = '';
+                    if (msgTextarea) msgTextarea.value = '';
+                    if (charCounter) charCounter.textContent = '0/160 caracteres';
+                    if (previewBubble) previewBubble.textContent = 'El mensaje aparecerá aquí...';
                     return;
                 }
                 const t = this.trasladosData.find(x => x.id == val);
                 if (t) {
                     const phone = t.telefono_principal || t.telefono_secundario || '';
                     const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Beneficiario';
-                    
-                    // Parse date and time safely
+
                     let date = t.fecha_viaje || 'su fecha programada';
                     let time = t.hora_cita || 'su hora asignada';
-                    
+
                     if (t.fecha_viaje) {
                         try {
                             const dateObj = new Date(t.fecha_viaje);
@@ -45,8 +66,12 @@ const SMS = {
                         } catch(e){}
                     }
 
+                    const msg = `FORMADIG: Hola ${name}, le recordamos su cita de traslado médico programada para el ${date} a las ${time}. ¿Confirma su asistencia?`;
                     document.getElementById('targetPhone').value = phone;
-                    document.getElementById('messageText').value = `FORMADIG: Hola ${name}, le recordamos su cita de traslado el día ${date} a las ${time}. ¿Confirma su asistencia?`;
+                    if (msgTextarea) {
+                        msgTextarea.value = msg;
+                        msgTextarea.dispatchEvent(new Event('input')); // dispara contador+preview
+                    }
                 }
             });
         }
@@ -61,9 +86,16 @@ const SMS = {
                 if (select && this.trasladosData.length > 0) {
                     this.trasladosData.forEach(t => {
                         const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Sin Nombre';
+                        let dateText = t.fecha_viaje || 'Sin fecha';
+                        if (t.fecha_viaje) {
+                            try {
+                                const dateObj = new Date(t.fecha_viaje);
+                                if (!isNaN(dateObj)) dateText = dateObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                            } catch(e){}
+                        }
                         const opt = document.createElement('option');
                         opt.value = t.id;
-                        opt.textContent = `${name} - ${t.estatus} (${t.telefono_principal || 'Sin Tel'})`;
+                        opt.textContent = `${name} - ${dateText}`;
                         select.appendChild(opt);
                     });
                 }
@@ -119,14 +151,17 @@ const SMS = {
             const enviadosHoy = data.filter(log => log.fecha && log.fecha.startsWith(hoyStr)).length;
             if(statEnviadosHoy) statEnviadosHoy.innerText = enviadosHoy;
 
-            table.innerHTML = data.map(log => `
+            table.innerHTML = data.map(log => {
+                const badgeClass = (log.estatus || '').toLowerCase() === 'enviado' ? 'enviado' : 'error';
+                const fechaStr = log.fecha ? new Date(log.fecha).toLocaleString('es-MX') : '--';
+                return `
                 <tr>
-                    <td>${new Date(log.fecha).toLocaleString()}</td>
-                    <td>${log.telefono}</td>
-                    <td>${log.mensaje}</td>
-                    <td><span class="status-tag ${log.estatus.toLowerCase()}">${log.estatus}</span></td>
-                </tr>
-            `).join('');
+                    <td>${fechaStr}</td>
+                    <td>${log.telefono || '--'}</td>
+                    <td style="max-width:280px; word-break:break-word; font-size:0.85rem;">${log.mensaje || '--'}</td>
+                    <td><span class="status-tag ${badgeClass}">${log.estatus || '--'}</span></td>
+                </tr>`;
+            }).join('');
         } catch (error) {
             console.error('Error cargando historial:', error);
             table.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding: 20px;">Error al conectar con el servidor de mensajes</td></tr>`;

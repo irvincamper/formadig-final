@@ -26,7 +26,7 @@
             <div class="sms-grid">
                 <div class="sms-stats-card">
                     <h3>Estado del Servicio</h3>
-                    <div class="status-indicator connected">Conectado</div>
+                    <div class="status-indicator connected"><span class="pulse-dot"></span>Conectado</div>
                     <div class="stat-item">
                         <span>Enviados hoy:</span>
                         <strong id="statEnviadosHoy">0</strong>
@@ -47,9 +47,17 @@
                     </div>
                     <div class="input-group">
                         <label>Mensaje:</label>
-                        <textarea id="messageText" rows="3"></textarea>
+                        <textarea id="messageText" rows="4"></textarea>
+                        <div id="charCount" class="char-counter">0/160 caracteres</div>
                     </div>
-                    <button class="button button--primary" onclick="SMS.sendManual()">Enviar SMS</button>
+                    <button class="button button--primary" onclick="SMS.sendManual()" style="width:100%; border-radius:10px; font-weight:600; font-size:1rem; padding:12px;">Enviar SMS</button>
+                </div>
+
+                <div class="sms-preview-card">
+                    <h3>Vista Previa</h3>
+                    <div class="iphone-mockup">
+                        <div class="iphone-bubble" id="previewBubble">El mensaje aparecerá aquí...</div>
+                    </div>
                 </div>
             </div>
 
