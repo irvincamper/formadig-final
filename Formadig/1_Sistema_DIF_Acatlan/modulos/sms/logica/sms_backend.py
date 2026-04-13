@@ -35,7 +35,8 @@ def ping():
 # 🏗️ CONFIGURACIÓN (REEMPLAZAR CON TUS CLAVES)
 # =========================================================
 # Conexión Supabase (Uso de SERVICE_ROLE_KEY para bypass RLS)
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
+SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
+SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_KEY')
 
 try:
     # Se prefiere SERVICE_ROLE_KEY para evitar errores 42501 (RLS) en backend

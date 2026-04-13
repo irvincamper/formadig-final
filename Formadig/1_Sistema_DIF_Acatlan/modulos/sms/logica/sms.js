@@ -82,8 +82,8 @@ const SMS = {
 
                 const horaDisplay = t.hora ? ` a las ${t.hora.substring(0, 5)}` : '';
 
-                // ── Nueva Plantilla Estructural ──
-                const msg = `Hola ${name}, te confirmamos tu traslado para el día ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
+                // ── Nueva Plantilla Estructural Corregida ──
+                const msg = `Hola ${name}, confirmamos tu traslado el ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
 
                 if (msgTextarea) {
                     msgTextarea.value = msg;
