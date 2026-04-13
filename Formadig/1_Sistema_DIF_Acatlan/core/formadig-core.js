@@ -81,6 +81,14 @@ UI = {
 
             const sidebarElement = document.getElementById('sidebarMenu');
             if (sidebarElement) {
+                // Determinar si el dropdown debe estar abierto inicialmente
+                const operativeModules = [
+                    'admin_traslados', 'admin_desayunos_frios', 
+                    'admin_desayunos_calientes', 'admin_espacios_eaeyd', 
+                    'sms', 'chatbot'
+                ];
+                const isOperativeActive = operativeModules.some(m => currentPath.includes(m));
+
                 let menuHTML = `
                     <div class="sidebar-header">
                         <div class="sidebar-logo-text">Menú Principal</div>
@@ -89,6 +97,17 @@ UI = {
                         <a href="${basePath}dashboard.html" class="menu-item ${!isModule ? 'active' : ''}">
                             🏠 <span>Panel Central</span>
                         </a>
+
+                        <!-- Botón Dropdown Módulos -->
+                        <div class="menu-item dropdown-toggle ${isOperativeActive ? 'is-open' : ''}" 
+                             onclick="UI.toggleModules(this)">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                📦 <span>Módulos</span>
+                            </div>
+                            <span class="dropdown-chevron">▼</span>
+                        </div>
+
+                        <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
                 `;
 
                 // 1. Área Médica (Traslados)
@@ -102,9 +121,8 @@ UI = {
                     `;
                 }
 
-                // 2. Programas Alimentarios y Desarrollo Integral (Agrupados dinámicamente)
+                // 2. Programas Alimentarios y Desarrollo Integral
                 let alimentosMenu = '';
-                
                 if (isAdmin || isDesayuno) {
                     alimentosMenu += `
                         <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html"
@@ -129,12 +147,11 @@ UI = {
                     `;
                 }
 
-                // 4. Sección Universal de Apoyo (Al final)
+                // 4. Sección Universal de Apoyo
                 menuHTML += `
                     <div class="sidebar-section-label">Asistencia y Soporte</div>
                 `;
 
-                // Restricción: admin_desayunos no tiene SMS
                 if (userRole !== 'admin_desayunos') {
                     menuHTML += `
                         <a href="${basePath}modulos/sms/vistas/admin_sms.html"
@@ -151,7 +168,11 @@ UI = {
                     </a>
                 `;
 
-                // 5. Configuración y Usuarios (Solo Admin)
+                menuHTML += `
+                        </div> <!-- Fin sidebar-dropdown-content -->
+                `;
+
+                // 5. Configuración y Usuarios (Fuera del dropdown)
                 if (isAdmin) {
                     menuHTML += `
                         <div class="sidebar-section-label">Sistema y Seguridad</div>
@@ -168,6 +189,15 @@ UI = {
         }
     },
 
+    // Alternar visibilidad del menú de módulos
+    toggleModules: function(button) {
+        const content = document.getElementById('modulesDropdown');
+        if (content) {
+            content.classList.toggle('is-open');
+            button.classList.toggle('is-open');
+        }
+    },
+
     // Mostrar mensaje de notificación
     notify: function(msg, type = 'success') {
         const box = document.getElementById('formMessage');
@@ -177,10 +207,7 @@ UI = {
             box.classList.remove('hidden');
             setTimeout(() => box.classList.add('hidden'), 5000);
         } else {
-            alert(msg);
+            box.notify(msg); // Fallback si no hay UI.notify
         }
     }
 };
-
-// Exportar si es necesario (para módulos que usen import/export)
-// export { Auth, UI, CORE_CONFIG };

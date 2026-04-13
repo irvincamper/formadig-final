@@ -76,6 +76,49 @@
     font-weight: 600;
 }
 
+/* ── Sidebar Dropdown (Accordion) ── */
+.dropdown-toggle {
+    cursor: pointer;
+    justify-content: space-between !important;
+}
+
+.dropdown-chevron {
+    font-size: 0.7rem;
+    transition: transform 0.3s ease;
+    opacity: 0.5;
+}
+
+.is-open .dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.sidebar-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(0,0,0,0.1);
+}
+
+.sidebar-dropdown-content.is-open {
+    max-height: 800px; /* Ajustar según contenido */
+}
+
+.sidebar-dropdown-content .menu-item {
+    padding-left: 2.5rem;
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+.sidebar-dropdown-content .menu-item:hover {
+    opacity: 1;
+}
+
+.sidebar-dropdown-content .sidebar-section-label {
+    padding-left: 2.5rem;
+    opacity: 0.6;
+}
+
+
 /* ── Workspace ────────────────────────────────────────────── */
 .workspace {
     margin-left: 260px;
