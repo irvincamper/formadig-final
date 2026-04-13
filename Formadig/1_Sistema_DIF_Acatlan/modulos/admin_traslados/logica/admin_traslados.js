@@ -578,12 +578,19 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <div style="display:flex; flex-direction:column; min-width:85px;">
-                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha)}</span>
-                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora || '').substring(0, 5).toUpperCase()}</span>
+                        <div style="display:flex; flex-direction:column; min-width:180px;">
+                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">
+                                📅 Día Salida: ${formatearFecha(t.fecha_viaje) || '<span style="color:#f87171;">Sin asignar</span>'}
+                            </span>
+                            <span style="font-size:0.8rem; color:#64748b; font-weight:600;">
+                                ⏰ Hora Salida: ${t.hora_cita || '--'}
+                            </span>
+                            <span style="font-size:0.75rem; color:#94a3b8;">
+                                ⬅️ Hora Regreso: ${t.hora_regreso || '--'}
+                            </span>
                         </div>
-                        <div style="width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: #f1f5f9; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <span style="font-size: 1.3rem;">👤</span>
                         </div>
                     </div>
                 </td>
@@ -592,8 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">
                             ${t.paciente_nombre || 'Sin nombre'} ${confirmacionIcono}
                         </span>
-                        <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top:2px;">
+                        <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; margin-top:2px;">
                             ${t.paciente_curp || 'SIN CURP'}
+                        </span>
+                        <span style="font-size:0.72rem; color: #0d9488; font-weight:700; margin-top:4px;">
+                            👥 Cupos: ${t.lugares_requeridos || '2'}
                         </span>
                     </div>
                 </td>
@@ -608,14 +618,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 Agendar 📅
                             </button>
                         ` : ''}
-                        ${t.kilometraje_salida != null ? `<span style="font-size:0.7rem; color:#64748b;">Km: ${t.kilometraje_salida}→${t.kilometraje_llegada || '?'}</span>` : ''}
                     </div>
                 </td>
             `;
-            `;
 
-// 👇 CAMBIO 1: Agregamos "async" aquí
-                    tr.addEventListener('click', async () => {
+            tr.addEventListener('click', async () => {
                         try {
                             currentSelectedId = t.id;
                             document.querySelectorAll('#listaRegistros tr').forEach(row => row.classList.remove('selected-row-v3'));
@@ -680,25 +687,25 @@ document.addEventListener('DOMContentLoaded', () => {
                             // ════════════════════════════════════════════════════════════════════════
                             setVal('destino_hospital', t.destino_hospital || '');
                             
-                            // 📅 FECHA (Lee de la columna t.fecha)
+                            // 📅 FECHA (Lee de la columna t.fecha_viaje)
                             let fViaje = '';
-                            if (t.fecha) { // <-- Corregido al nombre real de tu columna
-                                if (t.fecha.includes('/')) {
-                                    let p = t.fecha.split('/'); 
+                            if (t.fecha_viaje) {
+                                if (t.fecha_viaje.includes('/')) {
+                                    let p = t.fecha_viaje.split('/'); 
                                     fViaje = `${p[2]}-${p[1]}-${p[0]}`; 
                                 } else {
-                                    fViaje = t.fecha.split('T')[0];
+                                    fViaje = t.fecha_viaje.split('T')[0];
                                 }
                             }
-                            setVal('fecha_viaje', fViaje); // Asume que el input en tu HTML sigue teniendo id="fecha_viaje"
+                            setVal('fecha_viaje', fViaje);
                             
-                            // ⏰ HORA DE IDA (Lee de la columna t.hora)
+                            // ⏰ HORA DE IDA (Lee de la columna t.hora_cita)
                             let hCita = '';
-                            if (t.hora) { // <-- Corregido al nombre real de tu columna
-                                let match = String(t.hora).match(/\d{2}:\d{2}/);
+                            if (t.hora_cita) {
+                                let match = String(t.hora_cita).match(/\d{2}:\d{2}/);
                                 if (match) hCita = match[0];
                             }
-                            setVal('hora_cita', hCita); // Asume que el input en tu HTML sigue teniendo id="hora_cita"
+                            setVal('hora_cita', hCita);
 
                             // ⏰ HORA DE REGRESO (NUEVO CAMPO: Lee de t.hora_regreso)
                             let hRegreso = '';
@@ -706,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 let matchReg = String(t.hora_regreso).match(/\d{2}:\d{2}/);
                                 if (matchReg) hRegreso = matchReg[0];
                             }
-                            setVal('hora_regreso', hRegreso); // ¡OJO! Asegúrate de tener un <input type="time" id="hora_regreso"> en tu HTML
+                            setVal('hora_regreso', hRegreso);
 
                             // LOS OTROS CAMPOS
                             setVal('acompanante_nombre', t.acompanante_nombre || '');
