@@ -59,7 +59,7 @@ const SMS = {
                 if (!t) return;
 
                 // ── Teléfono con prefijo +52 ──
-                let phoneNum = t.telefono || '';
+                let phoneNum = t.telefono_principal || t.telefono || '';
                 if (phoneNum && !phoneNum.startsWith('+')) {
                     phoneNum = '+52' + phoneNum.replace(/\D/g, '').slice(-10);
                 }
@@ -83,7 +83,7 @@ const SMS = {
                 const horaDisplay = t.hora ? ` a las ${t.hora.substring(0, 5)}` : '';
 
                 // ── Nueva Plantilla Estructural Corregida ──
-                const msg = `Hola ${name}, confirmamos tu traslado el día ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
+                const msg = `Hola ${name}, te confirmamos tu traslado para el día ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
 
                 if (msgTextarea) {
                     msgTextarea.value = msg;

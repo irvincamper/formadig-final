@@ -139,7 +139,7 @@ def get_traslados_for_sms():
         hoy = date.today().isoformat()  # 'YYYY-MM-DD'
         res = (
             supabase.table('traslados')
-            .select('id, paciente_nombre, telefono, fecha, hora, estatus')
+            .select('id, paciente_nombre, telefono_principal, fecha, hora, estatus')
             .eq('estatus', 'ACEPTADO')
             .gte('fecha', hoy)      # Incluye hoy (>= hoy)
             .order('fecha', desc=False)
