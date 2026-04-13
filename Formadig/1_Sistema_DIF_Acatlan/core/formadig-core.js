@@ -7,10 +7,10 @@ const CORE_CONFIG = {
 
 const Auth = {
     // Validar si el usuario tiene una sesión activa
-    checkSession: function() {
+    checkSession: function () {
         const token = localStorage.getItem('supabase_token');
         const role = localStorage.getItem('user_role');
-        
+
         if (!token || !role) {
             console.warn("Sesión no válida. Redirigiendo a login...");
             this.logout();
@@ -20,7 +20,7 @@ const Auth = {
     },
 
     // Cerrar sesión
-    logout: function() {
+    logout: function () {
         localStorage.clear();
         // Ajustar ruta según profundidad del módulo
         const currentPath = window.location.pathname;
@@ -32,7 +32,7 @@ const Auth = {
     },
 
     // Obtener información del usuario actual
-    getUser: function() {
+    getUser: function () {
         return {
             email: localStorage.getItem('user_email'),
             role: localStorage.getItem('user_role'),
@@ -80,8 +80,8 @@ UI = {
             if (sidebarElement) {
                 // Determinar si el dropdown debe estar abierto inicialmente
                 const operativeModules = [
-                    'admin_traslados', 'admin_desayunos_frios', 
-                    'admin_desayunos_calientes', 'admin_espacios_eaeyd', 
+                    'admin_traslados', 'admin_desayunos_frios',
+                    'admin_desayunos_calientes', 'admin_espacios_eaeyd',
                     'sms', 'chatbot'
                 ];
                 const isOperativeActive = operativeModules.some(m => currentPath.includes(m));
@@ -101,7 +101,7 @@ UI = {
                             <div>📦 <span>Módulos</span></div>
                             <span class="dropdown-chevron">▼</span>
                         </div>
-
+//listo
                         <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
                             <div class="sidebar-section-label">Operación</div>
                             ${userRole !== 'admin_desayunos' ? `
@@ -142,7 +142,7 @@ UI = {
     },
 
     // Alternar visibilidad (Modo Mini-Sidebar 70px)
-    toggleSidebar: function() {
+    toggleSidebar: function () {
         const sidebar = document.getElementById('sidebarMenu');
         const workspace = document.querySelector('.workspace');
         if (sidebar) {
@@ -153,7 +153,7 @@ UI = {
     },
 
     // Alternar visibilidad del menú de módulos (Accordion)
-    toggleModules: function(button) {
+    toggleModules: function (button) {
         const content = document.getElementById('modulesDropdown');
         if (content) {
             content.classList.toggle('is-open');
@@ -162,7 +162,7 @@ UI = {
     },
 
     // Mostrar mensaje de notificación
-    notify: function(msg, type = 'success') {
+    notify: function (msg, type = 'success') {
         const box = document.getElementById('formMessage');
         if (box) {
             box.textContent = msg;
