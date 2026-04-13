@@ -168,26 +168,3 @@ UI = {
         }
     }
 };
-
-    // Alternar visibilidad del menú de módulos (Accordion)
-    toggleModules: function(button) {
-        const content = document.getElementById('modulesDropdown');
-        if (content) {
-            content.classList.toggle('is-open');
-            button.classList.toggle('is-open');
-        }
-    },
-
-    // Mostrar mensaje de notificación
-    notify: function(msg, type = 'success') {
-        const box = document.getElementById('formMessage');
-        if (box) {
-            box.textContent = msg;
-            box.className = `message ${type}`;
-            box.classList.remove('hidden');
-            setTimeout(() => box.classList.add('hidden'), 5000);
-        } else {
-            alert(msg);
-        }
-    }
-};

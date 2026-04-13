@@ -190,14 +190,6 @@
     transform: scale(1.05);
 }
 
-/* Botón de rescate en el Header (solo cuando sidebar está oculto) */
-.btn-header-rescue {
-    display: none; /* Se controla por JS o por clase en el body */
-}
-
-body.sidebar-is-hidden .btn-header-rescue {
-    display: flex;
-}
 
 @media (max-width: 600px) {
     .workspace { margin-left: 0 !important; }
