@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Estado local para búsqueda y filtro
     let allRecords = [];
+    let paginaActual = 1;
+    const registrosPorPagina = 10;
 
     // Referencias a DOM
     const form = document.getElementById('registroForm');
@@ -503,13 +505,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderTabla(records) {
-        if (!records || records.length === 0) {
+        // Guardar todos los registros para paginación
+        allRecords = records || [];
+
+        if (!allRecords || allRecords.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;" class="text-muted">No se encontraron registros.</td></tr>';
+            actualizarControlesPaginacion();
             return;
         }
 
+        // Lógica de Paginación
+        const inicio = (paginaActual - 1) * registrosPorPagina;
+        const fin = inicio + registrosPorPagina;
+        const datosPagina = allRecords.slice(inicio, fin);
+
         tbody.innerHTML = '';
-        records.forEach(t => {
+        datosPagina.forEach(t => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-id', t.id);
             tr.classList.add('record-row');
@@ -732,7 +743,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tbody.appendChild(tr);
         });
+
+        actualizarControlesPaginacion();
     }
+
+    function actualizarControlesPaginacion() {
+        const totalPaginas = Math.ceil(allRecords.length / registrosPorPagina);
+        const pagText = document.getElementById('pagActualText');
+        const btnPrev = document.getElementById('btnAnterior');
+        const btnNext = document.getElementById('btnSiguiente');
+
+        if (pagText) pagText.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+        
+        if (btnPrev) {
+            btnPrev.disabled = (paginaActual === 1);
+            btnPrev.style.opacity = btnPrev.disabled ? '0.5' : '1';
+        }
+        
+        if (btnNext) {
+            btnNext.disabled = (paginaActual === totalPaginas || totalPaginas === 0);
+            btnNext.style.opacity = btnNext.disabled ? '0.5' : '1';
+        }
+    }
+
+    // Eventos de Paginación
+    document.getElementById('btnAnterior')?.addEventListener('click', () => {
+        if (paginaActual > 1) {
+            paginaActual--;
+            renderTabla(allRecords);
+        }
+    });
+
+    document.getElementById('btnSiguiente')?.addEventListener('click', () => {
+        const totalPaginas = Math.ceil(allRecords.length / registrosPorPagina);
+        if (paginaActual < totalPaginas) {
+            paginaActual++;
+            renderTabla(allRecords);
+        }
+    });
 
     // --- Lógica de Sincronización en Tiempo Real (Live Sync) ---
     // --- Lógica de Navegación tipo Carrusel ---
