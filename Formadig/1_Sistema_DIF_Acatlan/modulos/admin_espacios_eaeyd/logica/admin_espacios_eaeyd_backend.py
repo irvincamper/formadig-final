@@ -55,8 +55,9 @@ def obtener_registros():
                 
                 # Ubicación
                 "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
-                "colonia": r.get('colonia') or r.get('asentamiento'),
-                "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
+                "colonia": r.get('colonia'),
+                "municipio": r.get('municipio') or 'Acatlán',
+                "estado": r.get('estado') or 'Puebla',
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
                 
@@ -65,12 +66,12 @@ def obtener_registros():
                 "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector') or r.get('ine_responsable'),
                 "telefono": r.get('telefono') or r.get('celular'),
                 
-                # Documentos
-                "url_curp": r.get('url_curp') or r.get('url_doc_curp') or r.get('curp_url'),
-                "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud') or r.get('url_salud'),
-                "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor') or r.get('url_ine_responsable') or r.get('url_ine') or r.get('foto_ine_url'),
-                "url_comprobante_domicilio": r.get('url_comprobante_domicilio') or r.get('comprobante_domicilio') or r.get('url_comprobante'),
-                "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante') or r.get('url_foto'),
+                # Documentos (claves canónicas del esquema Android)
+                "url_curp": r.get('url_curp'),
+                "url_salud": r.get('url_salud') or r.get('url_comprobante_salud'),
+                "url_ine": r.get('url_ine') or r.get('foto_ine_url') or r.get('url_ine_tutor') or r.get('url_ine_responsable'),
+                "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
+                "url_foto_infante": r.get('url_foto_infante'),
                 
                 "escuela": r.get('eaeyd_nombre') or 'No asignada',
                 "eaeyd_nombre": r.get('eaeyd_nombre') or 'No asignada',
@@ -114,18 +115,19 @@ def obtener_espacio(record_id):
                             "ingreso_mensual": r.get('ingreso_mensual') or r.get('ingreso_familiar'),
                             "situacion_vulnerabilidad": r.get('situacion_vulnerabilidad'),
                             "localidad": r.get('localidad') or r.get('comunidad') or r.get('sede'),
-                            "colonia": r.get('colonia') or r.get('asentamiento'),
-                            "tipo_asentamiento": r.get('tipo_asentamiento') or 'Colonia',
+                            "colonia": r.get('colonia'),
+                            "municipio": r.get('municipio') or 'Acatlán',
+                            "estado": r.get('estado') or 'Puebla',
                             "cp": r.get('cp') or r.get('codigo_postal'),
                             "referencias": r.get('referencias') or r.get('vialidades'),
                             "tutor": r.get('tutor_nombre') or r.get('tutor') or r.get('responsable_nombre'),
                             "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector'),
                             "telefono": r.get('telefono') or r.get('celular'),
-                            "url_curp": r.get('url_curp') or r.get('url_doc_curp'),
-                            "url_comprobante_salud": r.get('url_comprobante_salud') or r.get('url_doc_salud'),
-                            "url_ine_tutor": r.get('url_ine_tutor') or r.get('url_doc_ine_tutor'),
+                            "url_curp": r.get('url_curp'),
+                            "url_salud": r.get('url_salud') or r.get('url_comprobante_salud'),
+                            "url_ine": r.get('url_ine') or r.get('foto_ine_url') or r.get('url_ine_tutor'),
                             "url_comprobante_domicilio": r.get('url_comprobante_domicilio'),
-                            "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante'),
+                            "url_foto_infante": r.get('url_foto_infante'),
                             "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
                             "estatus": r.get('estatus') or 'Pendiente'
                         }), 200

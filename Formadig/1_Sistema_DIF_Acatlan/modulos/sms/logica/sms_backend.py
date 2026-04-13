@@ -136,7 +136,16 @@ def get_traslados_for_sms():
     if not supabase:
         return jsonify({"error": "Sin conexión a DB"}), 500
     try:
-        res = supabase.table('traslados').select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, estatus').in_('estatus', ['PROGRAMADO', 'ACEPTADO']).execute()
+        from datetime import date
+        hoy = date.today().isoformat()  # 'YYYY-MM-DD'
+        res = (
+            supabase.table('traslados')
+            .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, destino_hospital, estatus')
+            .eq('estatus', 'Aceptado')
+            .gt('fecha_viaje', hoy)      # ESTRICTAMENTE futuro (> hoy)
+            .order('fecha_viaje', desc=False)
+            .execute()
+        )
         return jsonify(res.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

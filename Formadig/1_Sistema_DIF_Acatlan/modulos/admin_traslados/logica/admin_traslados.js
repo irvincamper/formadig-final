@@ -78,9 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 setValue('paciente_curp', data.paciente_curp);
                 setValue('paciente_nombre', data.paciente_nombre);
                 setValue('paciente_edad', data.paciente_edad);
-                setValue('localidad', data.paciente_localidad || data.localidad);
+
                 setValue('colonia', data.paciente_colonia || data.colonia);
-                setValue('tipo_asentamiento', data.paciente_tipo_asentamiento || data.tipo_asentamiento);
                 setValue('cp', data.paciente_cp || data.cp);
                 setValue('paciente_domicilio', data.paciente_domicilio);
                 setValue('referencias', data.paciente_referencias || data.referencias);
@@ -233,9 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
             paciente_nombre: document.getElementById('paciente_nombre')?.value,
             paciente_curp:   document.getElementById('paciente_curp')?.value,
             paciente_domicilio: document.getElementById('paciente_domicilio')?.value,
-            localidad: document.getElementById('localidad')?.value,
+            localidad: undefined,
             colonia: document.getElementById('colonia')?.value,
-            tipo_asentamiento: document.getElementById('tipo_asentamiento')?.value,
             cp: document.getElementById('cp')?.value,
             referencias: document.getElementById('referencias')?.value,
             destino_hospital: document.getElementById('destino_hospital')?.value,
@@ -620,9 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 setVal('colonia', '');
                             }
                             
-                            // Limpiar los campos que no existen en la BD de traslados
-                            setVal('localidad', '');
-                            setVal('tipo_asentamiento', '');
+                            // Limpiar campos sin elemento visible
                             setVal('referencias', '');
                             
                             // ════════════════════════════════════════════════════════════════════════

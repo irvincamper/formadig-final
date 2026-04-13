@@ -67,14 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
             nivel_estudios:      document.getElementById('nivel_estudios')?.value,
             ingreso_mensual:     document.getElementById('ingreso_mensual')?.value,
             localidad:           document.getElementById('localidad')?.value,
-            tipo_asentamiento:   document.getElementById('tipo_asentamiento')?.value,
+            colonia:             document.getElementById('colonia')?.value,
             cp:                  document.getElementById('cp')?.value,
             referencias:         document.getElementById('referencias')?.value,
             tutor:               document.getElementById('tutor')?.value,
             clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
             telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             'Aceptado'  
+            estatus:             'Aceptado',
+            registrado_por:      session?.user?.id || null
         };
 
         if (!updateData.escuela) {
@@ -246,24 +247,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 safeSet('nivel_estudios', r.nivel_estudios);
                 safeSet('ingreso_mensual', r.ingreso_mensual);
                 // Ubicación
-                safeSet('localidad', r.localidad);
-                safeSet('colonia', r.colonia);
-                safeSet('tipo_asentamiento', r.tipo_asentamiento);
-                safeSet('cp', r.cp);
-                safeSet('referencias', r.referencias);
+                safeSet('localidad',  r.localidad);
+                safeSet('colonia',    r.colonia);
+                safeSet('cp',         r.cp || r.codigo_postal);
+                safeSet('referencias',r.referencias);
                 // Responsable
                 safeSet('tutor', r.tutor);
                 safeSet('clave_elector_tutor', r.clave_elector_tutor || r.clave_elector);
                 safeSet('telefono', r.telefono);
                 // Documentos
-                renderDocBtn('btnDocCurpCont', r.url_curp || r.url_doc_curp, 'CURP');
-                renderDocBtn('btnDocCompDomCont', r.url_comprobante_domicilio, 'DOMICILIO');
-                renderDocBtn('btnDocFotoInfanteCont', r.url_foto_infante, 'FOTO');
+                renderDocBtn('btnDocCurpCont',       r.url_curp,                              'CURP');
+                renderDocBtn('btnDocSaludCont',       r.url_salud || r.url_comprobante_salud,  'Comprobante Médico');
+                renderDocBtn('btnDocIneTutorCont',    r.url_ine   || r.foto_ine_url || r.url_ine_tutor, 'INE Responsable');
+                renderDocBtn('btnDocFotoInfanteCont', r.url_foto_infante,                      'FOTO');
+                renderDocBtn('btnDocCompDomCont',     r.url_comprobante_domicilio,             'DOMICILIO');
                 
                 // Mapeo a las vistas en Pestañas Individuales
-                renderDocBtn('btnDocCurpCont2', r.url_curp || r.url_doc_curp, 'CURP');
-                renderDocBtn('btnDocSaludCont2', r.url_comprobante_salud || r.url_doc_salud, 'Comprobante Médico');
-                renderDocBtn('btnDocIneTutorCont2', r.url_ine_tutor || r.url_doc_ine_tutor, 'INE del Responsable');
+                renderDocBtn('btnDocCurpCont2',       r.url_curp,                              'CURP');
+                renderDocBtn('btnDocSaludCont2',      r.url_salud || r.url_comprobante_salud,  'Comprobante Médico');
+                renderDocBtn('btnDocIneTutorCont2',   r.url_ine   || r.foto_ine_url || r.url_ine_tutor, 'INE del Responsable');
                 
                 // Dictamen
                 safeSet('escuela', (r.escuela && r.escuela !== 'No asignada') ? r.escuela : "");
