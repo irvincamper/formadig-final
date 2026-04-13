@@ -14,9 +14,6 @@ function setValue(fieldId, fieldValue) {
     const element = document.getElementById(fieldId);
     if (element) {
         element.value = fieldValue || '';
-        console.log(`   ✓ ${fieldId} = "${fieldValue}"`);
-    } else {
-        console.warn(`   ⚠️ Campo no encontrado: ${fieldId}`);
     }
 }
 
@@ -135,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();
-            console.log("Datos de la BD (EAEyD):", data);
             allRecords = data.desayunos || data.registros || [];
             paginaActual = 1;
             renderTabla(allRecords);
@@ -208,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
                         </div>
                         <div style="display:flex; flex-direction:column;">
-                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${r.nombre_beneficiario || r.nombres || 'Sin nombre'}</span>
+                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${r.nombre_beneficiario || 'Sin nombre'}</span>
                             <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top:2px;">${r.curp || 'SIN CURP'}</span>
                         </div>
                     </div>
@@ -402,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("📝 Llenando formulario con campos:");
                 
                 // Llenar campos específicos de EAEyD
-                setValue('nombre_beneficiario', data.nombre_beneficiario || `${data.nombres} ${data.apellidos}`);
+                setValue('nombre_beneficiario', data.nombre_beneficiario);
                 setValue('nombres', data.nombres);
                 setValue('apellidos', data.apellidos);
                 setValue('curp', data.curp);

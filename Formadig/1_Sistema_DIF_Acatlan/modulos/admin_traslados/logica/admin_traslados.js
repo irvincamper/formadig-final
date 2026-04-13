@@ -1,6 +1,6 @@
 // Función estándar para formatear fechas (parse local para evitar desfase UTC)
 function formatearFecha(fechaString) {
-    if (!fechaString) return 'S/F';
+    if (!fechaString) return '';
     // Si viene en formato YYYY-MM-DD parsear como local (sin UTC shift)
     const matchISO = String(fechaString).match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (matchISO) {
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <!-- Columna Fecha/Hora -->
                         <div style="display:flex; flex-direction:column; min-width:85px;">
                             <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha)}</span>
-                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora || '--:--').substring(0, 5).toUpperCase()}</span>
+                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora || '').substring(0, 5).toUpperCase()}</span>
                         </div>
                         
                         <!-- Columna Avatar -->

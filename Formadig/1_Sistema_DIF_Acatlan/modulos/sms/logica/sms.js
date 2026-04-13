@@ -7,6 +7,13 @@ const SMS = {
     // INIT
     // ═══════════════════════════════════════════════════════════
     async init() {
+        const user = Auth.getUser();
+        if (user && user.role === 'admin_desayunos') {
+            alert('Acceso Denegado: No tienes permisos para este módulo.');
+            window.location.href = '../../../dashboard.html';
+            return;
+        }
+
         if (typeof UI !== 'undefined' && UI.setupHeader) {
             UI.setupHeader('Gestión de Notificaciones');
         }
@@ -52,37 +59,35 @@ const SMS = {
                 if (!t) return;
 
                 // ── Teléfono con prefijo +52 ──
-                let phone = t.telefono_principal || t.telefono_secundario || '';
-                if (phone && !phone.startsWith('+')) {
-                    phone = '+52' + phone.replace(/\D/g, '').slice(-10);
+                let phoneNum = t.telefono || '';
+                if (phoneNum && !phoneNum.startsWith('+')) {
+                    phoneNum = '+52' + phoneNum.replace(/\D/g, '').slice(-10);
                 }
-                document.getElementById('targetPhone').value = phone;
+                document.getElementById('targetPhone').value = phoneNum;
 
                 // ── Nombre ──
-                const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Beneficiario';
+                const name = (t.paciente_nombre || 'Beneficiario').trim();
 
-                // ── Fecha formateada ──
-                let fecha = t.fecha_viaje || 'la fecha indicada';
-                if (t.fecha_viaje) {
+                // ── Fecha y Hora ──
+                let fechaDisplay = t.fecha || 'la fecha indicada';
+                if (t.fecha) {
                     try {
-                        // fecha_viaje puede ser 'YYYY-MM-DD'; parsear como local para evitar desfase UTC
-                        const [y, m, d] = t.fecha_viaje.split('-');
+                        const [y, m, d] = t.fecha.split('-');
                         const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
                         if (!isNaN(dateObj)) {
-                            fecha = dateObj.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            fechaDisplay = dateObj.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                         }
                     } catch(e){}
                 }
 
-                // ── Destino ──
-                const destino = t.destino_hospital || 'el hospital asignado';
+                const horaDisplay = t.hora ? ` a las ${t.hora.substring(0, 5)}` : '';
 
-                // ── Plantilla EXACTA requerida por el DIF ──
-                const msg = `Este mensaje es por parte del DIF de acatlan, usted ${name} solicitud ir ${destino} el dia ${fecha} confirma usted su asistencia Si o No (solo responda con una de esas dos opciones)`;
+                // ── Nueva Plantilla Estructural ──
+                const msg = `Hola ${name}, te confirmamos tu traslado para el día ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
 
                 if (msgTextarea) {
                     msgTextarea.value = msg;
-                    msgTextarea.dispatchEvent(new Event('input')); // dispara contador + preview
+                    msgTextarea.dispatchEvent(new Event('input'));
                 }
             });
         }
@@ -99,16 +104,17 @@ const SMS = {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
 
-            // Doble filtro cliente: estatus === 'Aceptado', fecha > hoy
+            // Doble filtro cliente de seguridad
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
 
             this.trasladosData = (data || []).filter(t => {
-                if (t.estatus !== 'ACEPTADO') return false;
-                if (!t.fecha_viaje) return false;
-                const [y, m, d] = t.fecha_viaje.split('-');
+                const isAceptado = (t.estatus || '').toUpperCase() === 'ACEPTADO';
+                if (!isAceptado) return false;
+                if (!t.fecha) return false;
+                const [y, m, d] = t.fecha.split('-');
                 const fechaCita = new Date(Number(y), Number(m) - 1, Number(d));
-                return fechaCita > hoy; // estrictamente futuro
+                return fechaCita >= hoy; // Incluye hoy (>= hoy)
             });
 
             const select = document.getElementById('trasladoSelect');
@@ -126,11 +132,11 @@ const SMS = {
             }
 
             this.trasladosData.forEach(t => {
-                const name = `${t.paciente_nombre || ''} ${t.paciente_apellidos || ''}`.trim() || 'Sin Nombre';
-                let dateText = t.fecha_viaje;
-                if (t.fecha_viaje) {
+                const name = (t.paciente_nombre || 'Sin Nombre').trim();
+                let dateText = t.fecha;
+                if (t.fecha) {
                     try {
-                        const [y, m, d] = t.fecha_viaje.split('-');
+                        const [y, m, d] = t.fecha.split('-');
                         const dObj = new Date(Number(y), Number(m) - 1, Number(d));
                         if (!isNaN(dObj)) dateText = dObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
                     } catch(e){}
@@ -206,7 +212,6 @@ const SMS = {
         try {
             const res = await fetch(`${this.API_URL}/ping`, { mode: 'cors' });
             if (res.ok) {
-                console.log('✅ SMS Backend Online');
                 if (statusIndicator) {
                     statusIndicator.classList.add('connected');
                     statusIndicator.innerHTML = '<span class="pulse-dot"></span>Conectado';

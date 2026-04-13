@@ -34,18 +34,12 @@ def ping():
 # =========================================================
 # 🏗️ CONFIGURACIÓN (REEMPLAZAR CON TUS CLAVES)
 # =========================================================
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# Conexión Supabase (Uso de SERVICE_ROLE_KEY para bypass RLS)
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
 
-# Credenciales de SMS (Simulación por defecto)
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', 'AC_TU_SID_AQUI')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', 'TOKEN_AQUI')
-TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '+0000000000')
-TWILIO_VERIFY_SERVICE_SID = os.environ.get('TWILIO_VERIFY_SERVICE_SID', 'VA1c7923d708c9ddbb121620974cf6c594')
-
-# Conexión Supabase
 try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    # Se prefiere SERVICE_ROLE_KEY para evitar errores 42501 (RLS) en backend
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 except Exception as e:
     print(f"Error Supabase: {e}")
     supabase = None
@@ -140,10 +134,10 @@ def get_traslados_for_sms():
         hoy = date.today().isoformat()  # 'YYYY-MM-DD'
         res = (
             supabase.table('traslados')
-            .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, destino_hospital, estatus')
+            .select('id, paciente_nombre, telefono, fecha, hora, estatus')
             .eq('estatus', 'ACEPTADO')
-            .gt('fecha_viaje', hoy)      # ESTRICTAMENTE futuro (> hoy)
-            .order('fecha_viaje', desc=False)
+            .gte('fecha', hoy)      # Incluye hoy (>= hoy)
+            .order('fecha', desc=False)
             .execute()
         )
         return jsonify(res.data)

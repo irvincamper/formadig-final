@@ -132,10 +132,19 @@ UI = {
                 // 4. Sección Universal de Apoyo (Al final)
                 menuHTML += `
                     <div class="sidebar-section-label">Asistencia y Soporte</div>
-                    <a href="${basePath}modulos/sms/vistas/admin_sms.html"
-                       class="menu-item ${currentPath.includes('sms') ? 'active' : ''}">
-                        📱 <span>Mensajes SMS</span>
-                    </a>
+                `;
+
+                // Restricción: admin_desayunos no tiene SMS
+                if (userRole !== 'admin_desayunos') {
+                    menuHTML += `
+                        <a href="${basePath}modulos/sms/vistas/admin_sms.html"
+                           class="menu-item ${currentPath.includes('sms') ? 'active' : ''}">
+                            📱 <span>Mensajes SMS</span>
+                        </a>
+                    `;
+                }
+
+                menuHTML += `
                     <a href="${basePath}modulos/chatbot/vistas/chatbot.html"
                        class="menu-item ${currentPath.includes('chatbot') ? 'active' : ''}">
                         🤖 <span>Chatbot Asistente</span>

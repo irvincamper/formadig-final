@@ -71,12 +71,18 @@
             }
 
             // --- Sección de Soporte (Universal) ---
+            const supportModules = [
+                { title: 'Chatbot Asistente', icon: '🤖', url: 'modulos/chatbot/vistas/chatbot.html' }
+            ];
+
+            // Restricción: admin_desayunos no tiene SMS
+            if (role !== 'admin_desayunos') {
+                supportModules.push({ title: 'Gestión de SMS', icon: '📱', url: 'modulos/sms/vistas/admin_sms.html' });
+            }
+
             areas.push({
                 areaName: "Asistencia y Comunicación",
-                modules: [
-                    { title: 'Chatbot Asistente', icon: '🤖', url: 'modulos/chatbot/vistas/chatbot.html' },
-                    { title: 'Gestión de SMS', icon: '📱', url: 'modulos/sms/vistas/admin_sms.html' }
-                ]
+                modules: supportModules
             });
 
             const container = document.getElementById('modulesContainer');
