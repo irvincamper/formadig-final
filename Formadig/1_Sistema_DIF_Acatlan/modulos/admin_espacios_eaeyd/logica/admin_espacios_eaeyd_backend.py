@@ -21,22 +21,19 @@ global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 @espacios_eaeyd_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     try:
-        candidate_tables = ['desayunos_eaeyd', 'espacios_eaeyd']
-        responses = []
-        for table in candidate_tables:
-            try:
-                res = global_client.table(table).select('*').limit(1000).eq('tipo_apoyo', 'EAEyD').execute()
-                responses.extend(res.data)
-            except: continue
+        try:
+            res = global_client.table('desayunos_eaeyd').select('*').limit(1000).execute()
+            responses = res.data if res.data else []
+        except Exception as e:
+            print("Error cargando desayunos_eaeyd:", e)
+            responses = []
         
         desayunos_mapeados = []
         for r in responses:
-            record_id = r.get('Identificación') or r.get('id') or r.get('uuid')
-            nombre = r.get('nombres') or r.get('nombre') or r.get('nombre_beneficiario') or ''
-            apell = r.get('apellidos') or r.get('apellido') or ''
+            record_id = r.get('id') or r.get('uuid') or r.get('Identificación')
+            nombre = r.get('nombres') or ''
+            apell = r.get('apellidos') or ''
             nombre_completo = f"{nombre} {apell}".strip()
-            if not nombre_completo:
-                nombre_completo = r.get('bordillo') or r.get('curp') or f"EAEyD #{str(record_id)[:8] if record_id else '?'}"
             
             desayunos_mapeados.append({
                 "id": str(record_id),
@@ -62,8 +59,8 @@ def obtener_registros():
                 "cp": r.get('cp') or r.get('codigo_postal'),
                 "referencias": r.get('referencias') or r.get('vialidades'),
                 
-                # Responsable (usado el mismo mapeo de tutor por consistencia en JS)
-                "tutor": r.get('tutor_nombre') or r.get('tutor') or r.get('responsable_nombre'),
+                "tutor": r.get('tutor_nombre'),
+                "tutor_nombre": r.get('tutor_nombre'),
                 "clave_elector_tutor": r.get('clave_elector_tutor') or r.get('clave_elector') or r.get('ine_responsable'),
                 "telefono": r.get('telefono') or r.get('celular'),
                 
@@ -74,7 +71,8 @@ def obtener_registros():
                 "url_comprobante_domicilio": r.get('url_comprobante_domicilio') or r.get('comprobante_domicilio') or r.get('url_comprobante'),
                 "url_foto_infante": r.get('url_foto_infante') or r.get('foto_infante') or r.get('url_foto'),
                 
-                "escuela": r.get('escuela') or r.get('plantel') or 'No asignada',
+                "escuela": r.get('eaeyd_nombre') or 'No asignada',
+                "eaeyd_nombre": r.get('eaeyd_nombre') or 'No asignada',
                 "estatus": r.get('estatus') or 'Pendiente'
             })
         return jsonify({"desayunos": desayunos_mapeados}), 200

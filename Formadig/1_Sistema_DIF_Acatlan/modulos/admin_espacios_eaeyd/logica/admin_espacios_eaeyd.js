@@ -132,7 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();
-            allRecords = data.registros || [];
+            console.log("Datos de la BD (EAEyD):", data);
+            allRecords = data.desayunos || data.registros || [];
             renderTabla(allRecords);
 
             // Auto-seleccionar el primero si hay registros y ninguno está seleccionado
@@ -184,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let badgeStyle = 'background: #f1f5f9; color: #64748b;';
             if (statusUpper === 'APROBADO' || statusUpper === 'ACTIVO') badgeStyle = 'background: #dcfce7; color: #166534;';
 
-            const nombreCompleto = `${r.nombre_beneficiario || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
+            const nombreCompleto = `${r.nombres || ''} ${r.apellidos || ''}`.trim() || 'Sin nombre';
 
             // Formatear Fecha usando función estándar
             const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
@@ -221,8 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.escuela || 'No asignada'}</td>
-                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tutor || '--'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.eaeyd_nombre || 'No asignada'}</td>
+                <td style="padding: 1rem 1.25rem; font-size: 0.85rem; color: #475569;">${r.tutor_nombre || '--'}</td>
                 <td style="padding: 1rem 1.25rem; text-align: right;"><span class="status-badge" style="${badgeStyle}">${statusUpper}</span></td>
             `;
 
