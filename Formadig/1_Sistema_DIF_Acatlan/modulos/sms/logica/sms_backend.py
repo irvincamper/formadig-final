@@ -137,31 +137,18 @@ def get_traslados_for_sms():
         return jsonify({"error": "Sin conexión a DB"}), 500
     try:
         from datetime import date
-        hoy = date.today().isoformat()
-        
-        # CONSULTA CORREGIDA:
-        # Se usan nombres de columna reales (fecha, hora) para filtrar y ordenar, 
-        # pero se mantienen los alias (fecha_viaje, hora_cita) para el frontend.
+        hoy = date.today().isoformat()  # 'YYYY-MM-DD'
         res = (
             supabase.table('traslados')
-            .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje:fecha, hora_cita:hora, destino_hospital, estatus')
+            .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, destino_hospital, estatus')
             .eq('estatus', 'ACEPTADO')
-            .gt('fecha', hoy)      # Columna real: fecha
-            .order('fecha', desc=False) # Columna real: fecha
+            .gt('fecha_viaje', hoy)      # ESTRICTAMENTE futuro (> hoy)
+            .order('fecha_viaje', desc=False)
             .execute()
         )
-        
-        if hasattr(res, 'error') and res.error:
-            raise Exception(res.error)
-
-        return jsonify(res.data if res.data else [])
-
+        return jsonify(res.data)
     except Exception as e:
-        print(f"❌ ERROR EN /api/sms/traslados: {str(e)}")
-        return jsonify({
-            "error": "Error interno al consultar traslados",
-            "details": str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 @sms_bp.route('/webhook', methods=['POST'], strict_slashes=False)
 def sms_webhook():

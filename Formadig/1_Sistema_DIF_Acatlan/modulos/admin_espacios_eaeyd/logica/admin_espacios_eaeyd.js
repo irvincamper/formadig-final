@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allRecords = [];
     let currentSelectedId = null;
+    let paginaActual = 1;
+    const registrosPorPagina = 10;
 
     const safeSet = (id, val) => {
         const el = document.getElementById(id);
@@ -135,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             console.log("Datos de la BD (EAEyD):", data);
             allRecords = data.desayunos || data.registros || [];
+            paginaActual = 1;
             renderTabla(allRecords);
 
             // Auto-seleccionar el primero si hay registros y ninguno está seleccionado
@@ -170,14 +173,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTabla(registros) {
         if (!tbody) return;
-        tbody.innerHTML = '';
         
-        if (registros.length === 0) {
+        // Guardar para paginación (permitiendo filtrados)
+        const currentData = registros || [];
+
+        if (currentData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:3rem; opacity:0.6;">No hay registros disponibles.</td></tr>';
+            actualizarControlesPaginacion(0);
             return;
         }
 
-        registros.forEach(r => {
+        // Lógica de Paginación
+        const inicio = (paginaActual - 1) * registrosPorPagina;
+        const fin = inicio + registrosPorPagina;
+        const datosPagina = currentData.slice(inicio, fin);
+
+        tbody.innerHTML = '';
+        datosPagina.forEach(r => {
             const tr = document.createElement('tr');
             tr.setAttribute('data-id', r.id);
             tr.classList.add('record-row');
@@ -186,34 +198,17 @@ document.addEventListener('DOMContentLoaded', () => {
             let badgeStyle = 'background: #f1f5f9; color: #64748b;';
             if (statusUpper === 'APROBADO' || statusUpper === 'ACTIVO') badgeStyle = 'background: #dcfce7; color: #166534;';
 
-            const nombreCompleto = r.nombres || 'Sin nombre';
+            if (currentSelectedId === r.id) tr.classList.add('selected-row-v3');
 
-            // Formatear Fecha usando función estándar
-            const fechaStr = formatearFecha(r.fecha_registro || r.fecha_nacimiento || r.created_at);
-            let horaStr = "--:--";
-            try {
-                if (r.created_at) {
-                    const f = new Date(r.created_at);
-                    if (!isNaN(f.getTime())) {
-                        horaStr = f.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
-                    }
-                }
-            } catch (e) {
-                console.error("Error al formatear hora:", e);
-            }
-
+            // Columna Nombre/CURP - Corregido para evitar duplicados
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <!-- Columna Fecha/Hora removida -->
-                        <!-- Columna Avatar -->
                         <div style="width: 44px; height: 44px; border-radius: 50%; background: #fee2e2; display: flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <span style="font-size: 1.3rem; filter: grayscale(1); opacity: 0.7;">👤</span>
                         </div>
-
-                        <!-- Columna Nombre/CURP -->
                         <div style="display:flex; flex-direction:column;">
-                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${r.nombres}</span>
+                            <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2;">${r.nombre_beneficiario || r.nombres || 'Sin nombre'}</span>
                             <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-top:2px;">${r.curp || 'SIN CURP'}</span>
                         </div>
                     </div>
@@ -277,6 +272,57 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             tbody.appendChild(tr);
         });
+
+        actualizarControlesPaginacion(registros.length);
+    }
+
+    function actualizarControlesPaginacion(totalRegistrosFiltro) {
+        const totalPaginas = Math.ceil(totalRegistrosFiltro / registrosPorPagina);
+        const pagText = document.getElementById('pagActualText');
+        const btnPrev = document.getElementById('btnAnterior');
+        const btnNext = document.getElementById('btnSiguiente');
+
+        if (pagText) pagText.textContent = `Página ${paginaActual} de ${totalPaginas || 1}`;
+        
+        if (btnPrev) {
+            btnPrev.disabled = (paginaActual === 1);
+            btnPrev.style.opacity = btnPrev.disabled ? '0.5' : '1';
+        }
+        
+        if (btnNext) {
+            btnNext.disabled = (paginaActual === totalPaginas || totalPaginas === 0);
+            btnNext.style.opacity = btnNext.disabled ? '0.5' : '1';
+        }
+    }
+
+    // Eventos de Paginación
+    document.getElementById('btnAnterior')?.addEventListener('click', () => {
+        if (paginaActual > 1) {
+            paginaActual--;
+            aplicarBusquedaYRender();
+        }
+    });
+
+    document.getElementById('btnSiguiente')?.addEventListener('click', () => {
+        const query = inputSearch?.value.toLowerCase() || "";
+        const filtrados = allRecords.filter(r => 
+            (r.nombre_beneficiario || "").toLowerCase().includes(query) || 
+            (r.curp || "").toLowerCase().includes(query)
+        );
+        const totalPaginas = Math.ceil(filtrados.length / registrosPorPagina);
+        if (paginaActual < totalPaginas) {
+            paginaActual++;
+            renderTabla(filtrados);
+        }
+    });
+
+    function aplicarBusquedaYRender() {
+        const query = inputSearch?.value.toLowerCase() || "";
+        const filtrados = allRecords.filter(r => 
+            (r.nombre_beneficiario || "").toLowerCase().includes(query) || 
+            (r.curp || "").toLowerCase().includes(query)
+        );
+        renderTabla(filtrados);
     }
 
     if (form) form.addEventListener('submit', guardarDictamen);
@@ -331,12 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (inputSearch) {
         inputSearch.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtrados = allRecords.filter(r => 
-                (r.nombre_beneficiario || "").toLowerCase().includes(query) || 
-                (r.curp || "").toLowerCase().includes(query)
-            );
-            renderTabla(filtrados);
+            paginaActual = 1;
+            aplicarBusquedaYRender();
         });
     }
 
@@ -456,9 +498,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Nombre y CURP
         const nameSpan = cells[0].querySelector('.live-name');
         if (nameSpan) {
-            const nom = document.getElementById('nombre_beneficiario')?.value || '';
-            const ape = document.getElementById('apellidos')?.value || '';
-            nameSpan.textContent = `${nom} ${ape}`.trim() || 'Sin nombre';
+            const nom = document.getElementById('nombre_beneficiario')?.value || 'Sin nombre';
+            nameSpan.textContent = nom; // Solo el nombre, sin duplicados con apellidos
         }
         const curpSpan = cells[0].querySelector('.live-curp');
         if (curpSpan) curpSpan.textContent = document.getElementById('curp')?.value || 'S/C';
