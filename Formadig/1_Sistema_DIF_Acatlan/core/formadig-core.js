@@ -45,25 +45,25 @@ UI = {
     // Generar el Header común para todos los módulos
     setupHeader: (title) => {
         const user = Auth.getUser();
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+        const headerInner = `
+            <div style="display:flex; align-items:center;">
+                <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()">☰</button>
+                <div class="header__logo">FORMADIG</div>
+            </div>
+            <div class="header__user-info">
+                <span class="user-name">${user ? user.fullName : 'Bienvenido'}</span>
+                <button onclick="Auth.logout()" class="btn-logout-small">Cerrar Sesión</button>
+            </div>
+        `;
 
         const headerEl = document.querySelector('header.header');
         if (headerEl) {
-            headerEl.innerHTML = `
-                <div class="header__logo">FORMADIG</div>
-                <div class="header__user-info">
-                    <span class="user-name">${user ? user.fullName : 'Bienvenido'}</span>
-                    <button onclick="Auth.logout()" class="btn-logout-small">Cerrar Sesión</button>
-                </div>
-            `;
+            headerEl.innerHTML = headerInner;
         } else {
             document.body.insertAdjacentHTML('afterbegin', `
-                <header class="header">
-                    <div class="header__logo">FORMADIG</div>
-                    <div class="header__user-info">
-                        <span class="user-name">${user ? user.fullName : 'Bienvenido'}</span>
-                        <button onclick="Auth.logout()" class="btn-logout-small">Cerrar Sesión</button>
-                    </div>
-                </header>
+                <header class="header">${headerInner}</header>
             `);
         }
 
@@ -101,9 +101,7 @@ UI = {
                         <!-- Botón Dropdown Módulos -->
                         <div class="menu-item dropdown-toggle ${isOperativeActive ? 'is-open' : ''}" 
                              onclick="UI.toggleModules(this)">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                📦 <span>Módulos</span>
-                            </div>
+                            <div>📦 <span>Módulos</span></div>
                             <span class="dropdown-chevron">▼</span>
                         </div>
 
@@ -115,7 +113,7 @@ UI = {
                     menuHTML += `
                         <div class="sidebar-section-label">Área Médica</div>
                         <a href="${basePath}modulos/admin_traslados/vistas/admin_traslados.html"
-                           class="menu-item ${currentPath.includes('admin_traslados') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('admin_traslados') ? 'active' : ''}" title="Traslados Médicos">
                             🚑 <span>Traslados Médicos</span>
                         </a>
                     `;
@@ -126,15 +124,15 @@ UI = {
                 if (isAdmin || isDesayuno) {
                     alimentosMenu += `
                         <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_frios') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('admin_desayunos_frios') ? 'active' : ''}" title="Gestión Fríos">
                             🥛 <span>Gestión Fríos</span>
                         </a>
                         <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_calientes') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('admin_desayunos_calientes') ? 'active' : ''}" title="Gestión Calientes">
                             🍲 <span>Gestión Calientes</span>
                         </a>
                         <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html"
-                           class="menu-item ${currentPath.includes('admin_espacios_eaeyd') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('admin_espacios_eaeyd') ? 'active' : ''}" title="Espacios EAEyD">
                             🏢 <span>Espacios EAEyD</span>
                         </a>
                     `;
@@ -155,7 +153,7 @@ UI = {
                 if (userRole !== 'admin_desayunos') {
                     menuHTML += `
                         <a href="${basePath}modulos/sms/vistas/admin_sms.html"
-                           class="menu-item ${currentPath.includes('sms') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('sms') ? 'active' : ''}" title="Mensajes SMS">
                             📱 <span>Mensajes SMS</span>
                         </a>
                     `;
@@ -163,7 +161,7 @@ UI = {
 
                 menuHTML += `
                     <a href="${basePath}modulos/chatbot/vistas/chatbot.html"
-                       class="menu-item ${currentPath.includes('chatbot') ? 'active' : ''}">
+                       class="menu-item ${currentPath.includes('chatbot') ? 'active' : ''}" title="Chatbot Asistente">
                         🤖 <span>Chatbot Asistente</span>
                     </a>
                 `;
@@ -177,7 +175,7 @@ UI = {
                     menuHTML += `
                         <div class="sidebar-section-label">Sistema y Seguridad</div>
                         <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html"
-                           class="menu-item ${currentPath.includes('admin_usuarios') ? 'active' : ''}">
+                           class="menu-item ${currentPath.includes('admin_usuarios') ? 'active' : ''}" title="Gestión Usuarios">
                             👤 <span>Gestión Usuarios</span>
                         </a>
                     `;
@@ -185,11 +183,29 @@ UI = {
 
                 menuHTML += `</nav>`;
                 sidebarElement.innerHTML = menuHTML;
+
+                // Aplicar estado colapsado inicial
+                if (isCollapsed) {
+                    sidebarElement.classList.add('collapsed');
+                    const workspace = document.querySelector('.workspace');
+                    if (workspace) workspace.classList.add('collapsed');
+                }
             }
         }
     },
 
-    // Alternar visibilidad del menú de módulos
+    // Alternar visibilidad de la barra lateral (Mini-sidebar)
+    toggleSidebar: function() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const workspace = document.querySelector('.workspace');
+        if (sidebar) {
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            if (workspace) workspace.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
+        }
+    },
+
+    // Alternar visibilidad del menú de módulos (Accordion)
     toggleModules: function(button) {
         const content = document.getElementById('modulesDropdown');
         if (content) {
@@ -207,7 +223,7 @@ UI = {
             box.classList.remove('hidden');
             setTimeout(() => box.classList.add('hidden'), 5000);
         } else {
-            box.notify(msg); // Fallback si no hay UI.notify
+            alert(msg);
         }
     }
 };

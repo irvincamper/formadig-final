@@ -16,14 +16,48 @@
     top: 64px;
     height: calc(100vh - 64px);
     overflow-y: auto;
+    overflow-x: hidden;
     z-index: 90;
     border-right: 1px solid rgba(0,0,0,0.1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.collapsed {
+    width: 70px;
 }
 
 .sidebar-header {
     padding: 1.5rem 1.25rem 1rem;
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-logo-text,
+.sidebar.collapsed .sidebar-section-label,
+.sidebar.collapsed .menu-item span,
+.sidebar.collapsed .dropdown-chevron {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .sidebar-section-label {
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.sidebar.collapsed .menu-item {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
+}
+
+.sidebar.collapsed .menu-item span {
+    width: 0;
+    display: none;
 }
 
 .sidebar-logo-text {
@@ -119,7 +153,7 @@
 }
 
 
-/* ── Workspace ────────────────────────────────────────────── */
+/* ── Workspace ── */
 .workspace {
     margin-left: 260px;
     flex: 1;
@@ -127,6 +161,39 @@
     flex-direction: column;
     background-color: var(--color-bg-body, #f5f7fa);
     min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.workspace.collapsed {
+    margin-left: 70px;
+}
+
+/* ── Hamburguesa Button ── */
+.btn-sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.btn-sidebar-toggle:hover {
+    background: rgba(255,255,255,0.1);
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .workspace { margin-left: 0 !important; }
+    .sidebar   { display: none; }
+    .modules-grid { grid-template-columns: 1fr; }
+    .workspace-content { padding: 1.5rem 1rem; }
 }
 
 .workspace-content {
