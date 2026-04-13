@@ -21,6 +21,7 @@
     color: var(--color-text-main, #2d3748);
     background: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
 }
 .form__input::placeholder { color: var(--color-text-muted, #a0aec0); }
 .form__input:focus {
@@ -68,6 +69,7 @@
     color: var(--color-text-main, #2d3748);
     background: #fff;
     transition: border-color 0.2s;
+    text-transform: uppercase;
 }
 .form-input:focus {
     outline: none;

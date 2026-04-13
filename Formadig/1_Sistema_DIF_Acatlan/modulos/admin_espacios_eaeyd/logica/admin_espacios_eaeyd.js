@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const updateData = {
-            nombre_beneficiario: document.getElementById('nombre_beneficiario')?.value,
-            curp:                document.getElementById('curp')?.value,
-            apellidos:           document.getElementById('apellidos')?.value,
+            nombre_beneficiario: document.getElementById('nombre_beneficiario')?.value?.toUpperCase().trim(),
+            curp:                document.getElementById('curp')?.value?.toUpperCase().trim(),
+            apellidos:           document.getElementById('apellidos')?.value?.toUpperCase().trim(),
             fecha_nacimiento:    document.getElementById('fecha_nacimiento')?.value,
             sexo:                document.getElementById('sexo')?.value,
             estado_civil:        document.getElementById('estado_civil')?.value,
@@ -66,15 +66,15 @@ document.addEventListener('DOMContentLoaded', () => {
             estatura_menor:      document.getElementById('estatura_menor')?.value,
             nivel_estudios:      document.getElementById('nivel_estudios')?.value,
             ingreso_mensual:     document.getElementById('ingreso_mensual')?.value,
-            localidad:           document.getElementById('localidad')?.value,
-            colonia:             document.getElementById('colonia')?.value,
+            localidad:           document.getElementById('localidad')?.value?.toUpperCase().trim(),
+            colonia:             document.getElementById('colonia')?.value?.toUpperCase().trim(),
             cp:                  document.getElementById('cp')?.value,
-            referencias:         document.getElementById('referencias')?.value,
-            tutor:               document.getElementById('tutor')?.value,
-            clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value,
+            referencias:         document.getElementById('referencias')?.value?.toUpperCase().trim(),
+            tutor:               document.getElementById('tutor')?.value?.toUpperCase().trim(),
+            clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value?.toUpperCase().trim(),
             telefono:            document.getElementById('telefono')?.value,
-            escuela:             document.getElementById('escuela')?.value?.trim(),
-            estatus:             'Aceptado',
+            escuela:             document.getElementById('escuela')?.value?.toUpperCase().trim(),
+            estatus:             'ACEPTADO',
             registrado_por:      session?.user?.id || null
         };
 

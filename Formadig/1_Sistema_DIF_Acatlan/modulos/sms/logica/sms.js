@@ -104,7 +104,7 @@ const SMS = {
             hoy.setHours(0, 0, 0, 0);
 
             this.trasladosData = (data || []).filter(t => {
-                if (t.estatus !== 'Aceptado') return false;
+                if (t.estatus !== 'ACEPTADO') return false;
                 if (!t.fecha_viaje) return false;
                 const [y, m, d] = t.fecha_viaje.split('-');
                 const fechaCita = new Date(Number(y), Number(m) - 1, Number(d));

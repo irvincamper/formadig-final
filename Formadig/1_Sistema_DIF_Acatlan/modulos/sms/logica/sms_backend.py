@@ -141,7 +141,7 @@ def get_traslados_for_sms():
         res = (
             supabase.table('traslados')
             .select('id, paciente_nombre, paciente_apellidos, telefono_principal, telefono_secundario, fecha_viaje, hora_cita, destino_hospital, estatus')
-            .eq('estatus', 'Aceptado')
+            .eq('estatus', 'ACEPTADO')
             .gt('fecha_viaje', hoy)      # ESTRICTAMENTE futuro (> hoy)
             .order('fecha_viaje', desc=False)
             .execute()

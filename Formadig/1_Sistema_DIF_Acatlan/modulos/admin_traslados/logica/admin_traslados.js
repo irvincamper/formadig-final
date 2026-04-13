@@ -1,6 +1,13 @@
-// Función estándar para formatear fechas
+// Función estándar para formatear fechas (parse local para evitar desfase UTC)
 function formatearFecha(fechaString) {
     if (!fechaString) return 'S/F';
+    // Si viene en formato YYYY-MM-DD parsear como local (sin UTC shift)
+    const matchISO = String(fechaString).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (matchISO) {
+        const [, y, m, d] = matchISO;
+        return `${d}/${m}/${y}`;
+    }
+    // Fallback
     const fecha = new Date(fechaString);
     if (Number.isNaN(fecha.getTime())) return 'Inválida';
     const dia = fecha.getDate().toString().padStart(2, '0');
@@ -229,28 +236,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const updateData = {
-            paciente_nombre: document.getElementById('paciente_nombre')?.value,
-            paciente_curp:   document.getElementById('paciente_curp')?.value,
-            paciente_domicilio: document.getElementById('paciente_domicilio')?.value,
+            paciente_nombre: document.getElementById('paciente_nombre')?.value?.toUpperCase().trim(),
+            paciente_curp:   document.getElementById('paciente_curp')?.value?.toUpperCase().trim(),
+            paciente_domicilio: document.getElementById('paciente_domicilio')?.value?.toUpperCase().trim(),
             localidad: undefined,
-            colonia: document.getElementById('colonia')?.value,
+            colonia: document.getElementById('colonia')?.value?.toUpperCase().trim(),
             cp: document.getElementById('cp')?.value,
-            referencias: document.getElementById('referencias')?.value,
-            destino_hospital: document.getElementById('destino_hospital')?.value,
+            referencias: document.getElementById('referencias')?.value?.toUpperCase().trim(),
+            destino_hospital: document.getElementById('destino_hospital')?.value?.toUpperCase().trim(),
             fecha_viaje:     document.getElementById('fecha_viaje').value,
             hora_cita:       document.getElementById('hora_cita').value,
             telefono_principal: document.getElementById('telefono_principal')?.value,
             telefono_secundario: document.getElementById('telefono_secundario')?.value,
-            acompanante_clave_elector: document.getElementById('acompanante_clave_elector')?.value,
-            acompanante_nombre: document.getElementById('acompanante_nombre')?.value,
+            acompanante_clave_elector: document.getElementById('acompanante_clave_elector')?.value?.toUpperCase().trim(),
+            acompanante_nombre: document.getElementById('acompanante_nombre')?.value?.toUpperCase().trim(),
             lugares_requeridos: parseInt(document.getElementById('lugares_requeridos').value) || 2,
             estatus:         'ACEPTADO'
         };
 
         // Validar cupos antes de enviar
-        const ocupadosFecha = calcularCuposPorFecha(updateData.cita_fecha);
+        const fechaParaValidar = updateData.fecha_viaje;
+        const ocupadosFecha = calcularCuposPorFecha(fechaParaValidar);
         if (ocupadosFecha + updateData.lugares_requeridos > TOTAL_CUPOS) {
-            UI.notify(`❌ No hay suficientes cupos disponibles para el día ${updateData.cita_fecha}.`, 'error');
+            UI.notify(`❌ No hay suficientes cupos disponibles para el día ${fechaParaValidar}.`, 'error');
             return;
         }
 
@@ -434,9 +442,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function calcularCuposPorFecha(fecha) {
         if (!fecha) return 0;
         const solicitudesDelDia = allRecords.filter(t => {
-            const fechaT = t.fecha_cita || t.fecha || t.fecha_viaje || '';
-            // Solo contar las solicitudes que fueron aceptadas/programadas/confirmadas
-            const estatusValido = ['ACEPTADO', 'PROGRAMADO', 'COMPLETADO', 'REALIZADO', 'CONFIRMADO'].includes(t.estatus);
+            // La columna real en la BD es 'fecha'; fecha_viaje es el alias del form
+            const fechaT = t.fecha || t.fecha_viaje || '';
+            const estatusValido = ['ACEPTADO', 'PROGRAMADO', 'COMPLETADO', 'REALIZADO', 'CONFIRMADO'].includes((t.estatus || '').toUpperCase());
             return fechaT === fecha && estatusValido;
         });
         return solicitudesDelDia.reduce((total, t) => total + (t.lugares_requeridos || 2), 0);
@@ -538,8 +546,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="display:flex; align-items:center; gap:1.25rem;">
                         <!-- Columna Fecha/Hora -->
                         <div style="display:flex; flex-direction:column; min-width:85px;">
-                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha_viaje || t.fecha_cita || t.fecha)}</span>
-                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora_cita || t.hora || "--:--").toUpperCase()}</span>
+                            <span style="font-weight:700; color:#0d9488; font-size: 0.9rem;">${formatearFecha(t.fecha)}</span>
+                            <span style="font-size:0.75rem; color:#64748b; font-weight:500;">${(t.hora || '--:--').substring(0, 5).toUpperCase()}</span>
                         </div>
                         
                         <!-- Columna Avatar -->
