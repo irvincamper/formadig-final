@@ -101,7 +101,6 @@ UI = {
                             <div>📦 <span>Módulos</span></div>
                             <span class="dropdown-chevron">▼</span>
                         </div>
-//listo
                         <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
                             <div class="sidebar-section-label">Operación</div>
                             ${userRole !== 'admin_desayunos' ? `

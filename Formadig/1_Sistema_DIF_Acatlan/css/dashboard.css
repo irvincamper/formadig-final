@@ -46,9 +46,9 @@
 
 .sidebar.collapsed .menu-item {
     justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
+    padding: 1rem 0;
     gap: 0;
+    font-size: 1.4rem; /* Iconos más grandes en modo mini */
 }
 
 .sidebar-header {
@@ -249,14 +249,14 @@
     background: #ffffff;
     border-radius: 12px;
     border: 1px solid var(--color-border, #e2e8f0);
-    padding: 2rem 1.5rem;
-    text-align: left;
+    padding: 2.5rem 1.5rem;
+    text-align: center; /* Centrado de texto */
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center; /* Centrado de elementos */
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
@@ -282,15 +282,15 @@
 .module-card:hover::after { transform: scaleX(1); }
 
 .module-icon {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    width: 64px;
-    height: 64px;
+    font-size: 2.5rem; /* Icono más grande */
+    margin-bottom: 1.5rem;
+    width: 80px; /* Contenedor más grande */
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(0, 118, 108, 0.08);
-    border-radius: 16px;
+    border-radius: 20px;
     color: var(--color-primary, #00766c);
     transition: all 0.3s ease;
 }
@@ -298,7 +298,7 @@
 .module-card:hover .module-icon {
     background: var(--color-primary, #00766c);
     color: white;
-    transform: scale(1.05) translateY(-3px);
+    transform: scale(1.1) translateY(-3px);
 }
 
 .module-card h3 {
