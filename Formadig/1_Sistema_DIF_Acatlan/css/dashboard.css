@@ -17,13 +17,38 @@
     left: 0;
     height: calc(100vh - 64px);
     overflow-y: auto;
+    overflow-x: hidden;
     z-index: 90;
     border-right: 1px solid rgba(0,0,0,0.1);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar.hidden {
-    transform: translateX(-100%);
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-logo-text,
+.sidebar.collapsed .sidebar-section-label,
+.sidebar.collapsed .menu-item span,
+.sidebar.collapsed .dropdown-chevron {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    width: 0;
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-header {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sidebar.collapsed .menu-item {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 0;
 }
 
 .sidebar-header {
@@ -135,11 +160,11 @@
     flex-direction: column;
     background-color: var(--color-bg-body, #f5f7fa);
     min-height: calc(100vh - 64px);
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.workspace.full-width {
-    margin-left: 0;
+.workspace.collapsed {
+    margin-left: 70px;
 }
 
 
@@ -182,11 +207,26 @@ body.sidebar-is-hidden .btn-header-rescue {
 }
 
 .workspace-content {
-    max-width: 100%; /* Expansión total solicitada por el usuario */
+    max-width: 100%;
     margin: 0;
     padding: 2rem;
     width: 100%;
     animation: fadeIn 0.4s ease-out;
+}
+
+/* Grids Adaptativos – Auto-ajuste de columnas según ancho */
+.layout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+    gap: 1.5rem;
+    align-items: flex-start;
+    width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── Welcome section ──────────────────────────────────────── */

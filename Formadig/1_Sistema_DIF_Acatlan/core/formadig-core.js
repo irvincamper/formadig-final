@@ -45,12 +45,10 @@ UI = {
     // Generar el Header común para todos los módulos
     setupHeader: (title) => {
         const user = Auth.getUser();
-        const isHidden = localStorage.getItem('sidebarHidden') === 'true';
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
-        // Botón de Rescate (solo visible cuando el menú está oculto)
         const headerInner = `
             <div style="display:flex; align-items:center;">
-                <button class="btn-sidebar-toggle btn-header-rescue" id="btnHeaderToggle" onclick="UI.toggleSidebar()" title="Mostrar menú lateral">☰</button>
                 <div class="header__logo">FORMADIG</div>
             </div>
             <div class="header__user-info">
@@ -77,8 +75,6 @@ UI = {
             const userObj = Auth.getUser();
             const userRole = userObj ? (userObj.role || '') : '';
             const isAdmin = ['directora', 'admin', 'desarrollador'].includes(userRole);
-            const isTraslado = userRole.includes('traslado');
-            const isDesayuno = userRole.includes('desayuno');
 
             const sidebarElement = document.getElementById('sidebarMenu');
             if (sidebarElement) {
@@ -92,96 +88,86 @@ UI = {
 
                 let menuHTML = `
                     <div class="sidebar-header">
-                        <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()" title="Ocultar menú">☰</button>
+                        <button class="btn-sidebar-toggle" onclick="UI.toggleSidebar()" title="Alternar menú">☰</button>
                         <div class="sidebar-logo-text">Menú Principal</div>
                     </div>
                     <nav class="sidebar-menu">
-                        <a href="${basePath}dashboard.html" class="menu-item ${!isModule ? 'active' : ''}">
+                        <a href="${basePath}dashboard.html" class="menu-item ${!isModule ? 'active' : ''}" title="Panel Central">
                             🏠 <span>Panel Central</span>
                         </a>
 
-                        <!-- Botón Dropdown Módulos -->
                         <div class="menu-item dropdown-toggle ${isOperativeActive ? 'is-open' : ''}" 
-                             onclick="UI.toggleModules(this)">
+                             onclick="UI.toggleModules(this)" title="Módulos">
                             <div>📦 <span>Módulos</span></div>
                             <span class="dropdown-chevron">▼</span>
                         </div>
 
                         <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
-                `;
-
-                // ... (el resto del menuHTML se mantiene igual)
-                if (isAdmin || isTraslado) {
-                    menuHTML += `
-                        <div class="sidebar-section-label">Área Médica</div>
-                        <a href="${basePath}modulos/admin_traslados/vistas/admin_traslados.html"
-                           class="menu-item ${currentPath.includes('admin_traslados') ? 'active' : ''}" title="Traslados Médicos">
-                            🚑 <span>Traslados Médicos</span>
-                        </a>
-                    `;
-                }
-                if (isAdmin || isDesayuno) {
-                    menuHTML += `
-                        <div class="sidebar-section-label">Programas y Desarrollo</div>
-                        <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_frios') ? 'active' : ''}">🥛 <span>Gestión Fríos</span></a>
-                        <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html"
-                           class="menu-item ${currentPath.includes('admin_desayunos_calientes') ? 'active' : ''}">🍲 <span>Gestión Calientes</span></a>
-                        <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html"
-                           class="menu-item ${currentPath.includes('admin_espacios_eaeyd') ? 'active' : ''}">🏢 <span>Espacios EAEyD</span></a>
-                    `;
-                }
-
-                menuHTML += `
-                    <div class="sidebar-section-label">Asistencia y Soporte</div>
-                    <a href="${basePath}modulos/sms/vistas/admin_sms.html" class="menu-item">📱 <span>SMS</span></a>
-                    <a href="${basePath}modulos/chatbot/vistas/chatbot.html" class="menu-item">🤖 <span>Chatbot</span></a>
+                            <div class="sidebar-section-label">Operación</div>
+                            <a href="${basePath}modulos/admin_traslados/vistas/admin_traslados.html" class="menu-item" title="Traslados">🚑 <span>Traslados</span></a>
+                            <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html" class="menu-item" title="Fríos">🥛 <span>Fríos</span></a>
+                            <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html" class="menu-item" title="Calientes">🍲 <span>Calientes</span></a>
+                            <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html" class="menu-item" title="Espacios">🏢 <span>Espacios</span></a>
+                            
+                            <div class="sidebar-section-label">Soporte</div>
+                            <a href="${basePath}modulos/sms/vistas/admin_sms.html" class="menu-item" title="SMS">📱 <span>SMS</span></a>
+                            <a href="${basePath}modulos/chatbot/vistas/chatbot.html" class="menu-item" title="Chatbot">🤖 <span>Chatbot</span></a>
+                        </div>
                 `;
 
                 if (isAdmin) {
                     menuHTML += `
-                        <div class="sidebar-section-label">Sistema</div>
-                        <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html" class="menu-item">👤 <span>Usuarios</span></a>
+                    <div class="sidebar-section-label">Sistema</div>
+                    <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html" class="menu-item" title="Usuarios">👤 <span>Usuarios</span></a>
                     `;
                 }
 
-                menuHTML += `
-                        </div>
-                    </nav>`;
-                
+                menuHTML += `</nav>`;
                 sidebarElement.innerHTML = menuHTML;
 
                 // Aplicar estado inicial
-                if (isHidden) {
-                    sidebarElement.classList.add('hidden');
-                    document.body.classList.add('sidebar-is-hidden');
+                if (isCollapsed) {
+                    sidebarElement.classList.add('collapsed');
                     const workspace = document.querySelector('.workspace');
-                    if (workspace) workspace.classList.add('full-width');
-                } else {
-                    document.body.classList.remove('sidebar-is-hidden');
+                    if (workspace) workspace.classList.add('collapsed');
                 }
             }
         }
     },
 
-    // Alternar visibilidad de la barra lateral (Ocultar por completo)
+    // Alternar visibilidad (Modo Mini-Sidebar 70px)
     toggleSidebar: function() {
         const sidebar = document.getElementById('sidebarMenu');
         const workspace = document.querySelector('.workspace');
         if (sidebar) {
-            const isNowHidden = sidebar.classList.toggle('hidden');
-            
-            if (isNowHidden) {
-                document.body.classList.add('sidebar-is-hidden');
-                if (workspace) workspace.classList.add('full-width');
-            } else {
-                document.body.classList.remove('sidebar-is-hidden');
-                if (workspace) workspace.classList.remove('full-width');
-            }
-            
-            localStorage.setItem('sidebarHidden', isNowHidden);
+            const isNowCollapsed = sidebar.classList.toggle('collapsed');
+            if (workspace) workspace.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', isNowCollapsed);
         }
     },
+
+    // Alternar visibilidad del menú de módulos (Accordion)
+    toggleModules: function(button) {
+        const content = document.getElementById('modulesDropdown');
+        if (content) {
+            content.classList.toggle('is-open');
+            button.classList.toggle('is-open');
+        }
+    },
+
+    // Mostrar mensaje de notificación
+    notify: function(msg, type = 'success') {
+        const box = document.getElementById('formMessage');
+        if (box) {
+            box.textContent = msg;
+            box.className = `message ${type}`;
+            box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 5000);
+        } else {
+            alert(msg);
+        }
+    }
+};
 
     // Alternar visibilidad del menú de módulos (Accordion)
     toggleModules: function(button) {
