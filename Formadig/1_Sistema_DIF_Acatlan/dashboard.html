@@ -57,7 +57,7 @@
             }
 
             const alimentosModules = [];
-            if (isAdmin || isDesayuno) {
+            if ((isAdmin || isDesayuno) && role !== 'admin_traslados') {
                 alimentosModules.push({ title: 'Gestión Fríos', icon: '🥛', url: 'modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html' });
                 alimentosModules.push({ title: 'Gestión Calientes', icon: '🍲', url: 'modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html' });
                 alimentosModules.push({ title: 'Espacios EAEyD', icon: '🏢', url: 'modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html' });
