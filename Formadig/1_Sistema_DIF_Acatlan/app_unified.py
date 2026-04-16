@@ -46,6 +46,7 @@ def register_blueprints():
         ("chatbot", "chatbot", "chatbot_backend", "chatbot_bp"),
         ("sms", "sms", "sms_backend", "sms_bp"),
         ("colonias", "colonias", "colonias_backend", "colonias_bp"),
+        ("perfil", "perfil", "perfil_backend", "perfil_bp"),
     ]
     
     registered = 0

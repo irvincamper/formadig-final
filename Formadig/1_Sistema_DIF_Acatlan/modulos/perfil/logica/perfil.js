@@ -1,16 +1,8 @@
-// ========== INICIALIZAR SUPABASE CLIENTE ==========
-let supabaseClient = null;
+// ========== PERFIL.JS — REFACTORIZADO PARA BACKEND ==========
 
-try {
-    supabaseClient = supabase.createClient(
-        'https://ctiqbycbkcftwuqgzxjb.supabase.co',
-        'sb_publishable_VkOge6lzgO3Yh37jjW3P4Q_KA4HUeWk'
-    );
-} catch (error) {
-    console.error('⚠️ Error inicializando Supabase:', error);
-}
-
-// ========== FUNCIONES GLOBALES PARA MODALES ==========
+// ═══════════════════════════════════════════════════════════
+// FUNCIONES GLOBALES PARA MODALES
+// ═══════════════════════════════════════════════════════════
 function openModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
@@ -53,26 +45,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSaveData = document.getElementById('btnSaveData');
     const btnSavePass = document.getElementById('btnSavePass');
 
-    // 3. Cargar y Renderizar Perfil
+    // 3. CARGAR PERFIL DESDE EL BACKEND
     async function loadProfile() {
-        if (!supabaseClient) return;
-
         try {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
+            console.log("🔄 Cargando perfil desde backend...");
+            const response = await fetch('/api/perfil', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${sessionToken.token}`
+                }
+            });
 
-            const { data, error } = await supabaseClient
-                .table('perfiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            if (error) throw error;
+            const data = await response.json();
+            console.log("✅ Datos de perfil cargados:", data);
 
             if (data) {
                 // Actualizar UI de solo lectura
                 displayNombre.textContent = data.nombre_completo || 'Usuario';
-                displayRol.textContent = (data.rol || 'Miembro').replace('_', ' ');
+                displayRol.textContent = (data.rol || 'Miembro').replace(/_/g, ' ');
                 valNombre.textContent = data.nombre_completo || '—';
                 valTelefono.textContent = data.telefono || 'Sin registrar';
                 
@@ -84,32 +76,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                     .join('');
                 userAvatar.textContent = initials;
 
-                // Preparar inputs de edición para cuando se abra el modal
+                // Preparar inputs de edición
                 editNombreInput.value = data.nombre_completo || '';
                 editTelefonoInput.value = data.telefono || '';
 
-                // Actualizar localmente por si acaso el header usa estos datos
+                // Sincronizar localmente para el header
                 localStorage.setItem('user_fullname', data.nombre_completo);
             }
         } catch (err) {
-            console.error('Error cargando perfil:', err);
+            console.error('❌ Error cargando perfil:', err);
+            displayNombre.textContent = "Error al cargar";
+            valNombre.textContent = "Revisa tu conexión o sesión";
+            UI.notify('No se pudo cargar la información del perfil', 'error');
         }
     }
 
     await loadProfile();
 
     // 4. Listeners para Modales
-    btnOpenEditData.addEventListener('click', () => openModal('modalData'));
-    btnOpenEditPass.addEventListener('click', () => openModal('modalPass'));
+    if (btnOpenEditData) btnOpenEditData.addEventListener('click', () => openModal('modalData'));
+    if (btnOpenEditPass) btnOpenEditPass.addEventListener('click', () => openModal('modalPass'));
 
-    // Cierra modales al clickear fuera
     window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-            closeModal(e.target.id);
-        }
+        if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
     });
 
-    // 5. Guardar Datos Personales
+    // 5. GUARDAR DATOS PERSONALES (Hacia Backend)
     document.getElementById('formData').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -122,16 +114,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSaveData.textContent = 'Actualizando...';
 
         try {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const { error } = await supabaseClient
-                .table('perfiles')
-                .update({
+            const res = await fetch('/api/perfil', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionToken.token}`
+                },
+                body: JSON.stringify({
                     nombre_completo: nuevoNombre,
                     telefono: nuevoTelefono
                 })
-                .eq('id', user.id);
+            });
 
-            if (error) throw error;
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Error desconocido');
+            }
 
             UI.notify('¡Datos actualizados correctamente! ✅');
             await loadProfile();
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6. Cambiar Contraseña
+    // 6. CAMBIAR CONTRASEÑA (Hacia Backend)
     document.getElementById('formPass').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -155,24 +153,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         const confirm = confirmPassInput.value;
 
         if (pass !== confirm) return UI.notify('Las contraseñas no coinciden', 'error');
-        if (pass.length < 6) return UI.notify('La contraseña debe tener al menos 6 caracteres', 'error');
+        if (pass.length < 6) return UI.notify('Mínimo 6 caracteres', 'error');
 
         btnSavePass.disabled = true;
         btnSavePass.textContent = 'Procesando...';
 
         try {
-            const { error } = await supabaseClient.auth.updateUser({
-                password: pass
+            const res = await fetch('/api/perfil/password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionToken.token}`
+                },
+                body: JSON.stringify({ password: pass })
             });
 
-            if (error) throw error;
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Error de seguridad');
+            }
 
             UI.notify('Contraseña cambiada exitosamente 🔒');
             newPassInput.value = '';
             confirmPassInput.value = '';
             closeModal('modalPass');
         } catch (err) {
-            UI.notify('Error de seguridad: ' + err.message, 'error');
+            UI.notify(err.message, 'error');
         } finally {
             btnSavePass.disabled = false;
             btnSavePass.textContent = 'Actualizar Contraseña';

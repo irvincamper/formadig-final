@@ -331,18 +331,18 @@
     <div id="modalPass" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Cambiar Contraseña</h3>
+                <h3>Establecer Nueva Contraseña</h3>
                 <button class="modal-close" onclick="closeModal('modalPass')">✕</button>
             </div>
             <div class="modal-body">
                 <form id="formPass">
                     <div class="form-group">
-                        <label class="form-label">Nueva Contraseña</label>
-                        <input type="password" id="newPass" class="form-control" placeholder="••••••••" required>
+                        <label class="form-label">Escriba su Nueva Contraseña</label>
+                        <input type="password" id="newPass" class="form-control" placeholder="Mínimo 6 caracteres" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Confirmar Contraseña</label>
-                        <input type="password" id="confirmPass" class="form-control" placeholder="••••••••" required>
+                        <label class="form-label">Confirme la Nueva Contraseña</label>
+                        <input type="password" id="confirmPass" class="form-control" placeholder="Repita la contraseña" required>
                     </div>
                     <button type="submit" class="btn-save" id="btnSavePass">Actualizar Contraseña</button>
                 </form>
@@ -351,9 +351,8 @@
     </div>
 
     <!-- Librerías Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.0"></script>
     <script src="../../../core/formadig-core.js?v=278"></script>
-    <script src="../logica/perfil.js?v=2"></script>
+    <script src="../logica/perfil.js?v=3"></script>
 </body>
 
 </html>
