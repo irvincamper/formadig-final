@@ -55,11 +55,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadProfile() {
         try {
             console.log("🔄 Cargando perfil desde Supabase...");
-            
-            const { data: { user }, error: authError } = await supabase.auth.getUser(sessionToken.token);
-            if (authError || !user) throw new Error("No se pudo obtener el usuario: " + (authError?.message || "Desconocido"));
+            // Leer ID directamente del JWT para evitar el error 403 Auth session missing del endpoint user
+            const tokenPayload = JSON.parse(atob(sessionToken.token.split('.')[1]));
+            const userId = tokenPayload.sub;
+            if (!userId) throw new Error("No se pudo extraer el usuario del token.");
 
-            const { data, error: dbError } = await supabase.from('perfiles').select('*').eq('id', user.id).single();
+            const { data, error: dbError } = await supabase.from('perfiles').select('*').eq('id', userId).single();
             if (dbError) throw new Error("Error BD: " + dbError.message);
 
             console.log("✅ Datos de perfil cargados:", data);
@@ -118,12 +119,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSaveData.textContent = 'Actualizando...';
 
         try {
-            const { data: { user }, error: authError } = await supabase.auth.getUser();
-            if (authError || !user) throw new Error("No autenticado");
+            const tokenPayload = JSON.parse(atob(sessionToken.token.split('.')[1]));
+            const userId = tokenPayload.sub;
+            if (!userId) throw new Error("No se pudo extraer el usuario del token.");
 
             const { error: dbError } = await supabase.from('perfiles')
                 .update({ nombre_completo: nuevoNombre, telefono: nuevoTelefono })
-                .eq('id', user.id);
+                .eq('id', userId);
 
             if (dbError) throw new Error(dbError.message);
 
@@ -156,13 +158,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSavePass.textContent = 'Verificando...';
 
         try {
-            // 1. Obtener el usuario actual
-            const { data: { user }, error: userErr } = await supabase.auth.getUser(sessionToken.token);
-            if (userErr || !user) throw new Error("Sesión de usuario no es válida");
+            // 1. Obtener el email localmente para evitar error 403 Rate Limit en /auth/v1/user
+            const userObj = Auth.getUser();
+            if (!userObj || !userObj.email) throw new Error("No se pudo obtener el correo del usuario actualmente autenticado");
 
             // 2. Verificar que la contraseña actual ingresada coincida haciendo login internamente
             const { error: signInError } = await supabase.auth.signInWithPassword({
-                email: user.email,
+                email: userObj.email,
                 password: oldPass
             });
 
