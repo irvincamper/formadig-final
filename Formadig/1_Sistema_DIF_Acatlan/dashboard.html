@@ -85,6 +85,16 @@
                 modules: supportModules
             });
 
+            // --- Sección Sistema (Mi Perfil) ---
+            const systemModules = [
+                { title: 'Mi Perfil', icon: '⚙️', url: 'modulos/perfil/vistas/admin_perfil.html' }
+            ];
+
+            areas.push({
+                areaName: "Configuración del Sistema",
+                modules: systemModules
+            });
+
             const container = document.getElementById('modulesContainer');
 
             areas.forEach(area => {
