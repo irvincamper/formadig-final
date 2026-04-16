@@ -66,13 +66,14 @@ const SMS = {
                 document.getElementById('targetPhone').value = phoneNum;
 
                 // ── Nombre ──
-                const name = (t.paciente_nombre || 'Beneficiario').trim();
+                const name = (t.paciente || 'Beneficiario').trim();
 
                 // ── Fecha y Hora ──
-                let fechaDisplay = t.fecha || 'la fecha indicada';
-                if (t.fecha) {
+                let fechaDisplay = t.fecha_viaje || 'la fecha indicada';
+                if (t.fecha_viaje) {
                     try {
-                        const [y, m, d] = t.fecha.split('-');
+                        const [y, m, d] = t.fecha_viaje.split('-');
+
                         const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
                         if (!isNaN(dateObj)) {
                             fechaDisplay = dateObj.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -109,13 +110,14 @@ const SMS = {
             hoy.setHours(0, 0, 0, 0);
 
             this.trasladosData = (data || []).filter(t => {
-                const isAceptado = (t.estatus || '').toUpperCase() === 'ACEPTADO';
+                const isAceptado = (t.estado || '').toUpperCase() === 'ACEPTADO';
                 if (!isAceptado) return false;
-                if (!t.fecha) return false;
-                const [y, m, d] = t.fecha.split('-');
+                if (!t.fecha_viaje) return false;
+                const [y, m, d] = t.fecha_viaje.split('-');
                 const fechaCita = new Date(Number(y), Number(m) - 1, Number(d));
                 return fechaCita >= hoy; // Incluye hoy (>= hoy)
             });
+
 
             const select = document.getElementById('trasladoSelect');
             if (!select) return;
@@ -132,11 +134,12 @@ const SMS = {
             }
 
             this.trasladosData.forEach(t => {
-                const name = (t.paciente_nombre || 'Sin Nombre').trim();
-                let dateText = t.fecha;
-                if (t.fecha) {
+                const name = (t.paciente || 'Sin Nombre').trim();
+                let dateText = t.fecha_viaje;
+                if (t.fecha_viaje) {
                     try {
-                        const [y, m, d] = t.fecha.split('-');
+                        const [y, m, d] = t.fecha_viaje.split('-');
+
                         const dObj = new Date(Number(y), Number(m) - 1, Number(d));
                         if (!isNaN(dObj)) dateText = dObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
                     } catch(e){}

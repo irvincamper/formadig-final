@@ -139,12 +139,13 @@ def get_traslados_for_sms():
         hoy = date.today().isoformat()  # 'YYYY-MM-DD'
         res = (
             supabase.table('traslados')
-            .select('id, paciente_nombre, telefono_principal, fecha, hora, estatus')
-            .eq('estatus', 'ACEPTADO')
-            .gte('fecha', hoy)      # Incluye hoy (>= hoy)
-            .order('fecha', desc=False)
+            .select('id, paciente, telefono_principal, fecha_viaje, hora, estado')
+            .eq('estado', 'ACEPTADO')
+            .gte('fecha_viaje', hoy)      # Incluye hoy (>= hoy)
+            .order('fecha_viaje', desc=False)
             .execute()
         )
+
         return jsonify(res.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -172,7 +173,8 @@ def sms_webhook():
 
             # 2. Buscar el registro más reciente en estado ACEPTADO que coincida con el teléfono
             # Importante: Como no podemos hacer un OR complejo fácil en select, traemos los recientes
-            res = supabase.table('traslados').select('id, telefono_principal, telefono_secundario').eq('estatus', 'ACEPTADO').execute()
+            res = supabase.table('traslados').select('id, telefono_principal, telefono_secundario').eq('estado', 'ACEPTADO').execute()
+
             
             target_id = None
             local_phone = sender_phone.replace('+52', '').replace('+1', '') # Por si en DB no tiene lada
@@ -186,13 +188,14 @@ def sms_webhook():
                     
             if target_id:
                 if incoming_msg in ['SI', 'SÍ', 'S', 'YES', 'CONFIRMO']:
-                    supabase.table('traslados').update({'estatus': 'CONFIRMADO'}).eq('id', target_id).execute()
+                    supabase.table('traslados').update({'estado': 'CONFIRMADO'}).eq('id', target_id).execute()
                     print(f"✅ Webhook: Traslado {target_id} CONFIRMADO.")
                 elif incoming_msg in ['NO', 'N', 'CANCELAR', 'RECHAZO']:
-                    supabase.table('traslados').update({'estatus': 'RECHAZADO'}).eq('id', target_id).execute()
+                    supabase.table('traslados').update({'estado': 'RECHAZADO'}).eq('id', target_id).execute()
                     print(f"❌ Webhook: Traslado {target_id} RECHAZADO por el usuario.")
             else:
                 print(f"⚠️ Webhook: No se encontró un traslado ACEPTADO para el número {sender_phone}.")
+
         except Exception as e:
             print(f"❌ Webhook BD Error: {e}")
 
