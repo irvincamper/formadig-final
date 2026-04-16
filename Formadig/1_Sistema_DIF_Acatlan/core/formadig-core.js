@@ -120,12 +120,12 @@ UI = {
                         </div>
                 `;
 
-                if (isAdmin) {
-                    menuHTML += `
+                // Sección Sistema: Usuarios y Mi Perfil
+                menuHTML += `
                     <div class="sidebar-section-label">Sistema</div>
-                    <a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html" class="menu-item" title="Usuarios">👤 <span>Usuarios</span></a>
-                    `;
-                }
+                    ${isAdmin ? `<a href="${basePath}modulos/admin_usuarios/vistas/admin_usuarios.html" class="menu-item ${currentPath.includes('admin_usuarios') ? 'active' : ''}" title="Usuarios">👤 <span>Usuarios</span></a>` : ''}
+                    <a href="${basePath}modulos/perfil/vistas/admin_perfil.html" class="menu-item ${currentPath.includes('perfil') ? 'active' : ''}" title="Mi Perfil">⚙️ <span>Mi Perfil</span></a>
+                `;
 
                 menuHTML += `</nav>`;
                 sidebarElement.innerHTML = menuHTML;

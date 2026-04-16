@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - FORMADIG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../css/main.css?v=99">
+    <link rel="stylesheet" href="../../../css/modules.css?v=99">
+    <link rel="stylesheet" href="../../../css/dashboard.css?v=99">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --premium-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            min-height: 100vh;
+        }
+
+        .workspace-content {
+            animation: fadeIn 0.6s ease-out;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--color-primary), #005a52);
+            padding: 2.5rem 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .profile-body {
+            padding: 2.5rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #f1f5f9;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            color: #1e293b;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(0, 118, 108, 0.1);
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 118, 108, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-save:hover {
+            background: #005a52;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 118, 108, 0.3);
+        }
+
+        .btn-save:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #formMessage {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        #formMessage.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        #formMessage.error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+
+<body>
+    <header class="header"><!-- Inyectado por UI.setupHeader --></header>
+    <aside class="sidebar" id="sidebarMenu"></aside>
+
+    <main class="workspace">
+        <div class="workspace-content">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <h2>Configuración de Perfil</h2>
+                    <p id="userEmailBadge">Cargando información...</p>
+                </div>
+                
+                <div class="profile-body">
+                    <form id="profileForm">
+                        <div class="form-section">
+                            <div class="form-section-title">Información Personal</div>
+                            <div class="form-group">
+                                <label class="form-label" for="nombre_completo">Nombre Completo</label>
+                                <input type="text" id="nombre_completo" class="form-control" placeholder="Tu nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="telefono">Teléfono</label>
+                                <input type="tel" id="telefono" class="form-control" placeholder="10 dígitos">
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">Seguridad</div>
+                            <div class="form-group">
+                                <label class="form-label" for="password">Nueva Contraseña</label>
+                                <input type="password" id="password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="confirm_password">Confirmar Contraseña</label>
+                                <input type="password" id="confirm_password" class="form-control" placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnSave" class="btn-save">
+                            <span>💾</span> Guardar Cambios
+                        </button>
+
+                        <div id="formMessage" class="hidden"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Librerías Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.0"></script>
+    <script src="../../../core/formadig-core.js?v=278"></script>
+    <script src="../logica/perfil.js?v=1"></script>
+</body>
+
+</html>
