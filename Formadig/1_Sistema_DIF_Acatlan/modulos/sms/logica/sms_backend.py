@@ -137,16 +137,14 @@ def get_traslados_for_sms():
     try:
         from datetime import date
         hoy = date.today().isoformat()  # 'YYYY-MM-DD'
-        res = (
-            supabase.table('traslados')
-            .select('id, paciente, telefono_principal, fecha_viaje, hora, estado')
-            .eq('estado', 'ACEPTADO')
-            .gte('fecha_viaje', hoy)      # Incluye hoy (>= hoy)
-            .order('fecha_viaje', desc=False)
+        response = supabase.table('traslados') \
+            .select('id, paciente, telefono_principal, fecha_viaje, hora, estado') \
+            .eq('estado', 'ACEPTADO') \
+            .gte('fecha_viaje', hoy) \
+            .order('fecha_viaje', desc=False) \
             .execute()
-        )
 
-        return jsonify(res.data)
+        return jsonify(response.data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
