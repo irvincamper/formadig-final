@@ -89,7 +89,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    await loadProfile();
+    // 1. Verificamos si la sesión ya está lista según Supabase
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (session) {
+        // Si ya está lista, cargamos el perfil
+        await loadProfile(); 
+    } else {
+        // 2. Si no está lista, escuchamos el evento hasta que Supabase la detecte
+        console.log("⏳ Esperando a que Supabase restaure la sesión...");
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
+            if (event === 'SIGNED_IN' || currentSession) {
+                loadProfile();
+            }
+        });
+    }
 
     // 4. Listeners para Modales
     if (btnOpenEditData) btnOpenEditData.addEventListener('click', () => openModal('modalData'));
