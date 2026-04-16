@@ -630,3 +630,4 @@ def ask_gemini():
 # NOTA: El blueprint 'chatbot_bp' se registra en la app maestra
 # ============================================================================
 #
+#
