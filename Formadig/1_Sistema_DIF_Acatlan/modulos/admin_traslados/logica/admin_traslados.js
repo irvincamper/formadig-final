@@ -98,8 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setValue('telefono_principal', data.telefono_principal);
                 setValue('telefono_secundario', data.telefono_secundario);
                 setValue('fecha_viaje', data.fecha_viaje);
-                setValue('hora_cita', data.hora_cita);
+                setValue('hora', data.hora);
                 setValue('lugares_requeridos', data.lugares_requeridos);
+
                 
                 currentSelectedId = data.id;
                 console.log("✅ Formulario poblado automáticamente desde URL");
@@ -247,8 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
             referencias: document.getElementById('referencias')?.value?.toUpperCase().trim(),
             destino_hospital: document.getElementById('destino_hospital')?.value?.toUpperCase().trim(),
             fecha_viaje:     document.getElementById('fecha_viaje').value,
-            hora_cita:       document.getElementById('hora_cita').value,
+            hora:            document.getElementById('hora').value,
+            hora_regreso:    document.getElementById('hora_regreso')?.value,
             telefono_principal: document.getElementById('telefono_principal')?.value,
+
             telefono_secundario: document.getElementById('telefono_secundario')?.value,
             acompanante_clave_elector: document.getElementById('acompanante_clave_elector')?.value?.toUpperCase().trim(),
             acompanante_nombre: document.getElementById('acompanante_nombre')?.value?.toUpperCase().trim(),
@@ -639,25 +642,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             // ════════════════════════════════════════════════════════════════════════
                             setVal('destino_hospital', t.destino_hospital || '');
                             
-                            // 📅 FECHA (Lee de la columna t.fecha)
+                            // 📅 FECHA (Lee de la columna t.fecha_viaje)
                             let fViaje = '';
-                            if (t.fecha) { // <-- Corregido al nombre real de tu columna
-                                if (t.fecha.includes('/')) {
-                                    let p = t.fecha.split('/'); 
+                            if (t.fecha_viaje || t.fecha) {
+                                const rawF = t.fecha_viaje || t.fecha;
+                                if (rawF.includes('/')) {
+                                    let p = rawF.split('/'); 
                                     fViaje = `${p[2]}-${p[1]}-${p[0]}`; 
                                 } else {
-                                    fViaje = t.fecha.split('T')[0];
+                                    fViaje = rawF.split('T')[0];
                                 }
                             }
-                            setVal('fecha_viaje', fViaje); // Asume que el input en tu HTML sigue teniendo id="fecha_viaje"
+                            setVal('fecha_viaje', fViaje);
                             
                             // ⏰ HORA DE IDA (Lee de la columna t.hora)
                             let hCita = '';
-                            if (t.hora) { // <-- Corregido al nombre real de tu columna
+                            if (t.hora) {
                                 let match = String(t.hora).match(/\d{2}:\d{2}/);
                                 if (match) hCita = match[0];
                             }
-                            setVal('hora_cita', hCita); // Asume que el input en tu HTML sigue teniendo id="hora_cita"
+                            setVal('hora', hCita);
+
 
                             // ⏰ HORA DE REGRESO (NUEVO CAMPO: Lee de t.hora_regreso)
                             let hRegreso = '';
@@ -698,13 +703,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     // Si no hay hora, asignar hora + 1
-                    let horaVal = t.hora_cita || '';
+                    let horaVal = t.hora || '';
                     if (!horaVal) {
                         const now = new Date();
                         now.setHours(now.getHours() + 1);
                         horaVal = now.toTimeString().slice(0, 5);
-                        setVal('hora_cita', horaVal);
+                        setVal('hora', horaVal);
                     }
+
                     
                     // Actualizar UI de cupos
                     actualizarUI_Cupos();

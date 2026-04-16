@@ -50,10 +50,12 @@ const SMS = {
                 const val = e.target.value;
 
                 if (!val) {
-                    document.getElementById('targetPhone').value = '';
+                    const phoneEl = document.getElementById('targetPhone');
+                    if (phoneEl) phoneEl.value = '';
                     if (msgTextarea) { msgTextarea.value = ''; msgTextarea.dispatchEvent(new Event('input')); }
                     return;
                 }
+
 
                 const t = this.trasladosData.find(x => x.id == val);
                 if (!t) return;
@@ -63,7 +65,9 @@ const SMS = {
                 if (phoneNum && !phoneNum.startsWith('+')) {
                     phoneNum = '+52' + phoneNum.replace(/\D/g, '').slice(-10);
                 }
-                document.getElementById('targetPhone').value = phoneNum;
+                const phoneEl = document.getElementById('targetPhone');
+                if (phoneEl) phoneEl.value = phoneNum;
+
 
                 // ── Nombre ──
                 const name = (t.paciente || 'Beneficiario').trim();
@@ -236,12 +240,18 @@ const SMS = {
     // ═══════════════════════════════════════════════════════════
     // 4. ENVIAR SMS + REFRESCO AUTOMÁTICO
     // ═══════════════════════════════════════════════════════════
-    async sendManual() {
+    async enviarSMS() {
         const phoneInput = document.getElementById('targetPhone');
         const textInput  = document.getElementById('messageText');
         const selectEl   = document.getElementById('trasladoSelect');
-        const phone = (phoneInput?.value || '').trim();
-        const text  = (textInput?.value  || '').trim();
+
+        if (!phoneInput || !textInput) {
+            console.error('❌ Error: No se encontraron los campos del formulario en el DOM.');
+            return;
+        }
+
+        const phone = (phoneInput.value || '').trim();
+        const text  = (textInput.value  || '').trim();
 
         if (!phone || !text) {
             alert('Por favor completa el teléfono y el mensaje.');
@@ -267,9 +277,10 @@ const SMS = {
 
             if (result.status === 'Enviado') {
                 // ── Limpiar formulario ──
-                if (phoneInput) phoneInput.value = '';
-                if (textInput)  { textInput.value = ''; textInput.dispatchEvent(new Event('input')); }
-                if (selectEl)   selectEl.value = '';
+                phoneInput.value = '';
+                textInput.value = ''; 
+                textInput.dispatchEvent(new Event('input'));
+                if (selectEl) selectEl.value = '';
 
                 // ── Refresco automático del historial ──
                 await this.cargarHistorialSMS();
@@ -286,6 +297,7 @@ const SMS = {
             if (btn) { btn.disabled = false; btn.innerText = originalText; }
         }
     }
+
 };
 
 document.addEventListener('DOMContentLoaded', () => SMS.init());

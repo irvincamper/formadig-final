@@ -36,21 +36,25 @@
                 <div class="sms-action-card">
                     <h3>Enviar Notificación Manual</h3>
                     <div class="input-group">
-                        <label>Vincular Beneficiario (Opcional):</label>
+                        <label for="trasladoSelect">Vincular Beneficiario (Opcional):</label>
                         <select id="trasladoSelect">
                             <option value="">-- Seleccione un traslado programado --</option>
                         </select>
                     </div>
+
                     <div class="input-group">
-                        <label>Teléfono:</label>
+                        <label for="targetPhone">Teléfono:</label>
                         <input type="text" id="targetPhone" placeholder="+52...">
                     </div>
+
                     <div class="input-group">
-                        <label>Mensaje:</label>
+                        <label for="messageText">Mensaje:</label>
                         <textarea id="messageText" rows="4"></textarea>
                         <div id="charCount" class="char-counter">0/160 caracteres</div>
                     </div>
-                    <button class="button button--primary" onclick="SMS.sendManual()" style="width:100%; border-radius:10px; font-weight:600; font-size:1rem; padding:12px;">Enviar SMS</button>
+
+                    <button class="button button--primary" onclick="SMS.enviarSMS()" style="width:100%; border-radius:10px; font-weight:600; font-size:1rem; padding:12px;">Enviar SMS</button>
+
                 </div>
 
                 <div class="sms-preview-card">
