@@ -40,18 +40,23 @@ def obtener_perfil():
         return jsonify({'error': 'Sesión inválida'}), 401
 
     try:
-        response = supabase.table('perfiles').select('*').eq('id', user.id).single().execute()
-        if not response.data:
-            # Si no hay perfil, devolvemos datos básicos del usuario de Auth
+        print(f"🔍 Buscando perfil para UUID: {user.id}")
+        response = supabase.table('perfiles').select('*').eq('id', user.id).execute()
+        
+        if not response.data or len(response.data) == 0:
+            print(f"⚠️ Perfil no encontrado en tabla 'perfiles' para {user.email}. Retornando datos base de Auth.")
             return jsonify({
                 'id': user.id,
                 'email': user.email,
-                'nombre_completo': user.user_metadata.get('nombre_completo', 'Usuario'),
-                'rol': user.user_metadata.get('role', 'usuario')
+                'nombre_completo': user.user_metadata.get('nombre_completo', 'Usuario DIF'),
+                'rol': user.user_metadata.get('role', 'usuario'),
+                'telefono': user.user_metadata.get('telefono', '')
             }), 200
         
-        return jsonify(response.data), 200
+        print(f"✅ Perfil encontrado para {user.email}")
+        return jsonify(response.data[0]), 200
     except Exception as e:
+        print(f"🔥 Error en obtener_perfil: {e}")
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================

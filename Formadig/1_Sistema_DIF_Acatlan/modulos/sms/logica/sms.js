@@ -65,10 +65,10 @@ const SMS = {
                 }
 
                 // Autocompletar Mensaje (Plantilla solicitada)
-                const paciente = t.paciente || 'Paciente';
+                const paciente = t.paciente_nombre || 'Paciente';
                 const fecha = t.fecha_viaje || '--';
-                const hora = t.hora ? t.hora.substring(0, 5) : '--';
-                const hospital = t.hospital || t.destino_hospital || 'Hospital';
+                const hora = t.hora_cita ? t.hora_cita.substring(0, 5) : '--';
+                const hospital = t.destino_hospital || 'Hospital';
 
                 const msg = `Hola ${paciente}, el DIF Acatlán le recuerda su traslado programado para el ${fecha} a las ${hora} con destino al ${hospital}. Por favor responda SÍ para confirmar su asistencia o NO para cancelar.`;
 
@@ -105,7 +105,7 @@ const SMS = {
                 this.trasladosData.forEach(t => {
                     const opt = document.createElement('option');
                     opt.value = t.id;
-                    opt.textContent = `${t.paciente} - ${t.fecha_viaje}`;
+                    opt.textContent = `${t.paciente_nombre} - ${t.fecha_viaje}`;
                     select.appendChild(opt);
                 });
             }
