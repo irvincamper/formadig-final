@@ -64,16 +64,12 @@ const SMS = {
                     phoneInput.value = t.telefono_principal || '';
                 }
 
-                // Autocompletar Mensaje (Plantilla solicitada)
-                const paciente = t.paciente_nombre || 'Paciente';
-                const fecha = t.fecha_viaje || '--';
-                const hora = t.hora_cita ? t.hora_cita.substring(0, 5) : '--';
-                const hospital = t.destino_hospital || 'Hospital';
-
-                const msg = `Hola ${paciente}, el DIF Acatlán le recuerda su traslado programado para el ${fecha} a las ${hora} con destino al ${hospital}. Por favor responda SÍ para confirmar su asistencia o NO para cancelar.`;
+                // Autocompletar Mensaje (Plantilla corta solicitada)
+                const traslado = t;
+                const mensajeCorto = `DIF Acatlán: Hola ${traslado.paciente_nombre}, tiene traslado el ${traslado.fecha_viaje}. Responda SÍ para confirmar o NO para cancelar.`;
 
                 if (msgTextarea) {
-                    msgTextarea.value = msg;
+                    msgTextarea.value = mensajeCorto;
                     // Disparar evento input para actualizar contador y previsualización
                     msgTextarea.dispatchEvent(new Event('input'));
                 }
