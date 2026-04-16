@@ -152,7 +152,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const confirm = confirmPassInput.value;
 
         if (pass !== confirm) return UI.notify('Las contraseñas nuevas no coinciden', 'error');
-        if (pass.length < 8) return UI.notify('La nueva contraseña debe tener al menos 8 caracteres', 'error');
+        
+        // Validación estricta Regex para seguridad
+        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+        if (!passRegex.test(pass)) {
+            return UI.notify('La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, un número y un carácter especial.', 'error');
+        }
 
         btnSavePass.disabled = true;
         btnSavePass.textContent = 'Verificando...';
