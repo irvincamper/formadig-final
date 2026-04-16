@@ -550,49 +550,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '<span style="opacity:0.5; font-size:0.8rem;">Sin fecha</span>';
 
             const tieneDocsBenef = t.url_doc_beneficiario ? `<a href="${t.url_doc_beneficiario}" target="_blank" title="Ver doc. beneficiario" style="margin-left:6px;">📄</a>` : '';
-            const tieneDocsAcomp = t.url_doc_acompanante  ? `<a href="${t.url_doc_acompanante}"  target="_blank" title="Ver doc. acompañante"  style="margin-left:4px;">📄</a>` : '';
 
             tr.innerHTML = `
-                <td style="padding: 1rem 1.25rem;">
-                    <div style="display:flex; align-items:center; gap:1.25rem;">
-                        <!-- Columna Fecha/Hora Estilizada -->
-                        <div style="display:flex; flex-direction:column; min-width:90px; background: rgba(13, 148, 136, 0.05); padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(13, 148, 136, 0.1);">
-                            <span style="font-weight:800; color:#0d9488; font-size: 0.85rem; letter-spacing: 0.5px;">${formatearFecha(t.fecha)}</span>
-                            <span style="font-size:0.7rem; color:#64748b; font-weight:600; text-transform: uppercase;">🕒 ${(t.hora || '').substring(0, 5)}</span>
-                        </div>
-                        
-                        <!-- Columna Avatar Premium -->
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); display: flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <span style="font-size: 1.3rem; opacity: 0.8;">👤</span>
-                        </div>
-                    </div>
+                <td style="font-weight:700; color: #1e293b;">
+                    ${(t.paciente_nombre || 'SIN NOMBRE').toUpperCase()} ${confirmacionIcono}
                 </td>
-                <td style="padding: 1rem 1.25rem;">
-                    <div style="display:flex; flex-direction:column; gap: 2px;">
-                        <span class="live-name" style="font-weight:700; color: #1e293b; font-size: 0.95rem; line-height:1.2; letter-spacing: -0.2px;">
-                            ${(t.paciente_nombre || 'SIN NOMBRE').toUpperCase()} ${confirmacionIcono}
-                        </span>
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size:0.65rem; font-weight: 800; color: #94a3b8; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; text-transform: uppercase;">CURP</span>
-                            <span class="live-curp" style="font-size:0.75rem; color: #64748b; font-family: 'Inter', sans-serif; font-weight: 500;">
-                                ${t.paciente_curp || '---'}
-                            </span>
-                        </div>
-                    </div>
-                </td>
-                <td style="padding: 1rem 1.25rem;">
+                <td>
                     <div style="display: flex; flex-direction: column;">
-                        <span style="font-size: 0.85rem; font-weight: 600; color: #334155;">${t.destino_hospital || 'No asignado'}</span>
-                        <span style="font-size: 0.7rem; color: #94a3b8;">${t.colonia || ''}</span>
+                        <span style="font-weight: 600; color: #334155;">${t.destino_hospital || 'No asignado'}</span>
+                        <span style="font-size: 0.75rem; color: #94a3b8;">${t.colonia || ''}</span>
                     </div>
                 </td>
-                <td style="padding: 1rem 1.25rem; text-align: right;">
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                        <span class="status-badge" style="${badgeStyle}; display: inline-block; min-width: 90px; text-align: center;">${statusUpper}</span>
-                        ${t.kilometraje_salida != null ? `<span style="font-size:0.7rem; font-weight: 600; color:#64748b; background: #f8fafc; padding: 2px 8px; border-radius: 10px; border: 1px solid #e2e8f0;">🚗 ${t.kilometraje_salida} → ${t.kilometraje_llegada || '?'} km</span>` : ''}
-                    </div>
+                <td style="font-weight:600; color:#0d9488;">
+                    ${formatearFecha(t.fecha)}
+                </td>
+                <td style="text-align: right;">
+                    <span class="status-badge" style="${badgeStyle}; display: inline-block; min-width: 90px; text-align: center;">${statusUpper}</span>
                 </td>
             `;
+
 
 // 👇 CAMBIO 1: Agregamos "async" aquí
                     tr.addEventListener('click', async () => {

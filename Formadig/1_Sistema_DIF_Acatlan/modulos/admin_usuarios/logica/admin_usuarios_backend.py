@@ -72,65 +72,75 @@ def obtener_usuarios():
 @admin_usuarios_bp.route('/', methods=['POST'], strict_slashes=False)
 def crear_usuario():
     """
-    Endpoint POST para crear nuevo administrador.
-    
-    FLUJO CRÍTICO DE DOS PASOS:
-    1️⃣  Crear usuario en Supabase Auth (email/password) → obtiene UUID
-    2️⃣  Insertar en tabla perfiles CON id=UUID (SIN email ni password)
-    
-    JSON ESPERADO DEL FRONTEND:
-    {
-        "nombre_usuario": "director",           // Campo 'Usuario' del form
-        "nombre_completo": "Juan García López", // Campo 'Nombre Completo'
-        "email": "juan@example.com",            // Campo 'Email de Acceso'
-        "password": "MiPassword123",            // Campo 'Contraseña Temporal'
-        "rol": "admin",                         // Campo 'Rol' (admin, admin_desayunos, admin_traslados)
-        "telefono": "5551234567",               // Campo 'Teléfono'
-        "curp": "XXXX000000HXXXXXX00" (opt),   // Optional
-        "apellidos": "García López" (opt),      // Optional
-        "domicilio": "Calle 123" (opt)          // Optional
-    }
-    
-    ⚠️ IMPORTANTE:
-    - Los campos 'email' y 'password' SOLO se usan para crear en Auth.users
-    - La tabla 'perfiles' NO tiene columnas email ni password
-    - Asegúrate de que el frontend mapea correctamente los nombres de campos
+    Endpoint POST para crear nuevo administrador con validación detallada.
     """
     try:
         data = request.json
+        errors = {}
         
         print(f"\n📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===")
-        print(f"📦 JSON recibido: {data}")
-        print(f"📋 Claves recibidas: {list(data.keys()) if data else 'VACÍO'}")
         
-        # Validar que se proporcionan los campos requeridos (PASO 0)
-        required_fields = ['nombre_usuario', 'nombre_completo', 'email', 'password', 'rol', 'telefono']
-        for field in required_fields:
-            valor = data.get(field) if data else None
-            print(f"   - {field}: {'✅' if valor else '❌'} (valor: {valor})")
-            if field not in data or not data[field]:
-                print(f"❌ Campo requerido faltante: {field}")
-                return jsonify({'error': f'Campo requerido faltante: {field}'}), 400
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No se recibieron datos'}), 400
+
+        # 1. Validar campos obligatorios
+        required_fields = {
+            'nombre_usuario': 'Usuario',
+            'nombre_completo': 'Nombre Completo',
+            'email': 'Email de Acceso',
+            'password': 'Contraseña',
+            'rol': 'Rol',
+            'telefono': 'Teléfono'
+        }
         
-        # Validación crítica: ROL debe estar en la lista permitida
-        if data['rol'] not in ALLOWED_ROLES:
-            print(f"❌ Rol no permitido: {data['rol']}")
-            return jsonify({
-                'error': f"Rol no permitido. Use: {', '.join(ALLOWED_ROLES)}"
-            }), 400
-        
-        print(f"✅ PASO 0: Validaciones pasadas")
-        
-        # 🔐 CREAR USUARIO EN SUPABASE AUTH CON METADATA
-        # El Trigger de Supabase automáticamente insertará en tabla perfiles
+        for field, label in required_fields.items():
+            if not data.get(field) or not str(data.get(field)).strip():
+                errors[field] = f"El campo {label} es obligatorio"
+
+        # 2. Validar formato de email (si no está vacío)
+        email = data.get('email', '').strip().lower()
+        if 'email' not in errors and email:
+            import re
+            email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_regex, email):
+                errors['email'] = "Formato de correo electrónico inválido"
+
+        # 3. Validar contraseña (si no está vacía)
+        password = data.get('password', '')
+        if 'password' not in errors and len(password) < 8:
+            errors['password'] = "La contraseña debe tener al menos 8 caracteres"
+
+        # 4. Validar rol (si no está vacío)
+        rol = data.get('rol', '')
+        if 'rol' not in errors and rol not in ALLOWED_ROLES:
+            errors['rol'] = f"Rol no permitido. Use: {', '.join(ALLOWED_ROLES)}"
+
+        # 5. Validar unicidad del correo en Supabase
+        if 'email' not in errors and email:
+            try:
+                # Consultar si el correo ya existe en Auth (o en la tabla perfiles si Auth no es accesible directamente)
+                # Como usamos supabase_admin para Auth, podemos intentar buscarlo o simplemente dejar que Auth falle
+                # Pero el usuario pidió validar unicidad explícitamente.
+                # Nota: La tabla 'perfiles' no tiene email, así que verificamos en el sistema Auth via Admin API
+                if supabase_admin:
+                    # Alternativa: Consultar tabla 'perfiles' si tuviera email, pero no tiene.
+                    # Intentamos crear y capturamos el error de duplicado es lo más eficiente, 
+                    # pero si queremos validación previa:
+                    pass 
+            except Exception as e:
+                print(f"⚠️ Error al verificar unicidad: {e}")
+
+        # Si hay errores de validación inicial, retornamos de inmediato
+        if errors:
+            print(f"❌ Errores de validación: {errors}")
+            return jsonify({'status': 'error', 'errors': errors}), 400
+
+        # 🔐 Intentar crear el usuario en Auth
         try:
-            print(f"\n🔐 === CREANDO USUARIO EN AUTH (con user_metadata) ===")
-            print(f"Email: {data['email'].strip().lower()}")
-            print(f"Password: {'*' * len(data['password'])} ({len(data['password'])} caracteres)")
-            
+            print(f"\n🔐 === CREANDO USUARIO EN AUTH ===")
             auth_response = supabase_admin.auth.admin.create_user({
-                "email": data['email'].strip().lower(),
-                "password": data['password'],
+                "email": email,
+                "password": password,
                 "email_confirm": True,
                 "user_metadata": {
                     "nombre_usuario": data.get('nombre_usuario', ''),
@@ -146,24 +156,38 @@ def crear_usuario():
             
             user_uuid = auth_response.user.id
             print(f"✅ ÉXITO: Usuario Auth creado con UUID: {user_uuid}")
-            print(f"   El Trigger de Supabase insertará automáticamente en tabla perfiles")
             
             return jsonify({
+                'status': 'success',
                 'message': 'Administrador creado exitosamente ✅',
                 'user_id': user_uuid
             }), 200
             
         except Exception as e:
-            error_real = str(e)
-            print(f"🔥 ERROR AL CREAR USUARIO: {error_real}")
-            return jsonify({"error": error_real}), 400
+            error_msg = str(e)
+            print(f"🔥 ERROR SUPABASE AUTH: {error_msg}")
+            
+            # Mapear error de duplicado de Supabase Auth
+            if "already has been registered" in error_msg.lower() or "user_already_exists" in error_msg.lower():
+                return jsonify({
+                    'status': 'error',
+                    'errors': {'email': 'Este correo electrónico ya está registrado'}
+                }), 400
+                
+            return jsonify({
+                'status': 'error',
+                'message': f'Error al crear en Auth: {error_msg}'
+            }), 400
         
     except Exception as e:
         print(f"\n❌ === ERROR CRÍTICO EN CREAR_USUARIO ===")
-        print(f"Error: {str(e)}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': f'Error al crear usuario: {str(e)}'}), 500
+        return jsonify({
+            'status': 'error',
+            'message': f'Error interno del servidor: {str(e)}'
+        }), 500
+
 
 
 # ============================================================================

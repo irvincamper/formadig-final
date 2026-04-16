@@ -62,6 +62,9 @@ function limpiarFormulario() {
         formulario.reset();
     }
     
+    // Limpiar estilos de error
+    limpiarEstilosError();
+    
     // Limpiar valores específicos
     const campos = ['nombre_usuario', 'nombre_completo', 'email', 'password', 'rol', 'telefono', 'curp'];
     campos.forEach(id => {
@@ -71,6 +74,55 @@ function limpiarFormulario() {
         }
     });
 }
+
+/**
+ * Limpia todos los bordes rojos y mensajes de error del formulario
+ */
+function limpiarEstilosError() {
+    const inputs = document.querySelectorAll('#agregar-usuario-form .form-control');
+    const errorTexts = document.querySelectorAll('#agregar-usuario-form .error-text');
+    
+    inputs.forEach(input => {
+        input.classList.remove('input-error');
+    });
+    
+    errorTexts.forEach(text => {
+        text.remove();
+    });
+}
+
+/**
+ * Muestra errores específicos en los campos del formulario
+ * @param {Object} errors - Objeto con pares {campoId: mensaje}
+ */
+function mostrarErroresFormulario(errors) {
+    if (!errors) return;
+    
+    Object.keys(errors).forEach(fieldId => {
+        const campo = document.getElementById(fieldId);
+        if (campo) {
+            // Aplicar borde rojo
+            campo.classList.add('input-error');
+            
+            // Insertar mensaje de error justo debajo
+            const errorMsg = document.createElement('span');
+            errorMsg.className = 'error-text';
+            errorMsg.textContent = errors[fieldId];
+            
+            // Determinar punto de inserción: si es el password o similar con contenedor, insertar después del contenedor
+            const container = campo.closest('div[style*="position: relative"]') || campo;
+            
+            // Evitar duplicados
+            const parent = container.parentElement;
+            const existingError = parent.querySelector('.error-text');
+            if (existingError) existingError.remove();
+            
+            container.insertAdjacentElement('afterend', errorMsg);
+        }
+    });
+}
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar sesión y roles (Solo admin/directora/desarrollador)
@@ -198,6 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================================================
     formulario.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // 1. Limpiar errores previos
+        limpiarEstilosError();
 
         const nombre_usuario = document.getElementById('nombre_usuario').value.trim();
         const nombre_completo = document.getElementById('nombre_completo').value.trim();
@@ -207,31 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const telefono = document.getElementById('telefono').value.trim();
         const curp = document.getElementById('curp').value.trim();
 
-        // VALIDACIÓN CRÍTICA: Rol debe ser uno de los permitidos
-        if (!ALLOWED_ROLES.includes(rol)) {
-            mostrarMensaje(formMessage, `❌ Rol inválido. Usa: ${ALLOWED_ROLES.join(', ')}`, 'error');
-            return;
-        }
-
-        // Validación de campos requeridos
-        if (!nombre_usuario || !nombre_completo || !email || !password || !telefono) {
-            mostrarMensaje(formMessage, '❌ Completa todos los campos requeridos', 'error');
-            return;
-        }
-
-        // Validación de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            mostrarMensaje(formMessage, '❌ Email inválido. Usa formato: usuario@ejemplo.com', 'error');
-            return;
-        }
-
-        // Validación de contraseña
-        if (password.length < 8) {
-            mostrarMensaje(formMessage, '❌ Contraseña debe tener al menos 8 caracteres', 'error');
-            return;
-        }
-
+        // (La validación robusta ahora la hace principalmente el Backend)
+        
         btnAgregar.disabled = true;
         btnAgregar.textContent = 'Procesando...';
 
@@ -253,9 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            const data = await response.json();
+            const result = await response.json();
 
-            if (response.ok) {
+            if (response.ok && result.status === 'success') {
                 mostrarMensaje(formMessage, 
                     `✅ Administrador "${nombre_completo}" creado exitosamente.`, 'success');
                 formulario.reset();
@@ -265,14 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     cargarUsuarios();
                 }, 1500);
             } else {
-                // Mostrar el error REAL del backend sin enmascarar
-                const result = await response.json();
-                const errorDelBackend = result.error || 'Error desconocido al crear usuario';
-                
-                console.error('❌ Error del servidor:', result);
-                console.error('🔥 Error real:', errorDelBackend);
-                
-                mostrarMensaje(formMessage, `❌ ${errorDelBackend}`, 'error');
+                // Manejo de errores estructurados del backend
+                if (result.errors) {
+                    mostrarErroresFormulario(result.errors);
+                    mostrarMensaje(formMessage, '❌ Revisa los campos marcados en rojo', 'error');
+                } else {
+                    const errorDelBackend = result.message || result.error || 'Error desconocido al crear usuario';
+                    mostrarMensaje(formMessage, `❌ ${errorDelBackend}`, 'error');
+                }
             }
         } catch (error) {
             console.error('Network error:', error);
@@ -283,6 +315,19 @@ document.addEventListener('DOMContentLoaded', () => {
             btnAgregar.textContent = '✓ Guardar';
         }
     });
+
+    // Agregar listeners para limpiar error al escribir
+    const formInputs = formulario.querySelectorAll('.form-control');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('input-error');
+            const errorMsg = this.parentElement.querySelector('.error-text');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        });
+    });
+
 
     // ========================================================================
     // EVENT LISTENER: Botón "Añadir Usuario" - Abre Modal
