@@ -25,10 +25,9 @@
 
         .workspace-content {
             animation: fadeIn 0.6s ease-out;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            padding: 2.5rem;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         @keyframes fadeIn {
@@ -36,65 +35,181 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .profile-card {
+        .premium-card {
             background: white;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             border: 1px solid #f1f5f9;
-            width: 100%;
-            max-width: 600px;
+            margin-bottom: 2rem;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .profile-header {
+        /* Profile Header Card */
+        .profile-header-card {
+            display: flex;
+            align-items: center;
+            padding: 2.5rem;
+            gap: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
             background: linear-gradient(135deg, var(--color-primary), #005a52);
-            padding: 2.5rem 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: white;
-            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 118, 108, 0.2);
+            text-transform: uppercase;
         }
 
-        .profile-header h2 {
+        .profile-title-area h1 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 800;
+            color: #1e293b;
             letter-spacing: -0.5px;
         }
 
-        .profile-header p {
-            margin: 0.5rem 0 0;
-            opacity: 0.8;
-            font-size: 0.9rem;
-        }
-
-        .profile-body {
-            padding: 2.5rem;
-        }
-
-        .form-section {
-            margin-bottom: 2rem;
-        }
-
-        .form-section-title {
-            font-size: 0.75rem;
+        .role-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.35rem 1rem;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 30px;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: var(--color-primary);
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Info Display Row */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.75rem 2.5rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .btn-edit-inline {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1.5px solid var(--color-primary);
+            padding: 0.6rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
 
-        .form-section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
+        .btn-edit-inline:hover {
+            background: rgba(0, 118, 108, 0.05);
+            transform: translateY(-1px);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlideUp 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .modal-close {
             background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #64748b;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 2rem;
         }
 
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-label {
@@ -110,9 +225,8 @@
             padding: 0.75rem 1rem;
             border: 1.5px solid #e2e8f0;
             border-radius: 12px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             transition: all 0.2s ease;
-            color: #1e293b;
         }
 
         .form-control:focus {
@@ -131,47 +245,11 @@
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 118, 108, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            transition: background 0.3s;
         }
 
-        .btn-save:hover {
-            background: #005a52;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 118, 108, 0.3);
-        }
-
-        .btn-save:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        #formMessage {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        #formMessage.success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        #formMessage.error {
-            background: #fee2e2;
-            color: #b91c1c;
-            border: 1px solid #fecaca;
-        }
+        .btn-save:hover { background: #005a52; }
+        .btn-save:disabled { background: #94a3b8; cursor: not-allowed; }
 
         .hidden { display: none; }
     </style>
@@ -183,53 +261,99 @@
 
     <main class="workspace">
         <div class="workspace-content">
-            <div class="profile-card">
-                <div class="profile-header">
-                    <h2>Configuración de Perfil</h2>
-                    <p id="userEmailBadge">Cargando información...</p>
+            <!-- 1. HEADER CARD -->
+            <div class="premium-card profile-header-card">
+                <div id="userAvatar" class="profile-avatar">--</div>
+                <div class="profile-title-area">
+                    <h1 id="displayNombre">Cargando...</h1>
+                    <span id="displayRol" class="role-badge">Rol de Usuario</span>
                 </div>
-                
-                <div class="profile-body">
-                    <form id="profileForm">
-                        <div class="form-section">
-                            <div class="form-section-title">Información Personal</div>
-                            <div class="form-group">
-                                <label class="form-label" for="nombre_completo">Nombre Completo</label>
-                                <input type="text" id="nombre_completo" class="form-control" placeholder="Tu nombre" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="telefono">Teléfono</label>
-                                <input type="tel" id="telefono" class="form-control" placeholder="10 dígitos">
-                            </div>
-                        </div>
+            </div>
 
-                        <div class="form-section">
-                            <div class="form-section-title">Seguridad</div>
-                            <div class="form-group">
-                                <label class="form-label" for="password">Nueva Contraseña</label>
-                                <input type="password" id="password" class="form-control" placeholder="••••••••">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="confirm_password">Confirmar Contraseña</label>
-                                <input type="password" id="confirm_password" class="form-control" placeholder="••••••••">
-                            </div>
-                        </div>
+            <!-- 2. INFO CARD -->
+            <div class="premium-card">
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">Nombre Completo</div>
+                        <div id="valNombre" class="info-value">Cargando...</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">Número de Teléfono</div>
+                        <div id="valTelefono" class="info-value">Cargando...</div>
+                    </div>
+                    <button class="btn-edit-inline" id="btnOpenEditData">
+                        <span>✏️</span> Modificar Datos
+                    </button>
+                </div>
+            </div>
 
-                        <button type="submit" id="btnSave" class="btn-save">
-                            <span>💾</span> Guardar Cambios
-                        </button>
-
-                        <div id="formMessage" class="hidden"></div>
-                    </form>
+            <!-- 3. SECURITY CARD -->
+            <div class="premium-card">
+                <div class="info-row">
+                    <div>
+                        <div class="info-label">Seguridad de la Cuenta</div>
+                        <div class="info-value">Contraseña: ••••••••••</div>
+                    </div>
+                    <button class="btn-edit-inline" id="btnOpenEditPass">
+                        <span>🔒</span> Cambiar Contraseña
+                    </button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- MODAL: MODIFICAR DATOS -->
+    <div id="modalData" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modificar Información</h3>
+                <button class="modal-close" onclick="closeModal('modalData')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="formData">
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo</label>
+                        <input type="text" id="editNombre" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" id="editTelefono" class="form-control">
+                    </div>
+                    <button type="submit" class="btn-save" id="btnSaveData">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CAMBIAR CONTRASEÑA -->
+    <div id="modalPass" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cambiar Contraseña</h3>
+                <button class="modal-close" onclick="closeModal('modalPass')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="formPass">
+                    <div class="form-group">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <input type="password" id="newPass" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmar Contraseña</label>
+                        <input type="password" id="confirmPass" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn-save" id="btnSavePass">Actualizar Contraseña</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Librerías Core -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.0"></script>
     <script src="../../../core/formadig-core.js?v=278"></script>
-    <script src="../logica/perfil.js?v=1"></script>
+    <script src="../logica/perfil.js?v=2"></script>
 </body>
 
 </html>
