@@ -191,8 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.classList.add('record-row');
 
             const statusUpper = String(r.estatus || 'ACTIVO').toUpperCase();
-            let badgeStyle = 'background: #f1f5f9; color: #64748b;';
-            if (statusUpper === 'APROBADO' || statusUpper === 'ACTIVO') badgeStyle = 'background: #dcfce7; color: #166534;';
+            let badgeStyle = 'background: #fef9c3; color: #713f12;'; // PENDIENTE / LISTA DE ESPERA
+            
+            if (['APROBADO', 'ACTIVO', 'ACEPTADO'].includes(statusUpper)) {
+                badgeStyle = 'background: #dcfce7; color: #166534;'; // VERDE VIVO
+            } else if (statusUpper === 'RECHAZADO') {
+                badgeStyle = 'background: #fee2e2; color: #991b1b;'; // ROJO VIVO
+            }
+
 
             if (currentSelectedId === r.id) tr.classList.add('selected-row-v3');
 
@@ -522,13 +528,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cells[2]) cells[2].textContent = document.getElementById('tutor')?.value || '--';
         
         // 4. Estatus (Badge)
-        const badge = cells[3].querySelector('.status-badge');
         if (badge) {
             const val = (document.getElementById('estatus')?.value || 'ACTIVO').toUpperCase();
             badge.textContent = val;
-            badge.style.background = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#dcfce7' : '#f1f5f9';
-            badge.style.color = (val === 'ACEPTADO' || val === 'ACTIVO' || val === 'APROBADO') ? '#166534' : '#64748b';
+            let bgColor = '#fef9c3'; let textColor = '#713f12';
+
+            if (['APROBADO', 'ACTIVO', 'ACEPTADO'].includes(val)) {
+                bgColor = '#dcfce7'; textColor = '#166534';
+            } else if (val === 'RECHAZADO') {
+                bgColor = '#fee2e2'; textColor = '#991b1b';
+            }
+
+            badge.style.background = bgColor;
+            badge.style.color = textColor;
         }
+
     }
 
     // Escucha global de inputs
