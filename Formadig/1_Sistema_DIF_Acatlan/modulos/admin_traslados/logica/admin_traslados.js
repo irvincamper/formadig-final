@@ -552,22 +552,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const tieneDocsBenef = t.url_doc_beneficiario ? `<a href="${t.url_doc_beneficiario}" target="_blank" title="Ver doc. beneficiario" style="margin-left:6px;">📄</a>` : '';
 
             tr.innerHTML = `
-                <td style="font-weight:700; color: #1e293b;">
+                <td class="px-4 py-3 font-bold text-slate-800">
                     ${(t.paciente_nombre || 'SIN NOMBRE').toUpperCase()} ${confirmacionIcono}
                 </td>
-                <td>
-                    <div style="display: flex; flex-direction: column;">
-                        <span style="font-weight: 600; color: #334155;">${t.destino_hospital || 'No asignado'}</span>
-                        <span style="font-size: 0.75rem; color: #94a3b8;">${t.colonia || ''}</span>
+                <td class="px-4 py-3">
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-slate-700">${t.destino_hospital || 'No asignado'}</span>
+                        <span class="text-xs text-slate-500">${t.colonia || t.localidad || ''}</span>
                     </div>
                 </td>
-                <td style="font-weight:600; color:#0d9488;">
-                    ${formatearFecha(t.fecha)}
+                <td class="px-4 py-3 font-semibold text-teal-600">
+                    ${t.fecha_viaje || formatearFecha(t.fecha)}
                 </td>
-                <td style="text-align: right;">
-                    <span class="status-badge" style="${badgeStyle}; display: inline-block; min-width: 90px; text-align: center;">${statusUpper}</span>
+                <td class="px-4 py-3 text-right">
+                    <span class="status-badge px-3 py-1 rounded-full text-xs font-bold" style="${badgeStyle}; display: inline-block; min-width: 95px; text-align: center;">
+                        ${statusUpper}
+                    </span>
                 </td>
             `;
+
 
 
 // 👇 CAMBIO 1: Agregamos "async" aquí

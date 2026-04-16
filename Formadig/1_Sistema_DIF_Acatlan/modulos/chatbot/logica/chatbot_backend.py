@@ -239,12 +239,17 @@ def detectar_intencion(mensaje):
     elif any(k in msg for k in ['entregado', 'completado', 'finalizado']):
         intenciones["estatus"] = "Aprobado" # O ajuste según tabla
 
-    # 3. Detectar si es una pregunta muy general o fuera de lugar
-    keywords_sistema = ['traslado', 'desayuno', 'hospital', 'apoyo', 'curp', 'solicitud', 'sistema', 'formadig', 'dif', 'acatlan', 'reporte', 'cargar', 'excel']
+    # 3. Detectar si pide formato CSV
+    if '.csv' in msg or ' csv' in msg:
+        intenciones["pide_csv"] = True
+
+    # 4. Detectar si es una pregunta muy general o fuera de lugar
+    keywords_sistema = ['traslado', 'desayuno', 'hospital', 'apoyo', 'curp', 'solicitud', 'sistema', 'formadig', 'dif', 'acatlan', 'reporte', 'cargar', 'excel', 'hola', 'buenos días', 'buenas tardes']
     if not any(k in msg for k in keywords_sistema):
         intenciones["es_general"] = True
 
     return intenciones
+
 
 # 📥 LÓGICA DE EXPORTACIÓN (EXCEL / WORD)
 # =========================================================
@@ -514,29 +519,30 @@ def generar_respuesta_local(mensaje, email, role):
     es_traslado = 'traslado' in mensaje or 'paciente' in mensaje or 'viaje' in mensaje
     es_desayuno = 'desayuno' in mensaje or 'frio' in mensaje or 'caliente' in mensaje or 'comida' in mensaje
     
-    respuesta = "⚠️ **[MODO DE CONTINGENCIA ACTIVO]**\n"
-    respuesta += "El servicio de Inteligencia Artificial está temporalmente fuera de línea, pero puedo darte información directa de la base de datos:\n\n"
+    respuesta = "AVISO INSTITUCIONAL: El servicio de Inteligencia Artificial está temporalmente fuera de línea.\n"
+    respuesta += "Como asistente del sistema FORMADIG del DIF Acatlán, puedo proporcionarle la siguiente información técnica basada en los registros actuales:\n\n"
     
     if es_reporte or es_traslado or es_desayuno:
-        respuesta += "Aquí tienes las métricas actuales del sistema:\n"
+        respuesta += "Métricas consolidadas del sistema:\n"
         respuesta += metricas + "\n"
         
         # Ofrecer descargas si pidió reporte
         if es_reporte or es_traslado:
-            respuesta += "\n**Puedes descargar los reportes detallados aquí:**\n"
+            respuesta += "\nGestión de archivos para Traslados Médicos:\n"
             respuesta += "EXPORT_BUTTONS:\n"
-            respuesta += f"- [Descargar Reporte de Traslados (Excel)](/api/chatbot/export?table=traslados&format=excel)\n"
-            respuesta += f"- [Descargar Reporte de Traslados (PDF)](/api/chatbot/export?table=traslados&format=pdf)\n"
+            respuesta += f"- [Descargar Reporte (Excel)](/api/chatbot/export?table=traslados&format=excel)\n"
+            respuesta += f"- [Descargar Reporte (PDF)](/api/chatbot/export?table=traslados&format=pdf)\n"
         
         if es_reporte or es_desayuno:
-            respuesta += "\n**Reportes de Programas Alimentarios:**\n"
+            respuesta += "\nGestión de archivos para Programas Alimentarios:\n"
             respuesta += "EXPORT_BUTTONS:\n"
-            respuesta += f"- [Descargar Reporte de Beneficiarios (Excel)](/api/chatbot/export?table=desayunos_eaeyd&format=excel)\n"
-            respuesta += f"- [Descargar Reporte de Beneficiarios (PDF)](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)\n"
+            respuesta += f"- [Descargar Reporte (Excel)](/api/chatbot/export?table=desayunos_eaeyd&format=excel)\n"
+            respuesta += f"- [Descargar Reporte (PDF)](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)\n"
     else:
-        respuesta += "No pude entender tu solicitud en modo de emergencia. Prueba pidiendo un 'reporte', 'traslados' o 'desayunos' para ver estadísticas reales."
+        respuesta += "Para asistirle adecuadamente en este modo de contingencia, por favor solicite información sobre 'reportes', 'traslados' o 'programas alimentarios'."
         
     return respuesta
+
 
 # =========================================================
 # 📡 RUTA PRINCIPAL
@@ -564,43 +570,51 @@ def ask_gemini():
         debes responder cortésmente: 'Lo siento, como asistente del DIF Acatlán, solo puedo ayudarte con temas relacionados a nuestros programas sociales y al sistema FORMADIG. ¿En qué más puedo apoyarte respecto a estas áreas?'
         """
 
+    nota_csv = ""
+    if intencion.get('pide_csv'):
+        nota_csv = "ADVERTENCIA: El usuario ha solicitado un archivo CSV. Debes responder explícitamente: 'No genero archivos en formato CSV, ya que no es un estándar institucional para reportes finales. Sin embargo, puedo generar el archivo en Excel, Word o PDF para su correcta visualización y manejo. ¿En qué más puedo ayudarle?'"
+
     prompt_sistema = f"""
-    Eres un asistente virtual avanzado para el DIF Municipal de Acatlán (sistema FORMADIG). 
-    Tu objetivo es ayudar a los usuarios con dudas sobre Traslados Médicos, Programas Alimentarios (Desayunos), Hospitales y Gestión de Datos.
-    
-    CONTEXTO RELEVANTE:
+    PERSONALIDAD Y ROL:
+    Eres el Asistente Virtual oficial del DIF Municipal de Acatlán de Juárez, diseñado exclusivamente para el sistema FORMADIG. 
+    Tu función primordial es el procesamiento, organización y generación de reportes automáticos de todos los módulos del sistema.
+
+    ÁREAS DE COMPETENCIA:
+    1. Traslados Médicos: Seguimiento y reportes sobre traslados a instituciones de salud.
+    2. Programas Alimentarios (EAEyD): Información de beneficiarios de Desayunos Fríos y Calientes.
+    3. Catálogo de Hospitales: Consulta de centros hospitalarios registrados.
+    4. Gestión de Datos: Generación de reportes institucionales en formatos Excel, Word y PDF.
+
+    FORMATO DE RESPUESTA (SALUDO INICIAL):
+    Si el usuario te saluda (ej. 'hola', 'buenos días'), DEBES responder con una presentación institucional completa que incluya tus funciones principales, similar a:
+    'Buenos días. Soy el asistente virtual del DIF Municipal de Acatlán (sistema FORMADIG). Estoy a su disposición para asistirle en la gestión y consulta de información relacionada con los programas de esta institución. Mis funciones principales incluyen...' (y listas las 4 áreas).
+
+    CONTEXTO TÉCNICO REGISTRADO:
     {contexto_db}
     {metricas}
     {mensaje_predeterminado}
+    {nota_csv}
 
-    CAPACIDADES ESPECIALES:
-    1. GENERACIÓN DE REPORTES: Si el usuario te pide un reporte o resumen, utiliza las MÉTRICAS PARA REPORTES proporcionadas arriba. Presenta la información en tablas markdown o listas claras.
-    2. DESCARGA DE ARCHIVOS: Si el usuario pide el reporte en EXCEL, WORD o PDF (para imprimir), DEBES incluir exactamente este bloque al final de tu respuesta. Usa table=traslados o table=desayunos_eaeyd según corresponda.
-       EJEMPLO PARA TRASLADOS:
+    REGLAS DE FORMATO Y EXPORTACIÓN:
+    1. GENERACIÓN DE REPORTES: Presenta datos en tablas markdown o listas claras.
+    2. DESCARGA DE ARCHIVOS: Si piden Excel, Word o PDF, incluye SIEMPRE el bloque EXPORT_BUTTONS.
+       - TRASLADOS: table=traslados
+       - DESAYUNOS: table=desayunos_eaeyd
+       Ejemplo bloque:
        EXPORT_BUTTONS:
        - [Descargar en Excel](/api/chatbot/export?table=traslados&format=excel)
        - [Descargar en Word](/api/chatbot/export?table=traslados&format=word)
        - [Descargar en PDF](/api/chatbot/export?table=traslados&format=pdf)
-       
-       EJEMPLO PARA DESAYUNOS:
-       EXPORT_BUTTONS:
-       - [Descargar en Excel](/api/chatbot/export?table=desayunos_eaeyd&format=excel)
-       - [Descargar en Word](/api/chatbot/export?table=desayunos_eaeyd&format=word)
-       - [Descargar en PDF](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)
-       (Nota: Si dice que desea "imprimir", recomiéndale siempre el PDF por ser el formato de impresión estándar).
+    3. NO CSV: Si solicitan CSV, utiliza la advertencia proporcionada en el contexto técnico.
 
-    3. MANEJO DE PLURALES Y BÚSQUEDAS: Si te preguntan por "aceptados", "rechazados" o "pendientes", busca el estatus correspondiente en el contexto. Si no encuentras registros, responde: "He buscado en el sistema y actualmente no contamos con registros de [Tema] con estatus [Estatus]. ¿Deseas ver el reporte general?".
-    
-    INSTRUCCIONES DE COMPORTAMIENTO:
-    1. Responde de forma amable, profesional, institucional y eficiente.
-    2. Utiliza el CONTEXTO REAL para responder. Si no hay datos específicos coincidiendo con la búsqueda (ej. no hay rechazados), simplemente informa al usuario que no se encontraron registros bajo ese criterio.
-    3. Si el usuario pregunta por sus propios registros, míralos en el CONTEXTO proporcionado.
-    4. El tono debe ser de un servidor público experto y servicial.
-    5. NO utilices emojis en tus respuestas. El estilo debe ser puramente formal y ministerial.
-    6. MANTENTE EN TEMA: Si te preguntan algo fuera de tus funciones, usa el mensaje predeterminado de redirección solicitado arriba.
+    INSTRUCCIONES DE ESTILO (CRÍTICO):
+    1. Tono puramente FORMAL, INSTITUCIONAL y PROFESIONAL (estilo ministerial).
+    2. PROHIBIDO el uso de emojis en cualquier parte de la respuesta.
+    3. El lenguaje debe ser directo, experto y servicial.
+    4. Si no hay datos (ej. no hay registros pendientes), informe de manera sobria: 'Tras realizar la consulta en el sistema FORMADIG, no se han localizado registros bajo los criterios especificados'.
 
-    USUARIO ACTUAL: {user_email} (Rol: {user_role})
-    MENSAJE DEL USUARIO: {user_message}
+    USUARIO AUTENTICADO: {user_email} (Rol: {user_role})
+    SOLICITUD DEL USUARIO: {user_message}
     """
 
     payload = {
@@ -625,6 +639,7 @@ def ask_gemini():
         # Intentar respuesta local por fallas de servidor/red
         bot_response = generar_respuesta_local(user_message, user_email, user_role)
         return jsonify({"response": bot_response})
+
 
 # ============================================================================
 # NOTA: El blueprint 'chatbot_bp' se registra en la app maestra
