@@ -48,50 +48,33 @@ const SMS = {
         if (selectInfo) {
             selectInfo.addEventListener('change', (e) => {
                 const val = e.target.value;
-
                 if (!val) {
-                    const phoneEl = document.getElementById('targetPhone');
-                    if (phoneEl) phoneEl.value = '';
+                    if (document.getElementById('targetPhone')) document.getElementById('targetPhone').value = '';
                     if (msgTextarea) { msgTextarea.value = ''; msgTextarea.dispatchEvent(new Event('input')); }
                     return;
                 }
 
-
-                const t = this.trasladosData.find(x => x.id == val);
+                // Buscar el objeto completo del traslado
+                const t = this.trasladosData.find(x => String(x.id) === String(val));
                 if (!t) return;
 
-                // ── Teléfono con prefijo +52 ──
-                let phoneNum = t.telefono_principal || t.telefono || '';
-                if (phoneNum && !phoneNum.startsWith('+')) {
-                    phoneNum = '+52' + phoneNum.replace(/\D/g, '').slice(-10);
-                }
-                const phoneEl = document.getElementById('targetPhone');
-                if (phoneEl) phoneEl.value = phoneNum;
-
-
-                // ── Nombre ──
-                const name = (t.paciente || 'Beneficiario').trim();
-
-                // ── Fecha y Hora ──
-                let fechaDisplay = t.fecha_viaje || 'la fecha indicada';
-                if (t.fecha_viaje) {
-                    try {
-                        const [y, m, d] = t.fecha_viaje.split('-');
-
-                        const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
-                        if (!isNaN(dateObj)) {
-                            fechaDisplay = dateObj.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                        }
-                    } catch(e){}
+                // Autocompletar Teléfono
+                const phoneInput = document.getElementById('targetPhone');
+                if (phoneInput) {
+                    phoneInput.value = t.telefono_principal || '';
                 }
 
-                const horaDisplay = t.hora ? ` a las ${t.hora.substring(0, 5)}` : '';
+                // Autocompletar Mensaje (Plantilla solicitada)
+                const paciente = t.paciente || 'Paciente';
+                const fecha = t.fecha_viaje || '--';
+                const hora = t.hora ? t.hora.substring(0, 5) : '--';
+                const hospital = t.hospital || t.destino_hospital || 'Hospital';
 
-                // ── Nueva Plantilla Estructural Corregida ──
-                const msg = `Hola ${name}, te confirmamos tu traslado para el día ${fechaDisplay}${horaDisplay}. Por favor estar listo 10 min antes.`;
+                const msg = `Hola ${paciente}, el DIF Acatlán le recuerda su traslado programado para el ${fecha} a las ${hora} con destino al ${hospital}. Por favor responda SÍ para confirmar su asistencia o NO para cancelar.`;
 
                 if (msgTextarea) {
                     msgTextarea.value = msg;
+                    // Disparar evento input para actualizar contador y previsualización
                     msgTextarea.dispatchEvent(new Event('input'));
                 }
             });
@@ -109,51 +92,23 @@ const SMS = {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
 
-            // Doble filtro cliente de seguridad
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-
-            this.trasladosData = (data || []).filter(t => {
-                const isAceptado = (t.estado || '').toUpperCase() === 'ACEPTADO';
-                if (!isAceptado) return false;
-                if (!t.fecha_viaje) return false;
-                const [y, m, d] = t.fecha_viaje.split('-');
-                const fechaCita = new Date(Number(y), Number(m) - 1, Number(d));
-                return fechaCita >= hoy; // Incluye hoy (>= hoy)
-            });
-
+            // Guardar resultados en la variable global
+            this.trasladosData = data;
 
             const select = document.getElementById('trasladoSelect');
             if (!select) return;
 
-            // Limpiar opciones previas (excepto la primera)
-            while (select.options.length > 1) select.remove(1);
+            // Limpiar el select con opción por defecto
+            select.innerHTML = '<option value="">Seleccionar Paciente...</option>';
 
-            if (this.trasladosData.length === 0) {
-                const opt = document.createElement('option');
-                opt.disabled = true;
-                opt.textContent = 'No hay traslados programados próximos';
-                select.appendChild(opt);
-                return;
+            if (this.trasladosData && this.trasladosData.length > 0) {
+                this.trasladosData.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = `${t.paciente} - ${t.fecha_viaje}`;
+                    select.appendChild(opt);
+                });
             }
-
-            this.trasladosData.forEach(t => {
-                const name = (t.paciente || 'Sin Nombre').trim();
-                let dateText = t.fecha_viaje;
-                if (t.fecha_viaje) {
-                    try {
-                        const [y, m, d] = t.fecha_viaje.split('-');
-
-                        const dObj = new Date(Number(y), Number(m) - 1, Number(d));
-                        if (!isNaN(dObj)) dateText = dObj.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
-                    } catch(e){}
-                }
-                const opt = document.createElement('option');
-                opt.value = t.id;
-                opt.textContent = `${name} — ${dateText}`;
-                select.appendChild(opt);
-            });
-
         } catch(e) {
             console.error('Error cargando traslados:', e);
         }
