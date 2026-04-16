@@ -22,7 +22,7 @@ global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def obtener_registros():
     try:
         # Query tabla principal desayunos_frios con límite de 1000 registros
-        res = global_client.table('desayunos_frios').select('*').limit(1000).execute()
+        res = global_client.table('desayunos_frios').select('*').order('id', desc=True).limit(1000).execute()
         responses = res.data if res.data else []
         
         desayunos_mapeados = []
