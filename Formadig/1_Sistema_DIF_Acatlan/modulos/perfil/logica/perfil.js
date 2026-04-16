@@ -1,5 +1,10 @@
 // ========== PERFIL.JS — REFACTORIZADO PARA BACKEND ==========
-const supabase = window.supabase.createClient(CORE_CONFIG.SUPABASE_URL, CORE_CONFIG.SUPABASE_KEY);
+const storedToken = localStorage.getItem('supabase_token');
+const supabase = window.supabase.createClient(CORE_CONFIG.SUPABASE_URL, CORE_CONFIG.SUPABASE_KEY, {
+    global: {
+        headers: { Authorization: `Bearer ${storedToken}` }
+    }
+});
 
 // ═══════════════════════════════════════════════════════════
 // FUNCIONES GLOBALES PARA MODALES
@@ -51,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             console.log("🔄 Cargando perfil desde Supabase...");
             
-            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            const { data: { user }, error: authError } = await supabase.auth.getUser(sessionToken.token);
             if (authError || !user) throw new Error("No se pudo obtener el usuario: " + (authError?.message || "Desconocido"));
 
             const { data, error: dbError } = await supabase.from('perfiles').select('*').eq('id', user.id).single();
@@ -89,21 +94,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 1. Verificamos si la sesión ya está lista según Supabase
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (session) {
-        // Si ya está lista, cargamos el perfil
-        await loadProfile(); 
-    } else {
-        // 2. Si no está lista, escuchamos el evento hasta que Supabase la detecte
-        console.log("⏳ Esperando a que Supabase restaure la sesión...");
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, currentSession) => {
-            if (event === 'SIGNED_IN' || currentSession) {
-                loadProfile();
-            }
-        });
-    }
+    // Simplemente ejecutamos loadProfile() porque ya le pasamos el token en las opciones del cliente
+    await loadProfile();
 
     // 4. Listeners para Modales
     if (btnOpenEditData) btnOpenEditData.addEventListener('click', () => openModal('modalData'));
@@ -153,21 +145,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('formPass').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const oldPass = document.getElementById('oldPass') ? document.getElementById('oldPass').value : '';
         const pass = newPassInput.value;
         const confirm = confirmPassInput.value;
 
-        if (pass !== confirm) return UI.notify('Las contraseñas no coinciden', 'error');
-        if (pass.length < 6) return UI.notify('Mínimo 6 caracteres', 'error');
+        if (pass !== confirm) return UI.notify('Las contraseñas nuevas no coinciden', 'error');
+        if (pass.length < 8) return UI.notify('La nueva contraseña debe tener al menos 8 caracteres', 'error');
 
         btnSavePass.disabled = true;
-        btnSavePass.textContent = 'Procesando...';
+        btnSavePass.textContent = 'Verificando...';
 
         try {
+            // 1. Obtener el usuario actual
+            const { data: { user }, error: userErr } = await supabase.auth.getUser(sessionToken.token);
+            if (userErr || !user) throw new Error("Sesión de usuario no es válida");
+
+            // 2. Verificar que la contraseña actual ingresada coincida haciendo login internamente
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: oldPass
+            });
+
+            if (signInError) {
+                // Mensaje en español, invalid_credentials significa error de contraseña
+                throw new Error("La contraseña actual que ingresaste es incorrecta");
+            }
+
+            // 3. Actualizar la nueva contraseña
+            btnSavePass.textContent = 'Actualizando...';
             const { error: updateError } = await supabase.auth.updateUser({ password: pass });
 
-            if (updateError) throw new Error(updateError.message || 'Error de seguridad al actualizar la contraseña');
+            if (updateError) throw new Error(updateError.message || 'Error del servidor al actualizar la contraseña');
 
-            UI.notify('Contraseña cambiada exitosamente 🔒');
+            UI.notify('Contraseña cambiada exitosamente 🔒', 'success');
+            if(document.getElementById('oldPass')) document.getElementById('oldPass').value = '';
             newPassInput.value = '';
             confirmPassInput.value = '';
             closeModal('modalPass');

@@ -337,12 +337,16 @@
             <div class="modal-body">
                 <form id="formPass">
                     <div class="form-group">
+                        <label class="form-label">Contraseña Actual</label>
+                        <input type="password" id="oldPass" class="form-control" placeholder="Ingrese su contraseña actual" required>
+                    </div>
+                    <div class="form-group">
                         <label class="form-label">Escriba su Nueva Contraseña</label>
-                        <input type="password" id="newPass" class="form-control" placeholder="Mínimo 6 caracteres" required>
+                        <input type="password" id="newPass" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Confirme la Nueva Contraseña</label>
-                        <input type="password" id="confirmPass" class="form-control" placeholder="Repita la contraseña" required>
+                        <input type="password" id="confirmPass" class="form-control" placeholder="Repita la nueva contraseña" minlength="8" required>
                     </div>
                     <button type="submit" class="btn-save" id="btnSavePass">Actualizar Contraseña</button>
                 </form>
