@@ -46,7 +46,7 @@ chatbot_bp = Blueprint('chatbot', __name__, url_prefix='/api/chatbot')
 # Credenciales Supabase (desde environment variables SOLAMENTE para producción)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD1FhiP8ZdGIpwPdHz3NMFHFWASea1xGUo")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
 
 
@@ -97,61 +97,66 @@ def filtrar_datos_reporte(data, table_name):
         
     return filtered_data, config["labels"]
 
-def obtener_metricas_globales():
+def obtener_metricas_globales(tema=None):
     if not supabase: return "No hay conexión a la DB."
     
     resumen = "\n--- MÉTRICAS PARA REPORTES (DIF ACATLÁN) ---\n"
     try:
-        # Conteos de Traslados
-        t_count = supabase.table('traslados').select("*", count="exact").limit(1).execute().count
-        t_pend = supabase.table('traslados').select("*", count="exact").eq('estatus', 'PENDIENTE').limit(1).execute().count
+        if tema == "traslados" or tema is None:
+            # Conteos de Traslados
+            t_count = supabase.table('traslados').select("*", count="exact").limit(1).execute().count
+            t_pend = supabase.table('traslados').select("*", count="exact").eq('estatus', 'PENDIENTE').limit(1).execute().count
+            resumen += f"- TOTAL TRASLADOS: {t_count} ({t_pend} Pendientes)\n"
         
-        # Conteos de Desayunos (Agregado de todas las tablas posibles)
-        d_frios = 0; d_calientes = 0; d_eaeyd = 0
-        try: d_frios = supabase.table('desayunos_frios').select("*", count="exact").limit(1).execute().count or 0
-        except: pass
-        try: d_calientes = supabase.table('desayunos_calientes').select("*", count="exact").limit(1).execute().count or 0
-        except: pass
-        try: d_eaeyd = supabase.table('desayunos_eaeyd').select("*", count="exact").limit(1).execute().count or 0
-        except: pass
+        if tema == "desayunos" or tema is None:
+            # Conteos de Desayunos
+            d_frios = 0; d_calientes = 0; d_eaeyd = 0
+            try: d_frios = supabase.table('desayunos_frios').select("*", count="exact").limit(1).execute().count or 0
+            except: pass
+            try: d_calientes = supabase.table('desayunos_calientes').select("*", count="exact").limit(1).execute().count or 0
+            except: pass
+            try: d_eaeyd = supabase.table('desayunos_eaeyd').select("*", count="exact").limit(1).execute().count or 0
+            except: pass
+            
+            d_total = d_frios + d_calientes + d_eaeyd
+            resumen += f"- TOTAL BENEFICIARIOS DESAYUNOS: {d_total}\n"
+            if d_frios > 0: resumen += f"  - Programa Desayunos Fríos: {d_frios}\n"
+            if d_calientes > 0: resumen += f"  - Programa Desayunos Calientes: {d_calientes}\n"
+            if d_eaeyd > 0: resumen += f"  - Otros Programas EAEyD: {d_eaeyd}\n"
         
-        d_total = d_frios + d_calientes + d_eaeyd
-        
-        # Hospitales
-        h_count = supabase.table('hospitales').select("*", count="exact").limit(1).execute().count
-        
-        resumen += f"- TOTAL TRASLADOS: {t_count} ({t_pend} Pendientes)\n"
-        resumen += f"- TOTAL BENEFICIARIOS DESAYUNOS: {d_total}\n"
-        if d_frios > 0: resumen += f"  - Programa Desayunos Fríos: {d_frios}\n"
-        if d_calientes > 0: resumen += f"  - Programa Desayunos Calientes: {d_calientes}\n"
-        if d_eaeyd > 0: resumen += f"  - Otros Programas EAEyD: {d_eaeyd}\n"
-        resumen += f"- HOSPITALES REGISTRADOS EN CATÁLOGO: {h_count}\n"
+        if tema is None:
+            # Hospitales
+            h_count = supabase.table('hospitales').select("*", count="exact").limit(1).execute().count
+            resumen += f"- HOSPITALES REGISTRADOS EN CATÁLOGO: {h_count}\n"
         
     except Exception as e:
         resumen += f"Error al consolidar métricas reales: {e}\n"
         
     return resumen
 
-def obtener_contexto_db(user_email=None, user_role=None):
+def obtener_contexto_db(user_email=None, user_role=None, intencion=None):
     if not supabase: return ""
 
     contexto = "\n--- CONTEXTO DE LA BASE DE DATOS (DIF ACATLÁN) ---\n"
+    tema = intencion.get('tema') if intencion else None
+    estatus_filtro = intencion.get('estatus') if intencion else None
     
-    # 1. Catálogo de Hospitales
-    try:
-        hosp_res = supabase.table('hospitales').select('nombre_hospital').limit(1000).execute()
-        hospitales = [h['nombre_hospital'] for h in hosp_res.data]
-        contexto += f"Hospitales registrados: {', '.join(hospitales)}\n"
-    except: pass
+    # 1. Catálogo de Hospitales (Solo si es general o traslados)
+    if tema in ["traslados", None]:
+        try:
+            hosp_res = supabase.table('hospitales').select('nombre_hospital').limit(20).execute()
+            hospitales = [h['nombre_hospital'] for h in hosp_res.data]
+            contexto += f"Hospitales registrados: {', '.join(hospitales)}\n"
+        except: pass
 
     # 2. Conocimiento General (FAQ/Reglas)
     try:
-        conoc_res = supabase.table('chatbot_conocimiento').select('titulo, contenido').limit(1000).execute()
+        conoc_res = supabase.table('chatbot_conocimiento').select('titulo, contenido').limit(10).execute()
         for item in conoc_res.data:
             contexto += f"Regla/Info [{item['titulo']}]: {item['contenido']}\n"
     except: pass
 
-    # 3. Datos Transaccionales (Filtrados por usuario)
+    # 3. Datos Transaccionales (Filtrados por usuario e intención)
     if user_email:
         try:
             # Buscar perfil por email
@@ -160,38 +165,86 @@ def obtener_contexto_db(user_email=None, user_role=None):
                 user_id = perfil_res.data[0]['id']
                 is_admin = perfil_res.data[0]['rol'] in ['admin', 'directora', 'desarrollador', 'admin_traslados', 'admin_desayunos']
 
-                # Traslados
-                query_t = supabase.table('traslados').select('paciente_nombre, destino_hospital, fecha_viaje, estatus')
-                if not is_admin:
-                    query_t = query_t.eq('registrado_por', user_id)
-                t_res = query_t.limit(5).execute()
+                # Traslados (Si el tema es traslados o no se especificó)
+                if tema in ["traslados", None]:
+                    query_t = supabase.table('traslados').select('paciente_nombre, destino_hospital, fecha_viaje, estatus')
+                    if not is_admin: query_t = query_t.eq('registrado_por', user_id)
+                    if estatus_filtro: query_t = query_t.eq('estatus', estatus_filtro)
+                    
+                    t_res = query_t.limit(5).execute()
+                    if t_res.data:
+                        contexto += f"Traslados {'específicos ' if estatus_filtro else ''}encontrados:\n"
+                        for t in t_res.data:
+                            contexto += f"- Paciente: {t['paciente_nombre']}, Destino: {t['destino_hospital']}, Fecha: {t['fecha_viaje']}, Estatus: {t['estatus']}\n"
                 
-                if t_res.data:
-                    contexto += "Traslados recientes encontrados:\n"
-                    for t in t_res.data:
-                        contexto += f"- Paciente: {t['paciente_nombre']}, Destino: {t['destino_hospital']}, Fecha: {t['fecha_viaje']}, Estatus: {t['estatus']}\n"
-                
-                # Desayunos (Búsqueda multi-tabla)
-                registros_d = []
-                for t in ['desayunos_frios', 'desayunos_calientes', 'desayunos_eaeyd']:
-                    try:
-                        q = supabase.table(t).select('nombres, apellidos, localidad')
-                        if not is_admin: q = q.eq('registrado_por', user_id)
-                        res = q.limit(3).execute()
-                        if res.data: 
-                            for r in res.data:
-                                r['origen'] = t.replace('desayunos_', '').title()
-                                registros_d.append(r)
-                    except: continue
+                # Desayunos
+                if tema in ["desayunos", None]:
+                    registros_d = []
+                    tablas_d = ['desayunos_frios', 'desayunos_calientes', 'desayunos_eaeyd']
+                    if intencion and intencion.get('sub_tema'):
+                        tablas_d = [t for t in tablas_d if intencion['sub_tema'] in t] or tablas_d
 
-                if registros_d:
-                    contexto += "Registros recientes de desayunos encontrados:\n"
-                    for d in registros_d[:5]:
-                        contexto += f"- [{d['origen']}] {d['nombres']} {d['apellidos']} ({d['localidad']})\n"
+                    for t in tablas_d:
+                        try:
+                            # QUERY CORREGIDA: Selección de columnas explícita
+                            columnas = "nombres, apellidos, localidad, estatus"
+                            q = supabase.table(t).select(columnas)
+                            
+                            if not is_admin: q = q.eq('registrado_por', user_id)
+                            if estatus_filtro: q = q.eq('estatus', estatus_filtro)
+                            
+                            res = q.limit(5).execute()
+                            if res.data: 
+                                for r in res.data:
+                                    r['origen'] = t.replace('desayunos_', '').title()
+                                    registros_d.append(r)
+                        except Exception as e:
+                            print(f"Error consultando tabla {t}: {e}")
+                            continue
+
+                    if registros_d:
+                        contexto += f"Registros de desayunos {'específicos ' if estatus_filtro else ''}encontrados:\n"
+                        for d in registros_d[:10]:
+                            contexto += f"- [{d['origen']}] {d['nombres']} {d['apellidos']} ({d['localidad']}) - Estatus: {d.get('estatus', 'N/A')}\n"
         except Exception as e:
             print(f"Error cargando contexto transaccional: {e}")
 
     return contexto
+
+def detectar_intencion(mensaje):
+    msg = mensaje.lower()
+    intenciones = {
+        "tema": None,
+        "sub_tema": None,
+        "estatus": None,
+        "es_general": False
+    }
+    
+    # 1. Detectar Tema Principal
+    if any(k in msg for k in ['traslado', 'paciente', 'viaje', 'hospital']):
+        intenciones["tema"] = "traslados"
+    elif any(k in msg for k in ['desayuno', 'frio', 'caliente', 'eaeyd', 'apoyo', 'comida', 'beneficiario']):
+        intenciones["tema"] = "desayunos"
+        if 'frio' in msg: intenciones["sub_tema"] = "frios"
+        elif 'caliente' in msg: intenciones["sub_tema"] = "calientes"
+        elif 'eaeyd' in msg: intenciones["sub_tema"] = "eaeyd"
+
+    # 2. Detectar Estatus específico (Coincidir con CamelCase de la DB)
+    if any(k in msg for k in ['rechazado', 'rechazada', 'denegado', 'cancelado']):
+        intenciones["estatus"] = "Rechazado"
+    elif any(k in msg for k in ['pendiente', 'espera', 'proceso']):
+        intenciones["estatus"] = "Lista de Espera"
+    elif any(k in msg for k in ['aprobado', 'aceptado', 'autorizado', 'activo']):
+        intenciones["estatus"] = "Aprobado"
+    elif any(k in msg for k in ['entregado', 'completado', 'finalizado']):
+        intenciones["estatus"] = "Aprobado" # O ajuste según tabla
+
+    # 3. Detectar si es una pregunta muy general o fuera de lugar
+    keywords_sistema = ['traslado', 'desayuno', 'hospital', 'apoyo', 'curp', 'solicitud', 'sistema', 'formadig', 'dif', 'acatlan', 'reporte', 'cargar', 'excel']
+    if not any(k in msg for k in keywords_sistema):
+        intenciones["es_general"] = True
+
+    return intenciones
 
 # 📥 LÓGICA DE EXPORTACIÓN (EXCEL / WORD)
 # =========================================================
@@ -498,16 +551,30 @@ def ask_gemini():
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
 
-    # Obtener contexto detallado y métricas globales
-    contexto_db = obtener_contexto_db(user_email, user_role)
-    metricas = obtener_metricas_globales()
+    # 1. Detectar intención y filtrar contexto
+    intencion = detectar_intencion(user_message)
+    contexto_db = obtener_contexto_db(user_email, user_role, intencion)
+    metricas = obtener_metricas_globales(intencion.get('tema'))
+
+    mensaje_predeterminado = ""
+    if intencion.get('es_general'):
+        mensaje_predeterminado = """
+        NOTA: El usuario parece estar haciendo una pregunta general o fuera del contexto del DIF Acatlán. 
+        Si la pregunta no tiene NADA que ver con el DIF, FORMADIG, traslados, desayunos o gestión municipal, 
+        debes responder cortésmente: 'Lo siento, como asistente del DIF Acatlán, solo puedo ayudarte con temas relacionados a nuestros programas sociales y al sistema FORMADIG. ¿En qué más puedo apoyarte respecto a estas áreas?'
+        """
 
     prompt_sistema = f"""
     Eres un asistente virtual avanzado para el DIF Municipal de Acatlán (sistema FORMADIG). 
     Tu objetivo es ayudar a los usuarios con dudas sobre Traslados Médicos, Programas Alimentarios (Desayunos), Hospitales y Gestión de Datos.
     
+    CONTEXTO RELEVANTE:
+    {contexto_db}
+    {metricas}
+    {mensaje_predeterminado}
+
     CAPACIDADES ESPECIALES:
-    1. GENERACIÓN DE REPORTES: Si el usuario te pide un reporte o resumen, utiliza las MÉTRICAS PARA REPORTES proporcionadas abajo. Presenta la información en tablas markdown o listas claras.
+    1. GENERACIÓN DE REPORTES: Si el usuario te pide un reporte o resumen, utiliza las MÉTRICAS PARA REPORTES proporcionadas arriba. Presenta la información en tablas markdown o listas claras.
     2. DESCARGA DE ARCHIVOS: Si el usuario pide el reporte en EXCEL, WORD o PDF (para imprimir), DEBES incluir exactamente este bloque al final de tu respuesta. Usa table=traslados o table=desayunos_eaeyd según corresponda.
        EJEMPLO PARA TRASLADOS:
        EXPORT_BUTTONS:
@@ -520,21 +587,17 @@ def ask_gemini():
        - [Descargar en Excel](/api/chatbot/export?table=desayunos_eaeyd&format=excel)
        - [Descargar en Word](/api/chatbot/export?table=desayunos_eaeyd&format=word)
        - [Descargar en PDF](/api/chatbot/export?table=desayunos_eaeyd&format=pdf)
-       (Nota: Si dice que desea imprimir, recomiéndale siempre el PDF).
+       (Nota: Si dice que desea "imprimir", recomiéndale siempre el PDF por ser el formato de impresión estándar).
 
-    3. CARGA MASIVA: Si el usuario pregunta cómo cargar muchos datos, explícale que debe usar un archivo CSV/Excel con las siguientes columnas según la tabla:
-       {ESQUEMAS_TABLAS}
-       Diles que el equipo de soporte técnico puede ayudarles con el proceso de importación si tienen el archivo listo.
+    3. MANEJO DE PLURALES Y BÚSQUEDAS: Si te preguntan por "aceptados", "rechazados" o "pendientes", busca el estatus correspondiente en el contexto. Si no encuentras registros, responde: "He buscado en el sistema y actualmente no contamos con registros de [Tema] con estatus [Estatus]. ¿Deseas ver el reporte general?".
     
     INSTRUCCIONES DE COMPORTAMIENTO:
     1. Responde de forma amable, profesional, institucional y eficiente.
-    2. Utiliza el CONTEXTO REAL para responder. No inventes estadísticas si no están en las MÉTRICAS.
-    3. Si el usuario pregunta por sus propios registros, míralos en el CONTEXTO DE LA BASE DE DATOS.
+    2. Utiliza el CONTEXTO REAL para responder. Si no hay datos específicos coincidiendo con la búsqueda (ej. no hay rechazados), simplemente informa al usuario que no se encontraron registros bajo ese criterio.
+    3. Si el usuario pregunta por sus propios registros, míralos en el CONTEXTO proporcionado.
     4. El tono debe ser de un servidor público experto y servicial.
     5. NO utilices emojis en tus respuestas. El estilo debe ser puramente formal y ministerial.
-
-    {contexto_db}
-    {metricas}
+    6. MANTENTE EN TEMA: Si te preguntan algo fuera de tus funciones, usa el mensaje predeterminado de redirección solicitado arriba.
 
     USUARIO ACTUAL: {user_email} (Rol: {user_role})
     MENSAJE DEL USUARIO: {user_message}
