@@ -340,7 +340,7 @@
                         <div id="tab-datos" class="tab-panel active">
 
                             <!-- Sección 1: Identidad Oficial -->
-                            <div class="form-section-container" style="border-left: 3px solid #00766c;">
+                            <div class="form-section-container" style="border-left: 3px solid var(--color-primary);">
                                 <h4 class="section-header">🪪 IDENTIDAD OFICIAL</h4>
                                 <div style="display:grid; grid-template-columns: 1fr; gap:1rem;">
                                     <div class="form-group">
@@ -352,9 +352,8 @@
                             </div>
 
                             <!-- Sección 2: Datos Personales (Simplificada) -->
-                            <div class="form-section-container" style="border-left: 3px solid #3b82f6;">
-                                <h4 class="section-header" style="color: #1e40af;">👤 DATOS DEL PACIENTE (AUTO-LLENADOS)
-                                </h4>
+                            <div class="form-section-container" style="border-left: 3px solid var(--color-primary);">
+                                <h4 class="section-header">👤 DATOS DEL PACIENTE (AUTO-LLENADOS)</h4>
                                 <div style="display:grid; grid-template-columns: 1fr; gap:1rem;">
                                     <div class="form-group">
                                         <label class="form-label" for="paciente_nombre">Nombre Completo *</label>
@@ -437,41 +436,38 @@
                                 </div>
                                 <div style="margin-top: 1rem;">
                                     <div class="form-group">
-                                        <label class="form-label" for="telefono_secundario">📱 Teléfono de
-                                            Emergencia</label>
+                                        <label class="form-label" for="telefono_secundario">📱 Teléfono de Emergencia</label>
                                         <input type="text" id="telefono_secundario" class="form-control"
-                                            placeholder="--" style="border-color: #fed7aa; font-weight: 600;">
+                                            placeholder="--" style="border-color: rgba(0, 118, 108, 0.2); font-weight: 600;">
                                     </div>
                                 </div>
                             </div>
 
                             <div id="asignacionBloque"
-                                style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
+                                style="background: rgba(0, 118, 108, 0.05); border: 1px solid rgba(0, 118, 108, 0.1); padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
                                 <h4
-                                    style="font-size: 0.95rem; font-weight: 700; color: #166534; margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
+                                    style="font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
                                     ✍️ AGENDAR FECHA Y HORA
                                 </h4>
                                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                     <div class="form-group">
-                                        <label class="form-label" for="fecha_viaje" style="color: #166534;">Día de
+                                        <label class="form-label" for="fecha_viaje" style="color: var(--color-primary-dark);">Día de
                                             Salida *</label>
                                         <input type="date" id="fecha_viaje" class="form-control" required
-                                            style="border-color: #bbf7d0;">
+                                            style="border-color: rgba(0, 118, 108, 0.2);">
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label" for="hora_cita" style="color: #166534;">Hora Salida
-                                            *</label>
+                                        <label class="form-label" for="hora_cita" style="color: var(--color-primary-dark);">Hora Salida *</label>
                                         <input type="time" id="hora_cita" class="form-control" required
-                                            style="border-color: #bbf7d0;">
+                                            style="border-color: rgba(0, 118, 108, 0.2);">
                                     </div>
                                 </div>
 
                                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
                                     <div class="form-group">
-                                        <label class="form-label" for="hora_regreso" style="color: #047857;">Hora de
-                                            Regreso</label>
+                                        <label class="form-label" for="hora_regreso" style="color: var(--color-primary-dark);">Hora de Regreso</label>
                                         <input type="time" id="hora_regreso" class="form-control"
-                                            style="border-color: #bbf7d0; color: #475569;">
+                                            style="border-color: rgba(0, 118, 108, 0.2); color: #475569;">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="lugares_requeridos" style="color: #166534;">Cupos

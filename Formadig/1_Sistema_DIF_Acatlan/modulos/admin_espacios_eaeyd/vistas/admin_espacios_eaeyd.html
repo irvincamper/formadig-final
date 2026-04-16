@@ -220,11 +220,11 @@
         }
 
         .program-info-widget {
-            background: linear-gradient(135deg, var(--color-secondary) 0%, #8b1212 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, #005a52 100%);
             color: white !important;
             border-radius: 16px;
             padding: 0.8rem 1.2rem;
-            box-shadow: 0 10px 20px rgba(183, 28, 28, 0.15);
+            box-shadow: 0 10px 20px rgba(0, 118, 108, 0.15);
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -305,7 +305,7 @@
                     <div id="tab-datos" class="tab-panel active">
 
                         <!-- Sección 1: Datos Generales del Beneficiario -->
-                        <div class="form-section-container" style="border-left: 3px solid #00766c;">
+                        <div class="form-section-container" style="border-left: 3px solid var(--color-primary);">
                             <h4 class="section-header">👶 DATOS GENERALES DEL BENEFICIARIO</h4>
                             <div class="form-group">
                                 <label class="form-label" for="curp">CURP del Beneficiario</label>
@@ -338,8 +338,8 @@
                         </div>
 
                         <!-- Sección 2: Datos de Salud -->
-                        <div class="form-section-container" style="border-left: 3px solid #ef4444;">
-                            <h4 class="section-header" style="color: #b91c1c;">❤️ DATOS DE SALUD (OBLIGATORIO)</h4>
+                        <div class="form-section-container" style="border-left: 3px solid var(--color-primary);">
+                            <h4 class="section-header">❤️ DATOS DE SALUD (OBLIGATORIO)</h4>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                 <div class="form-group">
                                     <label class="form-label" for="peso_menor">Peso del Menor (kg)</label>
@@ -353,8 +353,8 @@
                         </div>
 
                         <!-- Sección 3: Información Socioeconómica -->
-                        <div class="form-section-container" style="border-left: 3px solid #f59e0b;">
-                            <h4 class="section-header" style="color: #92400e;">📊 INFORMACIÓN SOCIOECONÓMICA</h4>
+                        <div class="form-section-container" style="border-left: 3px solid var(--color-primary);">
+                            <h4 class="section-header">📊 INFORMACIÓN SOCIOECONÓMICA</h4>
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
                                 <div class="form-group">
                                     <label class="form-label" for="nivel_estudios">Nivel de Estudios del Responsable</label>
@@ -455,19 +455,19 @@
 
                     <!-- Panel 4: Dictamen y Registro -->
                     <div id="tab-dictamen" class="tab-panel">
-                        <div id="asignacionBloque" style="background: #fdf2f2; border: 1px solid #fecaca; padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
-                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #991b1b; margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
+                        <div id="asignacionBloque" style="background: rgba(0, 118, 108, 0.05); border: 1px solid rgba(0, 118, 108, 0.1); padding: 1.5rem; border-radius: 12px; margin: 1rem 0; transition: all 0.4s ease;">
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin-bottom: 1rem; display:flex; align-items:center; gap:0.5rem;">
                                 ✍️ DICTAMEN DE APOYO
                             </h4>
                             
                             <div class="form-group">
-                                <label class="form-label" for="escuela" style="color: #991b1b;">Punto EAEyD Asignado / Sede *</label>
-                                <input type="text" id="escuela" class="form-control" required placeholder="Ej. Instalaciones DIF Central" style="border-color: #fca5a5;">
+                                <label class="form-label" for="escuela" style="color: var(--color-primary-dark);">Punto EAEyD Asignado / Sede *</label>
+                                <input type="text" id="escuela" class="form-control" required placeholder="Ej. Instalaciones DIF Central" style="border-color: rgba(0, 118, 108, 0.2);">
                             </div>
                             
                             <div class="form-group" style="margin-top:1rem;">
-                                <label class="form-label" for="estatus" style="color: #991b1b;">Resolución *</label>
-                                <select id="estatus" class="form-control" required style="border-color: #fca5a5;">
+                                <label class="form-label" for="estatus" style="color: var(--color-primary-dark);">Resolución *</label>
+                                <select id="estatus" class="form-control" required style="border-color: rgba(0, 118, 108, 0.2);">
                                     <option value="Aprobado">Aprobar y Alta en Padrón EAEyD</option>
                                     <option value="Lista de Espera">Mandar a Lista de Espera</option>
                                     <option value="Rechazado">Denegar Solicitud</option>
@@ -479,7 +479,10 @@
                         
                         <div style="display:flex; gap:1rem; width:100%;">
                             <button type="submit" class="button button--primary" style="flex: 2; padding: 1.25rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,118,108,0.3);">Aceptar Solicitud</button>
-                            <button type="button" id="btnRechazar" class="button button--danger" style="flex: 1; padding: 1.25rem; font-weight: 700; border-radius: 12px; box-shadow: 0 4px 12px rgba(239,68,68,0.2);">Rechazar Solicitud</button>
+                            <button type="button" id="btnRechazar"
+                                style="flex: 1; padding: 1.25rem; font-weight: 700; border-radius: 12px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05);"
+                                onmouseover="this.style.background='#fecaca'"
+                                onmouseout="this.style.background='#fee2e2'">Rechazar Solicitud</button>
                         </div>
                     </div>
                 </form>

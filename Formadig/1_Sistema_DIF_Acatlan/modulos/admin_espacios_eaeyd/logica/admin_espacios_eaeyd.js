@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td style="padding: 1rem 1.25rem;">
                     <div style="display:flex; align-items:center; gap:1.25rem;">
                         <!-- Avatar Premium -->
-                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); display: flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); display: flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <span style="font-size: 1.3rem; opacity: 0.8;">👤</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap: 2px;">

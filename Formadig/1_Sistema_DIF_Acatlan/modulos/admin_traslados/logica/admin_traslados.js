@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tr.innerHTML = `
                 <td style="padding: 1rem 1.25rem;">
-                    <div style="display:flex; align-items:center; gap:1rem;">
+                    <div style="display:flex; align-items:center; gap:1.25rem;">
                         <!-- Columna Fecha/Hora Estilizada -->
                         <div style="display:flex; flex-direction:column; min-width:90px; background: rgba(13, 148, 136, 0.05); padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(13, 148, 136, 0.1);">
                             <span style="font-weight:800; color:#0d9488; font-size: 0.85rem; letter-spacing: 0.5px;">${formatearFecha(t.fecha)}</span>
@@ -562,8 +562,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         
                         <!-- Columna Avatar Premium -->
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); display: flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <span style="font-size: 1.1rem; opacity: 0.8;">👤</span>
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); display: flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <span style="font-size: 1.3rem; opacity: 0.8;">👤</span>
                         </div>
                     </div>
                 </td>
