@@ -1,4 +1,5 @@
 // ========== PERFIL.JS — REFACTORIZADO PARA BACKEND ==========
+const supabase = window.supabase.createClient(CORE_CONFIG.SUPABASE_URL, CORE_CONFIG.SUPABASE_KEY);
 
 // ═══════════════════════════════════════════════════════════
 // FUNCIONES GLOBALES PARA MODALES
@@ -45,20 +46,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSaveData = document.getElementById('btnSaveData');
     const btnSavePass = document.getElementById('btnSavePass');
 
-    // 3. CARGAR PERFIL DESDE EL BACKEND
+    // 3. CARGAR PERFIL DESDE SUPABASE DIRECTAMENTE
     async function loadProfile() {
         try {
-            console.log("🔄 Cargando perfil desde backend...");
-            const response = await fetch('/api/perfil', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionToken.token}`
-                }
-            });
+            console.log("🔄 Cargando perfil desde Supabase...");
+            
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) throw new Error("No se pudo obtener el usuario: " + (authError?.message || "Desconocido"));
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const { data, error: dbError } = await supabase.from('perfiles').select('*').eq('id', user.id).single();
+            if (dbError) throw new Error("Error BD: " + dbError.message);
 
-            const data = await response.json();
             console.log("✅ Datos de perfil cargados:", data);
 
             if (data) {
@@ -114,22 +112,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSaveData.textContent = 'Actualizando...';
 
         try {
-            const res = await fetch('/api/perfil', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionToken.token}`
-                },
-                body: JSON.stringify({
-                    nombre_completo: nuevoNombre,
-                    telefono: nuevoTelefono
-                })
-            });
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) throw new Error("No autenticado");
 
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error || 'Error desconocido');
-            }
+            const { error: dbError } = await supabase.from('perfiles')
+                .update({ nombre_completo: nuevoNombre, telefono: nuevoTelefono })
+                .eq('id', user.id);
+
+            if (dbError) throw new Error(dbError.message);
 
             UI.notify('¡Datos actualizados correctamente! ✅');
             await loadProfile();
@@ -159,19 +149,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSavePass.textContent = 'Procesando...';
 
         try {
-            const res = await fetch('/api/perfil/password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionToken.token}`
-                },
-                body: JSON.stringify({ password: pass })
-            });
+            const { error: updateError } = await supabase.auth.updateUser({ password: pass });
 
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error || 'Error de seguridad');
-            }
+            if (updateError) throw new Error(updateError.message || 'Error de seguridad al actualizar la contraseña');
 
             UI.notify('Contraseña cambiada exitosamente 🔒');
             newPassInput.value = '';

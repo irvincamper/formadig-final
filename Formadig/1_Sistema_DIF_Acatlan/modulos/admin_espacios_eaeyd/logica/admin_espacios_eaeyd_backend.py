@@ -22,7 +22,7 @@ global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def obtener_registros():
     try:
         try:
-            res = global_client.table('desayunos_eaeyd').select('*').order('id', desc=True).limit(1000).execute()
+            res = global_client.table('desayunos_eaeyd').select('*').order('fecha_registro', desc=True).limit(1000).execute()
             responses = res.data if res.data else []
         except Exception as e:
             print("Error cargando desayunos_eaeyd:", e)
