@@ -336,17 +336,20 @@
             </div>
             <div class="modal-body">
                 <form id="formPass">
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Contraseña Actual</label>
-                        <input type="password" id="oldPass" class="form-control" placeholder="Ingrese su contraseña actual" required>
+                        <input type="password" id="oldPass" class="form-control" placeholder="Ingrese su contraseña actual" style="padding-right: 40px;">
+                        <button type="button" onclick="togglePassVisibility('oldPass', this)" style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem; outline: none;" title="Mostrar contraseña">👁️</button>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Escriba su Nueva Contraseña</label>
-                        <input type="password" id="newPass" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8" required>
+                        <input type="password" id="newPass" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8" style="padding-right: 40px;">
+                        <button type="button" onclick="togglePassVisibility('newPass', this)" style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem; outline: none;" title="Mostrar contraseña">👁️</button>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Confirme la Nueva Contraseña</label>
-                        <input type="password" id="confirmPass" class="form-control" placeholder="Repita la nueva contraseña" minlength="8" required>
+                        <input type="password" id="confirmPass" class="form-control" placeholder="Repita la nueva contraseña" minlength="8" style="padding-right: 40px;">
+                        <button type="button" onclick="togglePassVisibility('confirmPass', this)" style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem; outline: none;" title="Mostrar contraseña">👁️</button>
                     </div>
                     <button type="submit" class="btn-save" id="btnSavePass">Actualizar Contraseña</button>
                 </form>

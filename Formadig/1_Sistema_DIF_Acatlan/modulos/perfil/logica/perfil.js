@@ -151,6 +151,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pass = newPassInput.value;
         const confirm = confirmPassInput.value;
 
+        // Validar campos vacíos con UI.notify en lugar de HTML5 requred
+        if (!oldPass) return UI.notify('¡Falta ingresar tu contraseña actual!', 'error');
+        if (!pass) return UI.notify('¡Falta escribir la nueva contraseña!', 'error');
+        if (!confirm) return UI.notify('¡Falta confirmar la nueva contraseña!', 'error');
+
         if (pass !== confirm) return UI.notify('Las contraseñas nuevas no coinciden', 'error');
         
         // Validación estricta Regex para seguridad
@@ -197,3 +202,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+
+// Función global para alternar visibilidad de contraseñas
+window.togglePassVisibility = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+        btn.title = 'Ocultar contraseña';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+        btn.title = 'Mostrar contraseña';
+    }
+};
