@@ -236,7 +236,11 @@ const SMS = {
                 // ── Refresco automático del historial ──
                 await this.cargarHistorialSMS();
 
-                alert(`✅ SMS enviado (${result.mode || 'Real'} Mode)`);
+                if (result.mode === 'Mock') {
+                    alert(`✅ SMS enviado (Modo Simulación)`);
+                } else {
+                    alert(`✅ SMS enviado`);
+                }
             } else {
                 alert(`❌ Error: ${result.error || 'No se pudo enviar el mensaje'}`);
             }

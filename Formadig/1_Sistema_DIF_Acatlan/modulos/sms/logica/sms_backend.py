@@ -67,13 +67,14 @@ def send_sms():
     error_msg = None
     
     # --- MODO SIMULACIÓN / REAL ---
-    # Si las credenciales empiezan con AC_ o están vacías, usamos Mock
-    is_mock = (TWILIO_ACCOUNT_SID.startswith('AC_TU_') or 
-               not TWILIO_ACCOUNT_SID or 
+    # Si las credenciales están vacías o empiezan con AC_TU_, usamos Mock
+    is_mock = (not TWILIO_ACCOUNT_SID or 
+               TWILIO_ACCOUNT_SID.startswith('AC_TU_') or 
                'TwilioClient' not in globals())
     
     if is_mock:
-        print(f"[MOCK SMS] Enviando a {phone}: {message_text}")
+        status = "Enviado (Simulado)"
+        print(f"[MOCK SMS] Enviando a {phone}: {message_text} con estatus {status}")
         # Simulamos éxito
     else:
         try:
