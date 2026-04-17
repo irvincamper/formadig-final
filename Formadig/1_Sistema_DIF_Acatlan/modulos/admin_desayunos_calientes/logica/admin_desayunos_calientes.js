@@ -61,25 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const updateData = {
-            nombre_beneficiario: document.getElementById('nombre_beneficiario')?.value?.toUpperCase().trim(),
-            curp:                document.getElementById('curp')?.value?.toUpperCase().trim(),
-            apellidos:           document.getElementById('apellidos')?.value?.toUpperCase().trim(),
-            fecha_nacimiento:    document.getElementById('fecha_nacimiento')?.value,
-            sexo:                document.getElementById('sexo')?.value,
-            estado_civil:        document.getElementById('estado_civil')?.value,
-            peso_menor:          document.getElementById('peso_menor')?.value,
-            estatura_menor:      document.getElementById('estatura_menor')?.value,
-            nivel_estudios:      document.getElementById('nivel_estudios')?.value,
-            ingreso_mensual:     document.getElementById('ingreso_mensual')?.value,
-            localidad:           document.getElementById('localidad')?.value?.toUpperCase().trim(),
-            colonia:             document.getElementById('colonia')?.value?.toUpperCase().trim(),
-            cp:                  document.getElementById('cp')?.value,
-            referencias:         document.getElementById('referencias')?.value?.toUpperCase().trim(),
-            tutor:               document.getElementById('tutor')?.value?.toUpperCase().trim(),
-            clave_elector_tutor: document.getElementById('clave_elector_tutor')?.value?.toUpperCase().trim(),
-            telefono:            document.getElementById('telefono')?.value,
             escuela:             document.getElementById('escuela')?.value?.toUpperCase().trim(),
-            estatus:             'ACEPTADO',
+            estatus:             document.getElementById('estatus')?.value || 'Aprobado',
             registrado_por:      session?.user?.id || null
         };
 
@@ -610,61 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnPrevRec')?.addEventListener('click', () => navigate(-1));
     document.getElementById('btnNextRec')?.addEventListener('click', () => navigate(1));
 
-    // --- Lógica de Sincronización en Tiempo Real (Versión Ultra-Robusta) ---
-    function syncActiveRow() {
-        if (!currentSelectedId) return;
-        
-        // Buscamos la fila en todo el documento para máxima seguridad
-        const row = document.querySelector(`tr[data-id="${currentSelectedId}"]`);
-        if (!row) return;
-
-        const cells = row.cells;
-        if (!cells || cells.length < 4) return;
-
-        // 1. Nombre y CURP
-        const nameSpan = cells[0].querySelector('.live-name');
-        if (nameSpan) {
-            const nom = document.getElementById('nombre_beneficiario')?.value || 'Sin nombre';
-            nameSpan.textContent = nom; // Solo el nombre, sin duplicados con apellidos
-        }
-        const curpSpan = cells[0].querySelector('.live-curp');
-        if (curpSpan) curpSpan.textContent = document.getElementById('curp')?.value || 'S/C';
-
-        // 2. Escuela/Plantel
-        if (cells[1]) cells[1].textContent = document.getElementById('escuela')?.value || 'No asignada';
-        
-        // 3. Tutor
-        if (cells[2]) cells[2].textContent = document.getElementById('tutor')?.value || '--';
-        
-        // 4. Estatus (Badge)
-        if (badge) {
-            const val = (document.getElementById('estatus')?.value || 'ACTIVO').toUpperCase();
-            badge.textContent = val;
-            let bgColor = '#fef9c3'; let textColor = '#713f12';
-
-            if (['APROBADO', 'ACTIVO', 'ACEPTADO'].includes(val)) {
-                bgColor = '#dcfce7'; textColor = '#166534';
-            } else if (val === 'RECHAZADO') {
-                bgColor = '#fee2e2'; textColor = '#991b1b';
-            }
-
-            badge.style.background = bgColor;
-            badge.style.color = textColor;
-        }
-
-    }
-
-    // Escucha global de inputs para asegurar que funcione siempre
-    document.addEventListener('input', (e) => {
-        if (e.target.closest('#registroForm')) {
-            syncActiveRow();
-        }
-    });
-
-    document.addEventListener('change', (e) => {
-        if (e.target.closest('#registroForm')) {
-            syncActiveRow();
-        }
-    });
+    // Eliminada sincronización en tiempo real para evitar que se sobrescriban
+    // visualmente los valores originales de la fila.
 
 });
