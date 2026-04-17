@@ -25,8 +25,8 @@ const SMS = {
         }
 
         // ── Contador de caracteres + Vista previa en tiempo real ──
-        const msgTextarea  = document.getElementById('messageText');
-        const charCounter  = document.getElementById('charCount');
+        const msgTextarea = document.getElementById('messageText');
+        const charCounter = document.getElementById('charCount');
         const previewBubble = document.getElementById('previewBubble');
 
         if (msgTextarea) {
@@ -66,7 +66,9 @@ const SMS = {
 
                 // Autocompletar Mensaje (Plantilla corta solicitada)
                 const traslado = t;
-                const mensajeCorto = `DIF Acatlán: Hola ${traslado.paciente_nombre}, tiene traslado el ${traslado.fecha_viaje}. Responda SÍ para confirmar o NO para cancelar.`;
+                const horaFinal = traslado.hora_cita ? traslado.hora_cita : '3:00 A.M';
+                const nombreHospital = traslado.destino_hospital || 'Hospital';
+                const mensajeCorto = `DIF Acatlán: Hola ${traslado.paciente_nombre}, tiene traslado el ${traslado.fecha_viaje} al ${nombreHospital} a las ${horaFinal}`;
 
                 if (msgTextarea) {
                     msgTextarea.value = mensajeCorto;
@@ -105,7 +107,7 @@ const SMS = {
                     select.appendChild(opt);
                 });
             }
-        } catch(e) {
+        } catch (e) {
             console.error('Error cargando traslados:', e);
         }
     },
@@ -143,9 +145,9 @@ const SMS = {
 
             // ── Render filas ──
             table.innerHTML = data.map(log => {
-                const badgeClass   = (log.estatus || '').toLowerCase() === 'enviado' ? 'enviado' : 'error';
-                const fechaStr     = log.fecha ? new Date(log.fecha).toLocaleString('es-MX') : '--';
-                const mensajeCort  = (log.mensaje || '--').substring(0, 120) + ((log.mensaje || '').length > 120 ? '…' : '');
+                const badgeClass = (log.estatus || '').toLowerCase() === 'enviado' ? 'enviado' : 'error';
+                const fechaStr = log.fecha ? new Date(log.fecha).toLocaleString('es-MX') : '--';
+                const mensajeCort = (log.mensaje || '--').substring(0, 120) + ((log.mensaje || '').length > 120 ? '…' : '');
                 return `
                 <tr>
                     <td style="font-size:0.85rem; white-space:nowrap;">${fechaStr}</td>
@@ -193,8 +195,8 @@ const SMS = {
     // ═══════════════════════════════════════════════════════════
     async enviarSMS() {
         const phoneInput = document.getElementById('targetPhone');
-        const textInput  = document.getElementById('messageText');
-        const selectEl   = document.getElementById('trasladoSelect');
+        const textInput = document.getElementById('messageText');
+        const selectEl = document.getElementById('trasladoSelect');
 
         if (!phoneInput || !textInput) {
             console.error('❌ Error: No se encontraron los campos del formulario en el DOM.');
@@ -202,7 +204,7 @@ const SMS = {
         }
 
         const phone = (phoneInput.value || '').trim();
-        const text  = (textInput.value  || '').trim();
+        const text = (textInput.value || '').trim();
 
         if (!phone || !text) {
             alert('Por favor completa el teléfono y el mensaje.');
@@ -218,7 +220,7 @@ const SMS = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    phone:   phone,
+                    phone: phone,
                     message: text,
                     user_id: localStorage.getItem('user_email') || 'admin_dif'
                 })
@@ -229,18 +231,14 @@ const SMS = {
             if (result.status === 'Enviado') {
                 // ── Limpiar formulario ──
                 phoneInput.value = '';
-                textInput.value = ''; 
+                textInput.value = '';
                 textInput.dispatchEvent(new Event('input'));
                 if (selectEl) selectEl.value = '';
 
                 // ── Refresco automático del historial ──
                 await this.cargarHistorialSMS();
+                alert(`✅ SMS enviado (${result.mode || 'Real'} Mode)`);
 
-                if (result.mode === 'Mock') {
-                    alert(`✅ SMS enviado (Modo Simulación)`);
-                } else {
-                    alert(`✅ SMS enviado`);
-                }
             } else {
                 alert(`❌ Error: ${result.error || 'No se pudo enviar el mensaje'}`);
             }

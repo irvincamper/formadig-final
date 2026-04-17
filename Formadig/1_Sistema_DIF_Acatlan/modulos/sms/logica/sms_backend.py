@@ -41,6 +41,7 @@ SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPA
 # Configuración Twilio
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
 try:
     # Se prefiere SERVICE_ROLE_KEY para evitar errores 42501 (RLS) en backend
@@ -66,15 +67,14 @@ def send_sms():
     status = "Enviado"
     error_msg = None
     
-    # --- MODO SIMULACIÓN / REAL ---
-    # Si las credenciales están vacías o empiezan con AC_TU_, usamos Mock
-    is_mock = (not TWILIO_ACCOUNT_SID or 
-               TWILIO_ACCOUNT_SID.startswith('AC_TU_') or 
+   # --- MODO SIMULACIÓN / REAL ---
+    # Si las credenciales empiezan con AC_ o están vacías, usamos Mock
+    is_mock = (TWILIO_ACCOUNT_SID.startswith('AC_TU_') or 
+               not TWILIO_ACCOUNT_SID or 
                'TwilioClient' not in globals())
     
     if is_mock:
-        status = "Enviado (Simulado)"
-        print(f"[MOCK SMS] Enviando a {phone}: {message_text} con estatus {status}")
+        print(f"[MOCK SMS] Enviando a {phone}: {message_text}")
         # Simulamos éxito
     else:
         try:
@@ -82,7 +82,7 @@ def send_sms():
             # Usar la API de Messaging en lugar de Verify
             message = client.messages.create(
                 body=message_text,
-                from_="+14786661928",
+                from_=TWILIO_PHONE_NUMBER,
                 to=phone
             )
             status = "Enviado"
