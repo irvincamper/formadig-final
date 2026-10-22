@@ -1,24 +1,578 @@
-/* Estilos mínimos: el contrato JS depende de IDs/names, no de clases ni layout. */
-.workspace-content section { background: white; padding: 1rem; border: 1px solid #ccd4dc; margin-top: 1rem; border-radius: .4rem; }
-.workspace-content form { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
-.workspace-content label { display: flex; flex-direction: column; gap: .3rem; flex: 1 1 240px; }
-.workspace-content input, .workspace-content textarea, .workspace-content button { font: inherit; padding: .5rem; }
-.workspace-content textarea { min-height: 5rem; }
-.workspace-content button { cursor: pointer; }
-.workspace-content button:disabled { cursor: default; }
-#status { padding: .75rem; background: #e6f0fa; white-space: pre-wrap; }
-#status[data-error=true] { color: #8b1111; background: #fff0f0; }
-.table-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #ddd; overflow-wrap: anywhere; }
-.clinical-list table { min-width: 540px; }
-#search-form input { border: 1px solid #dce5ee; border-radius: .5rem; min-width: 0; width: 100%; box-sizing: border-box; }
-pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.clinical-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-areas: 'detail list'; gap: 1.5rem; align-items: start; }
-.clinical-detail { grid-area: detail; }
-.clinical-list { grid-area: list; min-width: 0; }
-.clinical-grid h2 { color: var(--color-primary, #00766c); margin-bottom: 1rem; }
-.clinical-detail form { display: grid; grid-template-columns: 1fr; }
-.clinical-detail input, .clinical-detail textarea { border: 1px solid #dce5ee; border-radius: .5rem; width: 100%; box-sizing: border-box; }
-.clinical-grid section { border-radius: 1rem; box-shadow: 0 4px 16px #182b4010; }
-@media (max-width: 1100px) { .clinical-grid { grid-template-columns: 1fr; grid-template-areas: 'list' 'detail'; } }
+/* ==========================================================================
+   clinical.css – Sistema DIF Acatlán: Estilos Clínicos Unificados
+   Diseño profesional, accesible y moderno para Psicología y Dentista.
+   Conserva íntegramente los contratos DOM, IDs y nombres definidos.
+   ========================================================================== */
+
+:root {
+    --clinical-primary: #00766c;
+    --clinical-primary-dark: #004d40;
+    --clinical-primary-light: #e6f4f2;
+    --clinical-accent: #0284c7;
+    --clinical-bg-surface: #ffffff;
+    --clinical-bg-muted: #f8fafc;
+    --clinical-border: #e2e8f0;
+    --clinical-border-strong: #cbd5e1;
+    --clinical-border-focus: #00766c;
+    --clinical-text-main: #1e293b;
+    --clinical-text-muted: #64748b;
+    --clinical-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --clinical-shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    --clinical-shadow-lg: 0 10px 25px -4px rgba(15, 23, 42, 0.10), 0 6px 12px -3px rgba(15, 23, 42, 0.05);
+    --clinical-radius: 12px;
+    --clinical-radius-sm: 8px;
+    --clinical-radius-pill: 9999px;
+    --clinical-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Encabezado y Barra Superior ─────────────────────────────────────────── */
+.clinical-header-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+    border: 1px solid var(--clinical-border);
+    border-left: 5px solid var(--clinical-primary);
+    border-radius: var(--clinical-radius);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--clinical-shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.clinical-header-banner::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(0, 118, 108, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.clinical-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.clinical-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--clinical-primary-dark);
+    background: var(--clinical-primary-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--clinical-radius-pill);
+    width: fit-content;
+}
+
+.clinical-header-banner h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--clinical-text-main);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.clinical-header-banner p {
+    font-size: 0.92rem;
+    color: var(--clinical-text-muted);
+    max-width: 680px;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.clinical-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ── Estado del Sistema (Status Bar) ─────────────────────────────────────── */
+#status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--clinical-radius-sm);
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #0369a1;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    box-shadow: 0 1px 2px rgba(14, 165, 233, 0.05);
+    margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+    transition: var(--clinical-transition);
+}
+
+#status::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    flex-shrink: 0;
+    animation: statusPulse 2s infinite ease-in-out;
+}
+
+#status[data-error="true"] {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+    box-shadow: 0 1px 2px rgba(239, 68, 68, 0.05);
+}
+
+#status[data-error="true"]::before {
+    background-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    animation: none;
+}
+
+@keyframes statusPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.75; }
+}
+
+/* ── Grid Principal de Dos Columnas ──────────────────────────────────────── */
+.clinical-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    grid-template-areas: 'detail list';
+    gap: 1.75rem;
+    align-items: start;
+    margin-bottom: 2rem;
+}
+
+.clinical-detail {
+    grid-area: detail;
+}
+
+.clinical-list {
+    grid-area: list;
+    min-width: 0;
+}
+
+/* ── Tarjetas Seccionales ────────────────────────────────────────────────── */
+.workspace-content section,
+.clinical-grid section {
+    background: var(--clinical-bg-surface);
+    border: 1px solid var(--clinical-border);
+    border-radius: var(--clinical-radius);
+    padding: 1.75rem;
+    margin-top: 0;
+    box-shadow: var(--clinical-shadow-md);
+    transition: box-shadow 0.3s ease;
+}
+
+.clinical-grid section:hover {
+    box-shadow: var(--clinical-shadow-lg);
+}
+
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--clinical-border);
+}
+
+.section-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--clinical-primary-light);
+    color: var(--clinical-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.clinical-grid h2 {
+    color: var(--clinical-text-main);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.section-subtitle {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--clinical-text-muted);
+    font-weight: 400;
+    margin-top: 0.15rem;
+}
+
+/* ── Formulario de Búsqueda (#search-form) ────────────────────────────────── */
+#search-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    align-items: end;
+    background: var(--clinical-bg-muted);
+    border: 1px solid var(--clinical-border);
+    border-radius: var(--clinical-radius-sm);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+#search-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--clinical-text-main);
+}
+
+#search-form input {
+    font-family: inherit;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.85rem;
+    background: #ffffff;
+    border: 1.5px solid var(--clinical-border);
+    border-radius: var(--clinical-radius-sm);
+    width: 100%;
+    box-sizing: border-box;
+    color: var(--clinical-text-main);
+    transition: var(--clinical-transition);
+}
+
+#search-form input:focus {
+    outline: none;
+    border-color: var(--clinical-primary);
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.15);
+}
+
+#search-form input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.search-actions-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--clinical-border);
+}
+
+/* ── Formulario de Atención y Seguimiento (#attention-form) ──────────────── */
+#attention-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+#attention-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--clinical-text-main);
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+#attention-form input,
+#attention-form textarea {
+    font-family: inherit;
+    font-size: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    background: #ffffff;
+    border: 1.5px solid var(--clinical-border);
+    border-radius: var(--clinical-radius-sm);
+    width: 100%;
+    box-sizing: border-box;
+    color: var(--clinical-text-main);
+    transition: var(--clinical-transition);
+}
+
+#attention-form input:focus,
+#attention-form textarea:focus {
+    outline: none;
+    border-color: var(--clinical-primary);
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.15);
+}
+
+#attention-form input:disabled,
+#attention-form textarea:disabled {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+#attention-form textarea {
+    min-height: 4.8rem;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* ── Botones del Módulo ──────────────────────────────────────────────────── */
+.workspace-content button,
+.button {
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--clinical-radius-sm);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: var(--clinical-transition);
+    white-space: nowrap;
+}
+
+.button--primary {
+    background: linear-gradient(135deg, var(--clinical-primary) 0%, var(--clinical-primary-dark) 100%);
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0, 118, 108, 0.2);
+}
+
+.button--primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #00877c 0%, #005a4d 100%);
+    box-shadow: 0 4px 10px rgba(0, 118, 108, 0.3);
+    transform: translateY(-1px);
+}
+
+.button--secondary {
+    background: #ffffff;
+    color: var(--clinical-text-main) !important;
+    border: 1.5px solid var(--clinical-border-strong);
+    box-shadow: var(--clinical-shadow-sm);
+}
+
+.button--secondary:hover:not(:disabled) {
+    background: var(--clinical-bg-muted);
+    border-color: #94a3b8;
+    color: var(--clinical-primary-dark) !important;
+}
+
+.workspace-content button:disabled,
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#attention-form button[type="submit"] {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+/* ── Tabla de Expedientes (#results) ─────────────────────────────────────── */
+.table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--clinical-border);
+    border-radius: var(--clinical-radius-sm);
+    background: #ffffff;
+    box-shadow: var(--clinical-shadow-sm);
+    margin-bottom: 1.25rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.clinical-list table {
+    min-width: 540px;
+}
+
+thead {
+    background: #f8fafc;
+}
+
+th {
+    padding: 0.85rem 1rem;
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--clinical-text-muted);
+    border-bottom: 1.5px solid var(--clinical-border);
+    white-space: nowrap;
+}
+
+td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--clinical-border);
+    color: var(--clinical-text-main);
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+    background-color: #f0fdfa;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Botón 'Ver detalle' inyectado en td */
+tbody td button {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: var(--clinical-radius-pill);
+    background: #ffffff;
+    border: 1px solid var(--clinical-border-strong);
+    color: var(--clinical-primary-dark);
+}
+
+tbody td button:hover {
+    background: var(--clinical-primary-light);
+    border-color: var(--clinical-primary);
+}
+
+/* ── Paginación de Resultados ────────────────────────────────────────────── */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+#previous, #next {
+    min-width: 100px;
+    padding: 0.55rem 1rem;
+    border-radius: var(--clinical-radius-sm);
+    border: 1.5px solid var(--clinical-border-strong);
+    background: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--clinical-text-main);
+}
+
+#previous:hover:not(:disabled),
+#next:hover:not(:disabled) {
+    background: var(--clinical-primary-light);
+    border-color: var(--clinical-primary);
+    color: var(--clinical-primary-dark);
+}
+
+/* ── Visor de Detalle (#detail) ──────────────────────────────────────────── */
+.detail-preview-card {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--clinical-border);
+}
+
+.clinical-detail h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--clinical-text-main);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+pre, #detail {
+    font-family: 'Fira Code', 'Cascadia Code', Consolas, Monaco, monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 1.15rem;
+    border-radius: var(--clinical-radius-sm);
+    border: 1px solid #1e293b;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+/* ── Adaptabilidad y Responsive ─────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .clinical-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: 'list' 'detail';
+    }
+}
+
+@media (max-width: 768px) {
+    .clinical-header-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.25rem;
+    }
+
+    .clinical-header-actions {
+        width: 100%;
+    }
+
+    .clinical-header-actions .button {
+        width: 100%;
+    }
+
+    .workspace-content section,
+    .clinical-grid section {
+        padding: 1.25rem;
+    }
+
+    #search-form {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+
+    .form-row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .pagination-controls {
+        justify-content: stretch;
+    }
+
+    #previous, #next {
+        flex: 1;
+    }
+}
