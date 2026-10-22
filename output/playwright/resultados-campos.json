@@ -1,0 +1,13 @@
+{
+  "results": [
+    {"name":"psicologia: valor numérico inválido -1","passed":true},
+    {"name":"psicologia: valor numérico inválido 1.5","passed":true},
+    {"name":"psicologia: filtro temporal inválido muestra HTTP 400","passed":true},
+    {"name":"dentista: valor numérico inválido -1","passed":true},
+    {"name":"dentista: valor numérico inválido 0.001","passed":true},
+    {"name":"dentista: filtro temporal inválido muestra HTTP 400","passed":true},
+    {"name":"favicon de demostración sin 404","passed":true}
+  ],
+  "browser":"chromium",
+  "version":"155.0.8059.85"
+}

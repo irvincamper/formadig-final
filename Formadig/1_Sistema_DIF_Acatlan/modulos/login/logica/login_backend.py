@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
+from datetime import datetime
 
 # =========================================================
 # 🔴 INSTALACIÓN REQUERIDA: pip install supabase
@@ -60,10 +61,7 @@ def register_user():
         perfil_data = getattr(admin_check, 'data', [])
         
         if not perfil_data or perfil_data[0].get('rol') not in ['admin', 'directora', 'desarrollador']:
-             # Si no está en perfiles, checar metadata por si acaso
-             role_meta = requester.user_metadata.get('role')
-             if role_meta not in ['admin', 'directora', 'desarrollador']:
-                return jsonify({"error": "Permisos insuficientes. Solo el Director puede crear usuarios."}), 403
+             return jsonify({"error": "Permisos insuficientes. Solo administración general puede crear usuarios."}), 403
     except Exception as e:
         print(f"Error verificando permisos: {e}")
         return jsonify({"error": "Error al verificar permisos de administrador."}), 401

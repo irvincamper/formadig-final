@@ -1,0 +1,152 @@
+{
+  "results": [
+    {
+      "name": "psicologo: listado y menú por área",
+      "passed": true
+    },
+    {
+      "name": "psicologo: navegación directa al área ajena denegada",
+      "passed": true
+    },
+    {
+      "name": "psicologo: formulario obligatorio y validación nativa",
+      "passed": true
+    },
+    {
+      "name": "psicologo: UUID inválido muestra error del backend",
+      "passed": true
+    },
+    {
+      "name": "psicologo: registrar con botón y consultar listado",
+      "passed": true
+    },
+    {
+      "name": "psicologo: búsqueda al escribir y restauración",
+      "passed": true
+    },
+    {
+      "name": "psicologo: selección, detalle y edición con persistencia en memoria",
+      "passed": true
+    },
+    {
+      "name": "psicologo: filtros por fecha, paciente y área",
+      "passed": true
+    },
+    {
+      "name": "psicologo: 26 registros y paginación con botones",
+      "passed": true
+    },
+    {
+      "name": "psicologo: panel y regreso por tarjeta",
+      "passed": true
+    },
+    {
+      "name": "psicologo: HTTP 503 desactiva paginación y permite recuperarse",
+      "passed": true
+    },
+    {
+      "name": "psicologo: vista estrecha conserva controles",
+      "passed": true
+    },
+    {
+      "name": "dentista: listado y menú por área",
+      "passed": true
+    },
+    {
+      "name": "dentista: navegación directa al área ajena denegada",
+      "passed": true
+    },
+    {
+      "name": "dentista: formulario obligatorio y validación nativa",
+      "passed": true
+    },
+    {
+      "name": "dentista: UUID inválido muestra error del backend",
+      "passed": true
+    },
+    {
+      "name": "dentista: registrar con botón y consultar listado",
+      "passed": true
+    },
+    {
+      "name": "dentista: búsqueda al escribir y restauración",
+      "passed": true
+    },
+    {
+      "name": "dentista: selección, detalle y edición con persistencia en memoria",
+      "passed": true
+    },
+    {
+      "name": "dentista: filtros por fecha, paciente y área",
+      "passed": true
+    },
+    {
+      "name": "dentista: 26 registros y paginación con botones",
+      "passed": true
+    },
+    {
+      "name": "dentista: panel y regreso por tarjeta",
+      "passed": true
+    },
+    {
+      "name": "dentista: HTTP 503 desactiva paginación y permite recuperarse",
+      "passed": true
+    },
+    {
+      "name": "dentista: vista estrecha conserva controles",
+      "passed": true
+    },
+    {
+      "name": "admin: acceso y menú psicologia",
+      "passed": true
+    },
+    {
+      "name": "admin: acceso y menú dentista",
+      "passed": true
+    },
+    {
+      "name": "ausencia de errores JavaScript y peticiones externas",
+      "passed": true
+    },
+    {
+      "name": "menú lateral se pliega y despliega",
+      "passed": true
+    },
+    {
+      "name": "cerrar sesión borra acceso clínico",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "httpErrors": [
+    {
+      "url": "http://127.0.0.1:8011/api/dentista/capacidades",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/psicologia/",
+      "status": 400
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/psicologia/?q=ERROR-SINTETICO&offset=0&limit=25",
+      "status": 503
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/psicologia/capacidades",
+      "status": 403
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/dentista/",
+      "status": 400
+    },
+    {
+      "url": "http://127.0.0.1:8011/api/dentista/?q=ERROR-SINTETICO&offset=0&limit=25",
+      "status": 503
+    }
+  ],
+  "external": [
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+    "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  ]
+}

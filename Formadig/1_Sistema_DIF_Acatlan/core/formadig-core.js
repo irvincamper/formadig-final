@@ -82,7 +82,7 @@ UI = {
                 const operativeModules = [
                     'admin_traslados', 'admin_desayunos_frios',
                     'admin_desayunos_calientes', 'admin_espacios_eaeyd',
-                    'sms', 'chatbot'
+                    'sms', 'chatbot', 'admin_psicologia', 'admin_dentista'
                 ];
                 const isOperativeActive = operativeModules.some(m => currentPath.includes(m));
 
@@ -103,15 +103,20 @@ UI = {
                         </div>
                         <div class="sidebar-dropdown-content ${isOperativeActive ? 'is-open' : ''}" id="modulesDropdown">
                             <div class="sidebar-section-label">Operación</div>
-                            ${userRole !== 'admin_desayunos' ? `
+                            ${isAdmin || userRole.includes('traslado') ? `
                                 <a href="${basePath}modulos/admin_traslados/vistas/admin_traslados.html" class="menu-item" title="Traslados">🚑 <span>Traslados</span></a>
                             ` : ''}
-                            ${userRole !== 'admin_traslados' ? `
+                            ${isAdmin || userRole.includes('desayuno') ? `
                                 <a href="${basePath}modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html" class="menu-item" title="Fríos">🥛 <span>Fríos</span></a>
                                 <a href="${basePath}modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html" class="menu-item" title="Calientes">🍲 <span>Calientes</span></a>
                                 <a href="${basePath}modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html" class="menu-item" title="Espacios">🏢 <span>Espacios</span></a>
                             ` : ''}
                             
+                            ${['admin', 'psicologo', 'dentista'].includes(userRole) ? `
+                                <div class="sidebar-section-label">Atención clínica</div>
+                                ${['admin', 'psicologo'].includes(userRole) ? `<a href="${basePath}modulos/admin_psicologia/vistas/admin_psicologia.html" class="menu-item">Psicología</a>` : ''}
+                                ${['admin', 'dentista'].includes(userRole) ? `<a href="${basePath}modulos/admin_dentista/vistas/admin_dentista.html" class="menu-item">Dentista</a>` : ''}
+                            ` : ''}
                             <div class="sidebar-section-label">Soporte</div>
                             ${userRole !== 'admin_desayunos' ? `
                                 <a href="${basePath}modulos/sms/vistas/admin_sms.html" class="menu-item" title="SMS">📱 <span>SMS</span></a>

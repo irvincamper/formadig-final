@@ -6,7 +6,10 @@ Enfoque: Seguridad - Mostrar únicamente administradores (admin, admin_desayunos
 ⚠️ NOTA: Este archivo exporta un Blueprint para ser registrado en la app maestra unificada.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
+from clinical.repository import SupabaseRepository
+from clinical.validation import ClinicalError, uuid_value
+from flask import current_app
 from supabase import create_client
 import os
 from datetime import datetime
@@ -34,10 +37,39 @@ if SUPABASE_SERVICE_ROLE_KEY:
         supabase_admin = None
 else:
     print(f"⚠️ Advertencia: SUPABASE_SERVICE_ROLE_KEY no disponible")
-    print(f"   Los usuarios se crearán directamente en tabla (sin Auth)")
+    print(f"   Las altas de Auth permanecerán bloqueadas (503)")
 
 # Roles permitidos - SOLO administradores
-ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados']
+ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados', 'psicologo', 'dentista']
+
+
+@admin_usuarios_bp.before_request
+def verificar_administracion_de_usuarios():
+    """Ampliar tipos de usuario no debe ampliar quién puede administrarlos."""
+    if request.method == 'OPTIONS':
+        return '', 204
+    parts = request.headers.get('Authorization', '').split()
+    if len(parts) != 2 or parts[0].lower() != 'bearer':
+        return jsonify(error='Se requiere una sesión válida.'), 401
+    try:
+        factory = current_app.config.get('CLINICAL_REPOSITORY_FACTORY', SupabaseRepository)
+        repository = factory(parts[1])
+        identity = repository.identity()
+        if not identity or identity.get('is_anonymous') is True:
+            return jsonify(error='Sesión inválida.'), 401
+        user_id = uuid_value(identity.get('id'), 'usuario')
+        profile = repository.profile(user_id)
+        trusted_role = (identity.get('app_metadata') or {}).get('role')
+        if not profile or trusted_role != profile.get('rol'):
+            return jsonify(error='El rol requiere aprovisionamiento confiable en Auth.'), 403
+        if not profile or profile.get('id') != user_id or profile.get('rol') not in ('admin', 'directora', 'desarrollador'):
+            return jsonify(error='Sólo administración general puede gestionar usuarios.'), 403
+        g.users_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        g.users_client.postgrest.auth(parts[1])
+    except ClinicalError as error:
+        return jsonify(error=error.message, code=error.code), error.status
+    except Exception:
+        return jsonify(error='No se pudieron verificar los permisos.'), 503
 
 
 # ============================================================================
@@ -51,7 +83,7 @@ def obtener_usuarios():
     """
     try:
         # Consulta con filtro de roles permitidos
-        response = supabase.table('perfiles').select('*').in_('rol', ALLOWED_ROLES).execute()
+        response = g.users_client.table('perfiles').select('*').in_('rol', ALLOWED_ROLES).execute()
         
         usuarios = response.data if response.data else []
         
@@ -135,6 +167,9 @@ def crear_usuario():
             print(f"❌ Errores de validación: {errors}")
             return jsonify({'status': 'error', 'errors': errors}), 400
 
+        if supabase_admin is None:
+            return jsonify(status='error', message='El servicio administrativo de altas de Auth no está configurado. No se creó ninguna cuenta.'), 503
+
         # 🔐 Intentar crear el usuario en Auth
         try:
             print(f"\n🔐 === CREANDO USUARIO EN AUTH ===")
@@ -142,6 +177,7 @@ def crear_usuario():
                 "email": email,
                 "password": password,
                 "email_confirm": True,
+                "app_metadata": {"role": rol},
                 "user_metadata": {
                     "nombre_usuario": data.get('nombre_usuario', ''),
                     "nombre_completo": data.get('nombre_completo', ''),
@@ -224,12 +260,15 @@ def actualizar_usuario(id):
             }), 400
         
         # Obtener usuario actual para validar que es un administrador
-        usuario_response = supabase.table('perfiles').select('*').eq('id', id).execute()
+        usuario_response = g.users_client.table('perfiles').select('*').eq('id', id).execute()
         
         if not usuario_response.data or len(usuario_response.data) == 0:
             return jsonify({'error': 'Usuario no encontrado'}), 404
         
         usuario = usuario_response.data[0]
+
+        if 'rol' in update_data and update_data['rol'] != usuario.get('rol'):
+            return jsonify(error='Cambio de rol bloqueado hasta disponer de actualización coordinada de Auth y perfil.'), 409
         
         # Verificar que el usuario actual es un administrador
         if usuario['rol'] not in ALLOWED_ROLES:
@@ -238,7 +277,7 @@ def actualizar_usuario(id):
             }), 403
         
         # Actualizar en la tabla perfiles
-        response = supabase.table('perfiles').update(update_data).eq('id', id).execute()
+        response = g.users_client.table('perfiles').update(update_data).eq('id', id).execute()
         
         if not response.data:
             return jsonify({'error': 'No se pudo actualizar el usuario. Verifica los datos.'}), 404
@@ -264,7 +303,7 @@ def eliminar_usuario(id):
     """
     try:
         # Validar que el usuario a eliminar tiene un rol permitido
-        usuario_response = supabase.table('perfiles').select('*').eq('id', id).execute()
+        usuario_response = g.users_client.table('perfiles').select('*').eq('id', id).execute()
         
         if not usuario_response.data or len(usuario_response.data) == 0:
             return jsonify({'error': 'Usuario no encontrado'}), 404
@@ -278,7 +317,7 @@ def eliminar_usuario(id):
             }), 403
         
         # Eliminar de la tabla perfiles
-        supabase.table('perfiles').delete().eq('id', id).execute()
+        g.users_client.table('perfiles').delete().eq('id', id).execute()
         
         return jsonify({
             'message': f'Administrador {usuario["nombre_usuario"]} eliminado exitosamente'

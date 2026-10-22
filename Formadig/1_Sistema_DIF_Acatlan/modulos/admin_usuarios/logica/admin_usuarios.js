@@ -151,11 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const formMessage = document.getElementById('formMessage');
 
     // Constantes de seguridad
-    const ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados'];
+    const ALLOWED_ROLES = ['admin', 'admin_desayunos', 'admin_traslados', 'psicologo', 'dentista'];
     const ROLE_LABELS = {
         'admin': 'Administrador General',
         'admin_desayunos': 'Admin Desayunos',
-        'admin_traslados': 'Admin Traslados'
+        'admin_traslados': 'Admin Traslados',
+        'psicologo': 'Psicólogo',
+        'dentista': 'Dentista'
     };
 
     // ========================================================================

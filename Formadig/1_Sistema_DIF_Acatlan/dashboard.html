@@ -47,6 +47,17 @@
 
             const areas = [];
 
+            // Visibilidad orientativa; la autorización real ocurre en cada endpoint.
+            if (['admin', 'psicologo', 'dentista'].includes(role)) {
+                areas.push({
+                    areaName: 'Atención clínica',
+                    modules: [
+                        ...(['admin', 'psicologo'].includes(role) ? [{ title: 'Psicología', icon: '🧠', url: 'modulos/admin_psicologia/vistas/admin_psicologia.html' }] : []),
+                        ...(['admin', 'dentista'].includes(role) ? [{ title: 'Dentista', icon: '🦷', url: 'modulos/admin_dentista/vistas/admin_dentista.html' }] : [])
+                    ]
+                });
+            }
+
             if (isAdmin || isTraslado) {
                 areas.push({
                     areaName: "Área Médica",

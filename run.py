@@ -13,6 +13,13 @@ Este archivo:
 import os
 import sys
 import importlib.util
+
+# Los mensajes existentes incluyen Unicode; PowerShell con pipes puede usar cp1252.
+if os.name == 'nt':
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8', errors='replace')
+
 from flask import Flask, send_from_directory, redirect, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -78,6 +85,8 @@ def register_blueprints():
         ("chatbot", "chatbot", "chatbot_backend", "chatbot_bp"),
         ("sms", "sms", "sms_backend", "sms_bp"),
         ("colonias", "colonias", "colonias_backend", "colonias_bp"),
+        ("admin_psicologia", "admin_psicologia", "admin_psicologia_backend", "psicologia_bp"),
+        ("admin_dentista", "admin_dentista", "admin_dentista_backend", "dentista_bp"),
     ]
     
     registered = 0
@@ -117,7 +126,7 @@ def register_blueprints():
 # Registrar blueprints
 try:
     total_registered = register_blueprints()
-    print(f"\n✅ Total blueprints registrados: {total_registered}/9")
+    print(f"\n✅ Total blueprints registrados: {total_registered}/11")
 except Exception as e:
     print(f"\n❌ Error registrando blueprints: {e}")
     sys.exit(1)

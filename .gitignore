@@ -3,3 +3,28 @@
 .env.*.local
 *.pem
 credentials.json
+
+# Entornos y artefactos generados: mantenerlos sólo en el equipo local.
+.venv/
+.venv-local/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+.playwright-cli/
+*.log
+*.tmp
+*.bak
+
+# Secretos locales (el ejemplo de configuración pública sí se versiona).
+.env.*
+!.env.example
+*.key
+*.p12
+*.pfx
+
+# Auditoría remota privada: no publicar respaldos ni capturas de cuentas.
+/evidencias_supabase/

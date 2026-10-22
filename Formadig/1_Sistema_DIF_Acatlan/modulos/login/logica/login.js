@@ -6,13 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordInput = document.getElementById('loginPassword');
     const togglePasswordBtn = document.getElementById('togglePassword');
 
-    // Mapeo de roles a carpetas (mantener UX original, adaptar rutas a la estructura real)
-    const roleToFolder = {
-        'admin_traslados': 'admin_traslados',
-        'usuario_traslados': 'admin_traslados',
-        'admin_desayunos': 'admin_desayunos_frios',
-        'usuario_desayunos': 'admin_desayunos_frios'
-    };
+    // Login único: psicologo y dentista llegan al panel de su área,
+    // igual que Traslados y Desayunos. La API verifica el rol desde perfiles.
 
     /* window.toggleView eliminada: El registro ahora es un módulo interno para el Director */
 
