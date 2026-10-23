@@ -111,6 +111,12 @@ def main():
                 '-o', f'-h 127.0.0.1 -p {port}', '-w', 'start')
         started = True
         sql(BOOTSTRAP)
+        containment = next((ROOT / 'supabase/migrations').glob('*_formadig_clinical_containment.sql'))
+        sql(containment.read_text(encoding='utf8'))
+        for db_role in ('anon', 'authenticated'):
+            for table in ('modulo_psicologia','modulo_dental'):
+                check('contencion ' + db_role + ' ' + table,
+                      actor('admin', f'SELECT * FROM public.{table}', db_role=db_role), denied=True)
         phase_a = next((ROOT / 'supabase/migrations').glob('*_formadig_roles_protegidos.sql'))
         phase_b = next((ROOT / 'supabase/migrations').glob('*_formadig_rls_corte_coordinado.sql'))
         sql(f"INSERT INTO auth.users VALUES ('{LEGACY}','{{}}','{{\"rol\":\"admin_traslados\"}}');")
@@ -129,8 +135,8 @@ def main():
               "'{\"rol\":\"admin\"}'); SELECT count(*) FROM formadig_private.web_roles", '0')
         check('perfil no recibe admin autodeclarado', f"SELECT count(*) FROM public.perfiles WHERE id='{OTHER}' AND rol IS NULL", '1')
         sql(f"INSERT INTO auth.users VALUES ('{USER}','{{\"role\":\"admin\"}}','{{}}');"
-            f"INSERT INTO public.modulo_psicologia(id,paciente_id) VALUES ('{USER}','{OTHER}');"
-            f"INSERT INTO public.modulo_dental(id,paciente_id) VALUES ('{USER}','{OTHER}');"
+            f"INSERT INTO public.modulo_psicologia(id,paciente_id,atendido_por) VALUES ('{USER}','{OTHER}','{USER}'),('{OTHER}','{OTHER}',NULL);"
+            f"INSERT INTO public.modulo_dental(id,paciente_id,atendido_por) VALUES ('{USER}','{OTHER}','{USER}'),('{OTHER}','{OTHER}',NULL);"
             f"INSERT INTO public.traslados VALUES(1,'{USER}'),(2,'{OTHER}');")
         try:
             sql(phase_b.read_text(encoding='utf8'))
@@ -148,6 +154,8 @@ def main():
         # Aprovisionamiento explícito de fixture, nunca conversión automática de metadatos editables.
         sql(f"UPDATE auth.users SET raw_app_meta_data='{{\"role\":\"admin_traslados\"}}' WHERE id='{LEGACY}';")
         sql("SET formadig.security_cutover='approved';\n" + phase_b.read_text(encoding='utf8'))
+        # Orden cronologico CLI: una contencion posterior no debe cerrar un corte ya seguro.
+        sql(containment.read_text(encoding='utf8'))
         for role in ('admin', 'admin_traslados', 'admin_desayunos', 'psicologo', 'dentista'):
             sql(f"UPDATE auth.users SET raw_app_meta_data='{{\"role\":\"{role}\"}}' WHERE id='{USER}';")
             for table, area in [('modulo_psicologia', 'psicologo'), ('modulo_dental', 'dentista')]:

@@ -9,8 +9,16 @@ END $$;
 -- Abortamos ante nuevas políticas que pudieran combinarse mediante OR con las propuestas.
 DO $$ BEGIN
     IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
-        AND tablename IN ('perfiles','modulo_psicologia','modulo_dental')) <> 7 THEN
+        AND tablename IN ('perfiles','modulo_psicologia','modulo_dental')) NOT IN (7,9) THEN
         RAISE EXCEPTION 'Inventario de politicas cambio; revisar antes de cortar';
+    END IF;
+    IF (SELECT count(*) FROM pg_policies WHERE schemaname='public'
+        AND tablename IN ('perfiles','modulo_psicologia','modulo_dental')) = 9
+        AND (SELECT count(*) FROM pg_policies WHERE schemaname='public'
+        AND tablename IN ('modulo_psicologia','modulo_dental')
+        AND policyname='clinical_containment' AND permissive='RESTRICTIVE'
+        AND cmd='ALL' AND qual='false' AND with_check='false') <> 2 THEN
+        RAISE EXCEPTION 'Las politicas adicionales no son la contencion revisada';
     END IF;
 END $$;
 -- No cortar con cuentas web conocidas sin aprovisionamiento revisado.
@@ -35,6 +43,8 @@ DROP POLICY "Lectura publica modulo_psicologia" ON public.modulo_psicologia;
 DROP POLICY "Insercion modulo_psicologia" ON public.modulo_psicologia;
 DROP POLICY "Lectura publica modulo_dental" ON public.modulo_dental;
 DROP POLICY "Insercion modulo_dental" ON public.modulo_dental;
+DROP POLICY IF EXISTS clinical_containment ON public.modulo_psicologia;
+DROP POLICY IF EXISTS clinical_containment ON public.modulo_dental;
 REVOKE ALL ON public.perfiles, public.modulo_psicologia, public.modulo_dental FROM PUBLIC, anon, authenticated;
 -- Las ACL de columnas auditadas eran NULL. Fallar al cambiar el inventario, no asumirlo.
 DO $$ BEGIN
@@ -56,8 +66,11 @@ USING ((SELECT formadig_private.web_role())='admin'
 WITH CHECK ((SELECT formadig_private.web_role())='admin'
        OR (id=(SELECT auth.uid()) AND COALESCE((SELECT auth.jwt()->>'is_anonymous'),'false')='false'));
 CREATE POLICY web_psychology_read ON public.modulo_psicologia FOR SELECT TO authenticated
-USING ((SELECT formadig_private.web_role()) IN ('admin','psicologo'));
+USING ((SELECT formadig_private.web_role()) IN ('admin','psicologo')
+       AND atendido_por=(SELECT auth.uid()));
 CREATE POLICY web_dental_read ON public.modulo_dental FOR SELECT TO authenticated
-USING ((SELECT formadig_private.web_role()) IN ('admin','dentista'));
+USING ((SELECT formadig_private.web_role()) IN ('admin','dentista')
+       AND atendido_por=(SELECT auth.uid()));
+-- Incluso admin requiere asignacion por registro; filas sin responsable no son publicas.
 -- Fase de consulta: no se concede UPDATE clínico. Requiere autorización separada.
 COMMIT;

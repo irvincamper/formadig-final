@@ -1,0 +1,30 @@
+{
+  "date_local": "2026-10-23",
+  "project_ref": "ctiqbycbkcftwuqgzxjb",
+  "environment": "production",
+  "metadata_surface": "authenticated_supabase_sql_editor",
+  "mcp_project_and_sql_access": "permission_denied",
+  "containment": {
+    "transaction": "committed_via_sql_editor",
+    "official_migration_history_registered": false,
+    "tables": ["modulo_psicologia", "modulo_dental"],
+    "rls_enabled": true,
+    "anon_select_privilege": false,
+    "authenticated_select_insert_update_delete_privileges": false,
+    "restrictive_policy": "clinical_containment",
+    "anonymous_rest_status": {"modulo_psicologia": 401, "modulo_dental": 401},
+    "rest_query": "select=id&limit=0",
+    "clinical_records_read": false
+  },
+  "phase_a_applied": false,
+  "phase_b_applied": false,
+  "exact_requested_emails_found_in_auth": 0,
+  "real_accounts_created": 0,
+  "real_login_tested": false,
+  "auth_admin_key_configured_locally": false,
+  "render_health": "read_timeout_40_seconds",
+  "render_api_status": "not_executed",
+  "render_modified": false,
+  "main_modified": false,
+  "local_tests": {"python": 47, "node": 12, "postgres_synthetic_auth": 96}
+}
