@@ -42,17 +42,24 @@ def trusted_role(identity, profile):
     return role
 
 
-def request_identity():
+def request_subject():
+    """Identidad de solicitante, sin atribuirle roles de personal web."""
     parts = request.headers.get('Authorization', '').split()
     if len(parts) != 2 or parts[0].lower() != 'bearer' or len(parts[1]) > 8192:
         raise ClinicalError('UNAUTHENTICATED', 'Se requiere una sesión Bearer válida.', 401)
     factory = current_app.config.get('CLINICAL_REPOSITORY_FACTORY', SupabaseRepository)
     repository = factory(parts[1])
     identity = repository.identity()  # Auth valida el JWT; nunca se decodifica sin verificar.
-    if not isinstance(identity, dict) or not identity.get('id'):
+    if not isinstance(identity, dict) or not identity.get('id') or identity.get('is_anonymous') is True:
         raise ClinicalError('UNAUTHENTICATED', 'Sesión inválida.', 401)
-    profile = repository.profile(uuid_value(identity['id'], 'usuario'))
-    return parts[1], identity, profile, trusted_role(identity, profile)
+    identity = dict(identity, id=uuid_value(identity['id'], 'usuario'))
+    return parts[1], identity, repository
+
+
+def request_identity():
+    parts_token, identity, repository = request_subject()
+    profile = repository.profile(identity['id'])
+    return parts_token, identity, profile, trusted_role(identity, profile)
 
 
 def protect_module(blueprint, roles, restrict_tables=False):

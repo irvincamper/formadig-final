@@ -7,7 +7,7 @@ from datetime import datetime
 traslados_bp = Blueprint('traslados', __name__, url_prefix='/api/traslados')
 
 from clinical.security import protect_module
-from flask import g
+from flask import g, current_app
 
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
@@ -85,6 +85,7 @@ def nuevo_registro():
 
     try:
         supabase_data = {
+            "registrado_por": g.web_identity["id"],
             "paciente_nombre":   data.get('paciente_nombre'),
             "paciente_curp":     data.get('paciente_curp'),
             "paciente_domicilio": data.get('paciente_domicilio'),
@@ -158,70 +159,27 @@ def actualizar_traslado(record_id):
             "Content-Type": "application/json",
             "Prefer": "return=representation" # Para obtener el objeto actualizado
         }
-        if auth_header and auth_header.startswith('Bearer '):
-            headers["Authorization"] = auth_header
-            # Extraer UUID del Token para inyectarlo y evitar crash del trigger si es null
-            try:
-                import base64, json
-                token = auth_header.split(' ')[1]
-                payload = token.split('.')[1]
-                pad = '=' * (-len(payload) % 4)
-                decoded = json.loads(base64.b64decode(payload + pad).decode('utf-8'))
-                admin_uuid = decoded.get('sub')
-                
-                # Fetch el registro actual para ver si le falta el usuario (registros de adm)
-                url_get = f"{SUPABASE_URL}/rest/v1/traslados?select=registrado_por&id=eq.{target_id}"
-                rg = requests.get(url_get, headers={"apikey": SUPABASE_KEY, "Authorization": auth_header})
-                if rg.status_code == 200 and rg.json():
-                    if not rg.json()[0].get('registrado_por'):
-                        # PRE-PATCH: Asignar usuario primero sin tocar estatus para que OLD.registrado_por ya no sea null
-                        url_patch = f"{SUPABASE_URL}/rest/v1/traslados?id=eq.{target_id}"
-                        requests.patch(url_patch, json={'registrado_por': admin_uuid}, headers=headers, proxies={"http": None, "https": None})
-            except Exception as e:
-                print(f"Error parseando JWT / Pre-Patch: {e}")
-        else:
-            headers["Authorization"] = f"Bearer {SUPABASE_KEY}" # Fallback anon key
-
+        headers['Authorization'] = auth_header
+        # Conservar propietario móvil: no preasignar el registro al administrador.
         # Hacemos el parche manual para inyectar el token específico del usuario y pasar RLS
         url = f"{SUPABASE_URL}/rest/v1/traslados?id=eq.{target_id}"
-        r = requests.patch(url, json=update_data, headers=headers, proxies={"http": None, "https": None})
+        r = requests.patch(url, json=update_data, headers=headers, timeout=(3,15), allow_redirects=False)
         
         if r.status_code >= 400:
-            return jsonify({"error": f"Supabase rechazó la operación: {r.text}"}), r.status_code
+            return jsonify(error="Supabase no autorizó o no pudo completar la actualización."), r.status_code
 
         res_data = r.json()
         if not res_data:
-            return jsonify({"error": "⚠️ BLOQUEADO POR SUPABASE: La tabla 'traslados' tiene activado el Row Level Security (RLS) que impide actualizar registros. Ve a tu panel de Supabase > Authentication > Policies y crea una política UPDATE, o desactiva RLS."}), 404
+            return jsonify(error="No se aplicó la actualización; verifica autorización y existencia del registro."), 409
             
         print(f"✅ Traslado actualizado ID: {target_id}")
         
-        # --- DISPARAR SMS AUTOMÁTICO AL ACEPTAR ---
+        sms_status = 'not_requested'
         if update_data.get('estatus') == 'ACEPTADO':
-            try:
-                rec = res_data[0]
-                tel = rec.get('telefono_principal') or rec.get('telefono_secundario')
-                fecha_v = rec.get('fecha_viaje', '')
-                hora_c = rec.get('hora_cita', '')
-                if tel:
-                    msg_texto = f"DIF Acatlan: Tu traslado esta programado el dia {fecha_v} a las {hora_c}. ¿Confirmas que asistiras ese dia y a la hora acordada? Responde SI o NO."
-                    
-                    def enviar_sms_async(telefono, mensaje):
-                        try:
-                            requests.post('http://localhost:5009/api/sms/send', json={
-                                'phone': telefono,
-                                'message': mensaje,
-                                'user_id': 'Bot Traslados'
-                            }, timeout=5)
-                        except Exception as e:
-                            print(f"Error enviando SMS asíncrono: {e}")
-                            
-                    import threading
-                    threading.Thread(target=enviar_sms_async, args=(tel, msg_texto)).start()
-                    print(f"📲 Auto-SMS de confirmación disparado para {tel}")
-            except Exception as e:
-                print(f"Error procesando auto-SMS: {e}")
+            from clinical.sms_security import automatic_sms
+            sms_status = automatic_sms(current_app._get_current_object(), auth_header.split()[1], res_data[0])
 
-        return jsonify({"message": f"¡Traslado #{target_id} agendado correctamente!", "data": res_data[0]}), 200
+        return jsonify({"message": f"¡Traslado #{target_id} agendado correctamente!", "data": res_data[0], "sms_status": sms_status}), 200
     except Exception as e:
         print(f"❌ Error al actualizar traslado: {e}")
         return jsonify({"error": f"Error de conectividad/servidor: {str(e)}"}), 500

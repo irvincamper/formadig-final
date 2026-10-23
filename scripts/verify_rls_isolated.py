@@ -117,6 +117,14 @@ def main():
         sql(phase_a.read_text(encoding='utf8'))
         check('fase A no migra roles historicos', 'SELECT count(*) FROM formadig_private.web_roles', '0')
         check('fase A conserva perfil historico', f"SELECT rol FROM public.perfiles WHERE id='{LEGACY}'", 'admin_traslados')
+        sql(f"UPDATE auth.users SET raw_app_meta_data='{{\"provider\":\"email\"}}' WHERE id='{LEGACY}';")
+        check('actualizacion Auth conserva rol web historico sin promoverlo', f"SELECT rol FROM public.perfiles WHERE id='{LEGACY}'", 'admin_traslados')
+        check('perfil historico no se convierte en registro confiable', 'SELECT count(*) FROM formadig_private.web_roles','0')
+        # Rol histórico ajeno a la web: valor ficticio, sin proponer identificadores móviles.
+        sql(f"UPDATE public.perfiles SET rol='legacy_non_web_fixture' WHERE id='{LEGACY}';")
+        sql(f"UPDATE auth.users SET raw_app_meta_data='{{\"provider\":\"email\"}}' WHERE id='{LEGACY}';")
+        check('metadatos Auth conservan rol no web historico', f"SELECT rol FROM public.perfiles WHERE id='{LEGACY}'", 'legacy_non_web_fixture')
+        sql(f"UPDATE public.perfiles SET rol='admin_traslados' WHERE id='{LEGACY}';")
         check('autorregistro no copia rol editable', f"INSERT INTO auth.users VALUES ('{OTHER}','{{}}',"
               "'{\"rol\":\"admin\"}'); SELECT count(*) FROM formadig_private.web_roles", '0')
         check('perfil no recibe admin autodeclarado', f"SELECT count(*) FROM public.perfiles WHERE id='{OTHER}' AND rol IS NULL", '1')

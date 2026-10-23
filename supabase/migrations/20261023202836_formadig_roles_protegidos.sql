@@ -30,11 +30,12 @@ GRANT EXECUTE ON FUNCTION formadig_private.web_role() TO authenticated;
 -- Función privada, sin SQL dinámico, ruta fija, sin argumentos ni ejecución para clientes web.
 CREATE FUNCTION formadig_private.sync_auth_web_role() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
-DECLARE canonical text;
+DECLARE canonical text; was_managed boolean;
 BEGIN
     IF TG_TABLE_SCHEMA <> 'auth' OR TG_TABLE_NAME <> 'users' THEN
         RAISE EXCEPTION 'Trigger exclusivo de Auth';
     END IF;
+    was_managed := EXISTS(SELECT 1 FROM formadig_private.web_roles WHERE user_id=NEW.id);
     canonical := NEW.raw_app_meta_data->>'role';
     IF canonical NOT IN ('admin','admin_traslados','admin_desayunos','psicologo','dentista') THEN
         canonical := NULL;
@@ -51,7 +52,9 @@ BEGIN
                 NEW.raw_user_meta_data->>'nombre_completo',NEW.raw_user_meta_data->>'apellidos',canonical,now());
     ELSE
         -- Actualización explícita de app_metadata por administrador: no tocar otros datos.
-        UPDATE public.perfiles SET rol=canonical WHERE id=NEW.id;
+        UPDATE public.perfiles SET rol=canonical WHERE id=NEW.id
+          AND (canonical IS NOT NULL OR was_managed);
+        -- Sin rol web confiable: conservar roles no web existentes sin reinterpretarlos; nunca promover user_metadata.
     END IF;
     RETURN NEW;
 END

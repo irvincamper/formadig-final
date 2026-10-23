@@ -201,9 +201,13 @@ class IntegrationTests(unittest.TestCase):
             for role in ('psicologo', 'dentista'):
                 payload = dict(nombre_usuario='sintetico', nombre_completo='Profesional sintético',
                                email='sintetico@example.invalid', password='sintetica-123', rol=role, telefono='0000000000')
-                with patch.dict(user_globals, {'supabase_admin': auth_admin}):
+                auth_admin.auth.admin.get_user_by_id.return_value = SimpleNamespace(user=SimpleNamespace(id=PATIENT,app_metadata={'role':role}))
+                provisioning_client=Mock()
+                provisioning_client.table.return_value.select.return_value.eq.return_value.execute.return_value=SimpleNamespace(data=[{'id':PATIENT,'rol':role}])
+                with patch.dict(user_globals, {'supabase_admin': auth_admin,'create_client':Mock(return_value=provisioning_client)}):
                     response = client.post('/api/admin_usuarios', headers={'Authorization': 'Bearer synthetic-admin'}, json=payload)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 201)
+                self.assertTrue(response.json['access_validation_pending'])
                 attributes = auth_admin.auth.admin.create_user.call_args.args[0]
                 self.assertEqual(attributes['app_metadata'], {'role': role})
                 self.assertNotIn('rol', attributes['user_metadata'])

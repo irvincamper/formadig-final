@@ -1,0 +1,16 @@
+# Activación posterior de cuentas profesionales
+
+**Preparación; no ejecutada en Supabase real.** Roles: psicologo y dentista; administración general usa el admin canónico existente.
+
+1. Obtener autorización específica para el proyecto y para crear las cuentas en correos controlados por el titular. No reutilizar correos personales ajenos ni presentar .invalid como buzones reales.
+2. Revisar el estado actual de políticas, privilegios, trigger y dependencias; preparar respaldo y ensayo aislado. Revisar las dos migraciones y autorizar su aplicación coordinada con el backend. No ejecutar borradores antiguos ni desactivar RLS.
+3. Conciliar y aprovisionar explícitamente las cuentas web existentes aprobadas. No convertir user_metadata o perfiles.rol automáticamente en permisos; no modificar roles existentes sin autorización. Comprobar el admin antes del corte.
+4. Usar exclusivamente la operación Auth Admin create_user desde el servidor protegido. El endpoint /api/admin_usuarios verifica primero identidad y admin canónico; clinical/provisioning.py vuelve a comprobar ese actor y sólo acepta los cinco roles web. La clave administrativa se utiliza para Auth, no para saltar RLS de tablas.
+5. Generar una contraseña inicial aleatoria única y entregarla por un canal local privado, fuera de logs/Git/capturas. Mantener el acceso durante el alta bajo control del operador; cambiar la contraseña tras el primer acceso autorizado. Revisar la política de confirmación de correo antes de usar email_confirm=True (el código conserva la conducta administrativa anterior).
+6. El trigger autorizado debe crear el perfil con el mismo UUID y registrar el rol de raw_app_meta_data, nunca desde raw_user_meta_data. El backend consulta nuevamente Auth por UUID y consulta el perfil mediante el JWT ordinario del administrador. Exige rol/UUID coincidentes.
+7. Una respuesta 409 con account_created=True indica alta parcial: no repetir create_user, borrar la cuenta ni insertar identidades/perfiles manualmente. Un operador autorizado debe conciliar esa identidad concreta por Auth Admin y el procedimiento de perfil aprobado. El código no automatiza una compensación destructiva.
+8. La respuesta 201 access_validation_pending no certifica activación ni bloquea por sí sola Auth. Antes de entregar acceso operativo, comprobar el registro privado mediante el procedimiento autorizado y probar JWT nuevo: /api/auth/me, dashboard, área clínica asignada y negativas por Flask y REST. Probar también que un perfil con rol sin app_metadata confiable/registro no otorga acceso.
+9. Para psicologo: Psicología permitida; Dental, Transporte, Comidas y Gestión de Usuarios denegados. Para dentista, la regla inversa por área. Admin puede consultar ambas áreas sólo cuando RLS real esté aprobado. Mantener CLINICAL_ENABLE_UPDATES=false y creación clínica bloqueada.
+10. No publicar hasta verificar permisos reales, acceso propio de perfil, datos mínimos de pacientes, tokens con rol anterior, cierre/expiración de sesión y regresión de los módulos anteriores. Webhook SMS y bajas son flujos separados que siguen restringidos.
+
+No se necesita código móvil ni inventar un staging para seguir revisando y probando localmente este procedimiento. Sí se necesita un entorno real autorizado y suficientemente protegido para afirmar que la activación funciona con Supabase Auth/PostgREST reales.

@@ -118,6 +118,28 @@ class WebSecurityTests(unittest.TestCase):
         self.assertEqual(r.status_code,200)
         self.assertEqual(create.call_args.args,('https://synthetic.supabase.co','sb_publishable_synthetic'))
 
+    def test_staff_update_preserves_mobile_owner_and_reports_sms_disabled(self):
+        response=Mock(status_code=200)
+        response.json.return_value=[{'id': PATIENT,'registrado_por':PATIENT,'estatus':'ACEPTADO'}]
+        with patch('requests.patch',return_value=response) as update, patch('requests.get') as read:
+            r=self.client.patch('/api/traslados/'+PATIENT,
+                headers={'Authorization':'Bearer synthetic-admin'},json={'estatus':'ACEPTADO','registrado_por':ADMIN})
+        self.assertEqual(r.status_code,200)
+        self.assertEqual(r.json['data']['registrado_por'],PATIENT)
+        self.assertEqual(r.json['sms_status'],'disabled')
+        self.assertNotIn('registrado_por',update.call_args.kwargs['json'])
+        self.assertEqual(update.call_args.kwargs['headers']['Authorization'],'Bearer synthetic-admin')
+        read.assert_not_called()
+
+    def test_admin_creation_records_verified_owner(self):
+        sdk=Mock()
+        sdk.table.return_value.insert.return_value.execute.return_value.data=[{'id':PATIENT}]
+        with patch('supabase.create_client',return_value=sdk):
+            r=self.client.post('/api/traslados',headers={'Authorization':'Bearer synthetic-admin'},
+                json={'paciente_nombre':'Ficticio','paciente_curp':'FICTICIO','destino_hospital':'Hospital ficticio','fecha_viaje':'2026-10-24','hora_cita':'10:00','registrado_por':PATIENT})
+        self.assertEqual(r.status_code,201)
+        self.assertEqual(sdk.table.return_value.insert.call_args.args[0]['registrado_por'],ADMIN)
+
 
 if __name__ == '__main__':
     unittest.main()
