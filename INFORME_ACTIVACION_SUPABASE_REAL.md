@@ -1,5 +1,45 @@
 # FORMADIG — Activación Supabase real
 
+## Estado vigente tras integración por CLI (23 de octubre de 2026)
+
+Esta sección sustituye las conclusiones de estado anteriores, que se conservan abajo como antecedente de la contención. **Fase A aplicada y verificada; contención conciliada con el historial; Fase B, cuentas y publicación pendientes.**
+
+### Operaciones reales y secuencia
+
+1. Se comprobó que el vínculo CLI apunta exclusivamente a DIF `ctiqbycbkcftwuqgzxjb`. `db query --linked` funciona; no se volvió a depender del MCP.
+2. Se leyeron completas las tres migraciones y se contrastaron políticas, columnas, restricciones, ACL, dependencias y trigger remotos. Antes del alta seguían nueve políticas: tres de perfiles, cuatro clínicas heredadas y dos restrictivas de contención. El historial oficial y el esquema privado todavía no existían.
+3. Se conservaron definiciones del trigger/función/ACL/restricciones y metadatos en `output/cli-schema-backup-before-a.json` y `output/cli-phase-a-preflight.json`. Son evidencia y respaldo de las definiciones afectadas, **no un respaldo íntegro de datos ni una restauración probada**. No se exportaron expedientes.
+4. Para aislar la fase se creó una carpeta temporal con el vínculo del proyecto y **únicamente** `20261023202836_formadig_roles_protegidos.sql`. El dry-run enumeró sólo ese archivo. `supabase migration up --linked --workdir ...` aplicó la Fase A mediante el mecanismo oficial; no se ejecutó un push del conjunto completo.
+5. Se verificaron el trigger privado `sync_auth_web_role()`, el registro vacío, la ausencia de EXECUTE para clientes sobre el trigger privilegiado y la entrada oficial `20261023202836`. Ninguna cuenta histórica se convirtió automáticamente.
+6. Se comparó la contención efectivamente instalada: seis políticas clínicas totales, dos denegaciones restrictivas, ambas tablas con RLS y sin privilegios SELECT/INSERT/UPDATE/DELETE/TRUNCATE para anon/authenticated. Después se ejecutó `migration repair 20261023214516 --status applied --linked`, **sólo para registrar el delta ya ejecutado anteriormente por SQL Editor**. No se ejecutó de nuevo su CREATE POLICY ni se alteró su protección.
+7. El listado oficial final muestra A y contención aplicadas; `20261023202914` sigue pendiente. La tercera migración es una medida de cierre preventivo: el estado real fue contención primero, Fase A después y Fase B todavía no. Su registro no abre acceso ni concede roles.
+
+### Bloqueos confirmados para B y backend
+
+Hay **ocho cuentas web históricas sin rol administrado en Auth**: dos perfiles admin, cuatro admin_traslados y dos admin_desayunos. Todas carecen de `raw_app_meta_data.role`. No se copió `perfiles.rol` al registro: el origen histórico no es confiable. La Fase B mantiene su preflight para detener el corte ante esta situación. El backend nuevo exige Auth administrado + perfil coincidente; publicarlo ahora bloquearía esas cuentas.
+
+El inventario con UUID, rol histórico y rol administrado se guardó exclusivamente en `%LOCALAPPDATA%/FORMADIG/security-activation/REVISION_ROLES_EXISTENTES.json`, con ACL restringida al usuario de Windows, fuera de Git. Se solicitó revisión individual del titular para definir el aprovisionamiento permitido; no se modificaron esas ocho cuentas. No contiene contraseñas.
+
+La revisión de dependencias también confirmó RLS deshabilitado en Traslados, los tres módulos alimentarios y sms_logs. La Fase B propuesta sólo cubre perfiles y las dos tablas clínicas; por sí sola **no certifica autorización directa de toda la aplicación**. Su diseño y la regresión web por rol siguen pendientes. No se modificaron esas tablas para ocultar esta incompatibilidad ni se afirma compatibilidad móvil.
+
+### Tres cuentas y credenciales
+
+La clave de Auth Admin está presente en `.env`, pero la solicitud al endpoint administrativo respondió **HTTP 401**. La comprobación local sin mostrar su contenido indicó que no tiene formato JWT service_role ni sb_secret_. Presencia en el archivo no significa credencial válida. Se solicitó sustituirla por la clave administrativa de DIF únicamente en el archivo local ignorado; no se intentó crear cuentas por SQL ni usarla contra tablas para saltar RLS.
+
+**Cuentas reales creadas en esta intervención: cero. Login real de las tres cuentas: pendiente.** Los tres correos autorizados siguen siendo los de la conversación del titular; antes de un alta se repetirá la búsqueda exacta de esas identidades para evitar duplicados. No se generaron ni entregaron contraseñas reales. Las credenciales demo existentes siguen siendo exclusivamente locales.
+
+### Validación, Git y publicación
+
+La Fase A conserva el SQL previamente validado en el laboratorio: 47 pruebas Python, 12 Node y 96 controles PostgreSQL aislados aprobados en la fase anterior. No son pruebas de login Supabase. La verificación de aplicación A y de contención sí se hizo sobre DIF real mediante consultas de metadatos y agregado de roles, sin expedientes. Advisors de seguridad antes/después y el historial se conservaron en `output/cli-advisors-*.json` y `output/cli-migration-history-after-a.json`; no se declara que toda la base esté libre de riesgos.
+
+Los cambios siguen en `fix/autenticacion-seguridad`. Se conservaron capturas, .env, archivos ignorados y trabajo frontend; no se modificó HTML/CSS ni la aplicación móvil. **No hubo push, merge a main ni despliegue Render.** El alcance autorizado permite prepararlos, pero faltan la conciliación de usuarios, los permisos de módulos existentes y las pruebas Auth/PostgREST reales. Las escrituras clínicas permanecen cerradas.
+
+Para continuar: corregir la credencial administrativa; revisar explícitamente las ocho identidades históricas; preparar el cierre de los permisos directos aún abiertos en módulos web; provisionar las cuentas por Auth Admin con acceso operativo retenido hasta la validación; conciliar los roles aprobados; ensayar el corte de perfiles/RLS/backend; aplicar B de forma aislada sólo cuando sus preflights y la compatibilidad pasen; validar positivos y negativos con JWT reales y datos ficticios autorizados; entonces integrar backend en GitHub/Render y entregar las contraseñas por archivo privado local. No reabrir políticas públicas para solucionar fallos.
+
+---
+
+## Antecedente: primera contención (estado anterior, no vigente para Fase A/CLI)
+
 23 de octubre de 2026. Proyecto autorizado: DIF (`ctiqbycbkcftwuqgzxjb`). Estado: **contención clínica aplicada; cuentas reales y despliegue pendientes por acceso técnico**.
 
 ## 1. Operaciones realmente efectuadas en Supabase
