@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const user = Auth.getUser();
-            const response = await fetch('/api/chatbot/ask', {
+            const response = await Auth.fetch('/api/chatbot/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', file);
 
         try {
-            const res = await fetch('/api/chatbot/upload', {
+            const res = await Auth.fetch('/api/chatbot/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -232,6 +232,25 @@ document.addEventListener('DOMContentLoaded', () => {
             window.print();
         });
     }
+    // Las descargas también necesitan JWT; nunca enviarlo en la URL.
+    document.addEventListener('click', async event => {
+        const anchor = event.target.closest('a[href]');
+        if (!anchor) return;
+        const url = new URL(anchor.href, window.location.href);
+        if (url.origin !== window.location.origin || url.pathname !== '/api/chatbot/export') return;
+        event.preventDefault();
+        try {
+            const response = await Auth.fetch(url.href);
+            if (!response.ok) throw new Error('Exportación no autorizada o no disponible.');
+            const blobUrl = URL.createObjectURL(await response.blob());
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            const disposition = response.headers.get('Content-Disposition') || '';
+            link.download = (disposition.match(/filename="?([^";]+)"?/) || [])[1] || 'Reporte';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        } catch (_) { addMessage('No se pudo descargar el reporte. Verifica tus permisos.', 'bot'); }
+    });
 });
 
 

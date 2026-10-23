@@ -25,19 +25,20 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env (si existe en desarrollo)
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'), override=False)
 
 # ============================================================================
 # VALIDACIÓN DE VARIABLES DE ENTORNO REQUERIDAS
 # ============================================================================
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_URL:
     print("⚠️  ADVERTENCIA: SUPABASE_URL no está configurada. Algunos endpoints pueden no funcionar.")
-if not SUPABASE_SERVICE_ROLE_KEY:
-    print("⚠️  ADVERTENCIA: SUPABASE_SERVICE_ROLE_KEY no está configurada. Algunos endpoints pueden no funcionar.")
+if not SUPABASE_KEY:
+    print("⚠️  ADVERTENCIA: SUPABASE_KEY no está configurada; autenticación no disponible.")
 
 # ============================================================================
 # CONFIGURACIÓN DE DIRECTORIOS
@@ -54,6 +55,7 @@ print(f"   Sistema en: {SYSTEM_DIR}")
 print(f"   Módulos en: {MODULES_DIR}")
 print(f"\n📦 Variables de entorno:")
 print(f"   SUPABASE_URL: {'✅ Configurada' if SUPABASE_URL else '❌ NO configurada'}")
+print(f"   SUPABASE_KEY: {'✅ Configurada' if SUPABASE_KEY else '❌ NO configurada'}")
 print(f"   SUPABASE_SERVICE_ROLE_KEY: {'✅ Configurada' if SUPABASE_SERVICE_ROLE_KEY else '❌ NO configurada'}")
 print("="*70)
 

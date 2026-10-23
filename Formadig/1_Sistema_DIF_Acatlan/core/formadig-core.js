@@ -6,6 +6,34 @@ const CORE_CONFIG = {
 };
 
 const Auth = {
+    // Sólo la respuesta verificada del servidor determina la sesión vigente.
+    verifySession: async function () {
+        const token = localStorage.getItem('supabase_token');
+        if (!token) { this.logout(); return false; }
+        try {
+            const response = await fetch('/api/auth/me', {headers: {Authorization: 'Bearer ' + token}, cache: 'no-store'});
+            if (response.status === 401 || response.status === 403) { this.logout(); return false; }
+            if (!response.ok) return false;
+            const data = await response.json();
+            if (!['admin', 'admin_traslados', 'admin_desayunos', 'psicologo', 'dentista'].includes(data.role)) {
+                this.logout(); return false;
+            }
+            const changed = localStorage.getItem('user_role') !== data.role;
+            localStorage.setItem('user_role', data.role);
+            localStorage.setItem('user_fullname', data.nombre_completo || 'Usuario DIF');
+            if (changed) window.location.reload();
+            return true;
+        } catch (_) { return false; }
+    },
+    fetch: function (input, options = {}) {
+        const url = new URL(input, window.location.href);
+        const headers = new Headers(options.headers || {});
+        if (url.origin === window.location.origin && url.pathname.startsWith('/api/')) {
+            const token = localStorage.getItem('supabase_token');
+            if (token) headers.set('Authorization', 'Bearer ' + token);
+        }
+        return fetch(input, {...options, headers});
+    },
     // Validar si el usuario tiene una sesión activa
     checkSession: function () {
         const token = localStorage.getItem('supabase_token');
@@ -52,7 +80,7 @@ UI = {
                 <div class="header__logo">FORMADIG</div>
             </div>
             <div class="header__user-info">
-                <span class="user-name">${user ? user.fullName : 'Bienvenido'}</span>
+                <span class="user-name">${String(user ? user.fullName : 'Bienvenido').replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]))}</span>
                 <button onclick="Auth.logout()" class="btn-logout-small">Cerrar Sesión</button>
             </div>
         `;
@@ -178,3 +206,17 @@ UI = {
         }
     }
 };
+
+
+// La página estática no es una barrera de seguridad: cada API verifica su JWT.
+if (typeof document.addEventListener === 'function') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!window.location.pathname.includes('/login/')) {
+            const valid = await Auth.verifySession();
+            if (!valid && localStorage.getItem('supabase_token')) {
+                const status = document.getElementById('status') || document.getElementById('formMessage');
+                if (status) status.textContent = 'No se pudo verificar la sesión. Intenta nuevamente.';
+            }
+        }
+    });
+}

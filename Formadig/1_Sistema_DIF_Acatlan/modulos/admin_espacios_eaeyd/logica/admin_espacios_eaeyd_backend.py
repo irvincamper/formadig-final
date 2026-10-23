@@ -8,15 +8,12 @@ import base64
 # Crear Blueprint para espacios EAEyD
 espacios_eaeyd_bp = Blueprint('espacios_eaeyd', __name__, url_prefix='/api/espacios_eaeyd')
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
-    exit(1)
+from clinical.security import protect_module
+from flask import g
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+global_client = protect_module(espacios_eaeyd_bp, ('admin', 'admin_desayunos'))
 
 @espacios_eaeyd_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():

@@ -6,62 +6,21 @@ from datetime import datetime
 # Crear Blueprint para traslados
 traslados_bp = Blueprint('traslados', __name__, url_prefix='/api/traslados')
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
-    exit(1)
+from clinical.security import protect_module
+from flask import g
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-if not SUPABASE_URL or not SUPABASE_KEY:
-    print("❌ ERROR: SUPABASE_URL o SUPABASE_KEY no configuradas en variables de entorno")
-    raise RuntimeError("Supabase credentials not configured")
-
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-    print("✅ Conectado a Supabase - Traslados")
-except Exception as e:
-    print(f"ATENCIÓN: Error conectando a Supabase: {e}")
-    supabase = None
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+supabase = protect_module(traslados_bp, ('admin', 'admin_traslados'))
 
 @traslados_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
     if not supabase:
         return jsonify({"error": "Supabase no configurado"}), 500
     try:
-        # Obtener rol y email del usuario desde headers
-        user_email = request.headers.get('X-User-Email', '')
-        user_role = request.headers.get('X-User-Role', '').strip().lower()
-        
-        print(f"📋 GET /api/traslados → user_email={user_email}, user_role={user_role}")
-        
-        # Determinar si es admin o usuario normal
-        is_admin = user_role in ['admin', 'admin_traslados', 'directora', 'desarrollador']
-        
-        # Construir la consulta base
+        # El guard ya comprobó el rol y vinculó el cliente al JWT verificado.
         query = supabase.table('traslados').select('*').order('fecha_solicitud', desc=True).limit(1000)
-        
-        # Si NO es admin, filtrar por registrado_por usando el email del usuario
-        if not is_admin and user_email:
-            try:
-                # Buscar el ID del usuario en la tabla perfiles usando el email
-                perfil_res = supabase.table('perfiles').select('id').eq('nombre_usuario', user_email).execute()
-                perfil_data = getattr(perfil_res, 'data', [])
-                
-                if perfil_data and len(perfil_data) > 0:
-                    user_id = perfil_data[0].get('id')
-                    print(f"🔍 Usuario encontrado: email={user_email}, id={user_id}")
-                    query = query.eq('registrado_por', user_id)
-                else:
-                    print(f"⚠️ Usuario {user_email} no encontrado en perfiles, sin registros para mostrar")
-                    return jsonify({"traslados": []}), 200
-            except Exception as e:
-                print(f"❌ Error buscando usuario en perfiles: {e}")
-                # Si hay error, retornar lista vacía para no exponer datos
-                return jsonify({"traslados": []}), 200
-        
+
         res = query.execute()
         
         # Mapear columnas reales de DB -> JSON response (SIN FALLBACKS, SOLO CAMPOS EXACTOS)
@@ -107,7 +66,7 @@ def obtener_registros():
                 "lugares_requeridos": r.get('lugares_requeridos', 2),
             })
 
-        print(f"✅ Retornando {len(traslados_mapeados)} registros (admin={is_admin}, user={user_email})")
+        # No registrar información de usuarios ni datos de solicitudes.
         return jsonify({"traslados": traslados_mapeados}), 200
     except Exception as e:
         print(f"❌ Error al obtener traslados: {e}")

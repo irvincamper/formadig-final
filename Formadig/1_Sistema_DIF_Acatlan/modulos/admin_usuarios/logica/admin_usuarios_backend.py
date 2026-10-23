@@ -8,6 +8,7 @@ Enfoque: Seguridad - Mostrar únicamente administradores (admin, admin_desayunos
 
 from flask import Blueprint, request, jsonify, g
 from clinical.repository import SupabaseRepository
+from clinical.security import trusted_role
 from clinical.validation import ClinicalError, uuid_value
 from flask import current_app
 from supabase import create_client
@@ -59,10 +60,10 @@ def verificar_administracion_de_usuarios():
             return jsonify(error='Sesión inválida.'), 401
         user_id = uuid_value(identity.get('id'), 'usuario')
         profile = repository.profile(user_id)
-        trusted_role = (identity.get('app_metadata') or {}).get('role')
-        if not profile or trusted_role != profile.get('rol'):
+        canonical_role = trusted_role(identity, profile)
+        if not profile or canonical_role != profile.get('rol'):
             return jsonify(error='El rol requiere aprovisionamiento confiable en Auth.'), 403
-        if not profile or profile.get('id') != user_id or profile.get('rol') not in ('admin', 'directora', 'desarrollador'):
+        if not profile or profile.get('id') != user_id or canonical_role != 'admin':
             return jsonify(error='Sólo administración general puede gestionar usuarios.'), 403
         g.users_client = create_client(SUPABASE_URL, SUPABASE_KEY)
         g.users_client.postgrest.auth(parts[1])
@@ -107,7 +108,9 @@ def crear_usuario():
     Endpoint POST para crear nuevo administrador con validación detallada.
     """
     try:
-        data = request.json
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify(error='Se requiere un objeto JSON.'), 400
         errors = {}
         
         print(f"\n📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===")
@@ -181,7 +184,6 @@ def crear_usuario():
                 "user_metadata": {
                     "nombre_usuario": data.get('nombre_usuario', ''),
                     "nombre_completo": data.get('nombre_completo', ''),
-                    "rol": data.get('rol', ''),
                     "curp": data.get('curp', ''),
                     "telefono": data.get('telefono', ''),
                     "domicilio": data.get('domicilio', ''),
@@ -236,7 +238,9 @@ def actualizar_usuario(id):
     Solo actualiza campos válidos de la tabla perfiles.
     """
     try:
-        data = request.json
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify(error='Se requiere un objeto JSON.'), 400
         if not data:
             return jsonify({'error': 'No hay datos para actualizar'}), 400
         
@@ -270,6 +274,10 @@ def actualizar_usuario(id):
         if 'rol' in update_data and update_data['rol'] != usuario.get('rol'):
             return jsonify(error='Cambio de rol bloqueado hasta disponer de actualización coordinada de Auth y perfil.'), 409
         
+        update_data.pop('rol', None)
+        if not update_data:
+            return jsonify(error='No hay cambios de perfil no sensibles.'), 400
+
         # Verificar que el usuario actual es un administrador
         if usuario['rol'] not in ALLOWED_ROLES:
             return jsonify({
@@ -301,30 +309,7 @@ def eliminar_usuario(id):
     Endpoint DELETE para eliminar un administrador.
     Validación: Verifica que el usuario a eliminar tenga un rol permitido antes de eliminar.
     """
-    try:
-        # Validar que el usuario a eliminar tiene un rol permitido
-        usuario_response = g.users_client.table('perfiles').select('*').eq('id', id).execute()
-        
-        if not usuario_response.data or len(usuario_response.data) == 0:
-            return jsonify({'error': 'Usuario no encontrado'}), 404
-        
-        usuario = usuario_response.data[0]
-        
-        # Verificar que el usuario tiene un rol permitido
-        if usuario['rol'] not in ALLOWED_ROLES:
-            return jsonify({
-                'error': 'No se puede eliminar un usuario que no es administrador'
-            }), 403
-        
-        # Eliminar de la tabla perfiles
-        g.users_client.table('perfiles').delete().eq('id', id).execute()
-        
-        return jsonify({
-            'message': f'Administrador {usuario["nombre_usuario"]} eliminado exitosamente'
-        }), 200
-        
-    except Exception as e:
-        return jsonify({'error': f'Error al eliminar usuario: {str(e)}'}), 500
+    return jsonify(error='Baja bloqueada hasta coordinar Auth, sesiones y dependencias del perfil.'), 409
 
 
 # ============================================================================

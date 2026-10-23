@@ -67,7 +67,7 @@ class SupabaseRepository:
         return self._call('GET', '/auth/v1/user', identity=True)
 
     def profile(self, user_id):
-        rows = self._call('GET', '/rest/v1/perfiles', [('select', 'id,rol'), ('id', f'eq.{user_id}'), ('limit', '1')])
+        rows = self._call('GET', '/rest/v1/perfiles', [('select', 'id,rol,nombre_completo'), ('id', f'eq.{user_id}'), ('limit', '1')])
         if not isinstance(rows, list):
             raise ClinicalError('UPSTREAM_ERROR', 'Respuesta de perfil inválida.', 502)
         return rows[0] if rows else None

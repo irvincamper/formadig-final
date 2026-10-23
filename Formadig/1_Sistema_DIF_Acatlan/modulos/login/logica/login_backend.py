@@ -1,28 +1,37 @@
 from flask import Blueprint, request, jsonify
 import os
-from datetime import datetime
 
 # =========================================================
 # 🔴 INSTALACIÓN REQUERIDA: pip install supabase
 # =========================================================
 try:
-    from supabase import create_client, Client
+    from supabase import create_client
 except ImportError:
     print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
     exit(1)
 
-# =========================================================
-# REEMPLAZA ESTAS VARIABLES CON LOS DATOS DE TU PROYECTO SUPABASE
-# =========================================================
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# Cliente independiente por solicitud: ninguna sesión se comparte entre usuarios.
+from clinical.repository import public_key
+from clinical.security import trusted_role, request_identity
+from clinical.validation import ClinicalError
+from urllib.parse import urlparse
 
-# Si has pegado las claves, intenta conectar
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print(f"ATENCIÓN: Claves de Supabase inválidas o vacías. Error: {e}")
-    supabase = None
+
+def login_client():
+    missing = [name for name in ('SUPABASE_URL', 'SUPABASE_KEY')
+               if not os.getenv(name, '').strip()]
+    if missing:
+        return None, 'Falta configuración: ' + ', '.join(missing) + '.'
+    parsed = urlparse(os.environ['SUPABASE_URL'])
+    if (parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password
+            or parsed.path or parsed.query or parsed.fragment):
+        return None, 'SUPABASE_URL debe ser una URL HTTPS válida sin ruta ni credenciales.'
+    if not public_key(os.environ['SUPABASE_KEY']):
+        return None, 'SUPABASE_KEY debe ser una clave pública; no se admite una clave privilegiada.'
+    try:
+        return create_client(os.environ['SUPABASE_URL'], os.environ['SUPABASE_KEY']), None
+    except Exception:
+        return None, 'Configuración de Supabase inválida. Revisa SUPABASE_URL y SUPABASE_KEY.'
 
 # Crear Blueprint para autenticación
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -40,92 +49,23 @@ def health():
 
 @auth_bp.route('/register', methods=['POST'], strict_slashes=False)
 def register_user():
-    if not supabase:
-         return jsonify({"error": "Las claves de Supabase no se han configurado"}), 500
-
-    # 1. Verificar Autorización (Solo Admin/Director puede crear usuarios)
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith('Bearer '):
-        return jsonify({"error": "No autorizado. Se requiere token de sesión."}), 401
-    
-    token = auth_header.split(' ')[1]
-    try:
-        # Validar el token con Supabase
-        user_res = supabase.auth.get_user(token)
-        requester = user_res.user
-        if not requester:
-            return jsonify({"error": "Sesión inválida o expirada."}), 401
-            
-        # Verificar rol del solicitante en la tabla perfiles
-        admin_check = supabase.table('perfiles').select('rol').eq('id', requester.id).execute()
-        perfil_data = getattr(admin_check, 'data', [])
-        
-        if not perfil_data or perfil_data[0].get('rol') not in ['admin', 'directora', 'desarrollador']:
-             return jsonify({"error": "Permisos insuficientes. Solo administración general puede crear usuarios."}), 403
-    except Exception as e:
-        print(f"Error verificando permisos: {e}")
-        return jsonify({"error": "Error al verificar permisos de administrador."}), 401
-
-    # 2. Proceder con el registro una vez autorizado
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
-    role = data.get('role')
-    full_name = data.get('full_name', '')
-
-    if not email or not password or not role:
-        return jsonify({"error": "Faltan credenciales o el rol asignado"}), 400
-
-    try:
-        # Crea el usuario en Supabase Auth y guarda su Rol y Nombre en sus Metadata
-        res = supabase.auth.sign_up({
-            "email": email,
-            "password": password,
-            "options": {
-                "data": { 
-                    "role": role,
-                    "nombre_completo": full_name
-                }
-            }
-        })
-
-        # Intentar crear/actualizar la fila en la tabla `perfiles` para asegurar el rol
-        try:
-            user_obj = getattr(res, 'user', None)
-            user_id = user_obj.id if user_obj else None
-            if user_id:
-                # El esquema espera `nombre_usuario`, usaremos el email como tal
-                # Solo enviamos campos que existen en la tabla perfiles
-                upsert_data = {
-                    "id": user_id,
-                    "nombre_usuario": email,
-                    "nombre_completo": full_name or email,
-                    "rol": role or 'usuario_traslados',
-                    "fecha_creacion": datetime.now().isoformat()
-                }
-                upsert_res = supabase.table('perfiles').upsert(upsert_data).execute()
-                if not upsert_res.data:
-                    print(f"⚠️ ADVERTENCIA: Upsert en perfiles retornó vacío para user_id: {user_id}")
-        except Exception as e:
-            print(f'❌ ERROR al hacer upsert en perfiles: {str(e)}')
-            # No retornamos error aquí porque el usuario ya fue creado en Auth
-
-        # Si Supabase te exige confirmación de correo, res.user seguirá activo una vez comprobado.
-        return jsonify({"message": "✅ Usuario creado en Supabase Auth", "user_id": res.user.id}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    # La ruta heredada escribe roles editables; usar Gestión de Usuarios verificada.
+    return jsonify(error='Registro heredado bloqueado. Utiliza Gestión de Usuarios con una sesión administrativa verificada.'), 403
 
 
 @auth_bp.route('/login', methods=['POST'], strict_slashes=False)
 def login_user():
-    if not supabase:
-         return jsonify({"error": "Las claves de Supabase no se han configurado en login_backend.py"}), 500
+    supabase, configuration_error = login_client()
+    if configuration_error:
+        return jsonify(error=configuration_error, code='CONFIGURATION_ERROR'), 503
 
-    data = request.json
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify(error='Se requiere un objeto JSON.'), 400
     email = data.get('email')
     password = data.get('password')
 
-    if not email or not password:
+    if not isinstance(email, str) or not isinstance(password, str) or not email.strip() or not password:
         return jsonify({"error": "Faltan credenciales"}), 400
 
     try:
@@ -136,25 +76,22 @@ def login_user():
         })
 
         # Extraemos el Token de Sesión JWT oficial
-        user = res.user
+        user = supabase.auth.get_user(res.session.access_token).user if res.session else None
         session_token = res.session.access_token if res.session else None
-        role = None
-        nombre_completo = None
-
-        # Intentar leer el rol y nombre desde la tabla `perfiles`
+        if not user or not session_token or getattr(user, 'is_anonymous', False):
+            return jsonify(error='No se obtuvo una sesión válida.'), 401
+        identity = {'id': user.id, 'is_anonymous': getattr(user, 'is_anonymous', False),
+                    'app_metadata': getattr(user, 'app_metadata', None)}
         try:
-            user_id = user.id if user else None
-            if user_id:
-                perfil_res = supabase.table('perfiles').select('rol, nombre_completo').eq('id', user_id).execute()
-                perfil_data = getattr(perfil_res, 'data', [])
-                
-                if perfil_data and len(perfil_data) > 0:
-                    role = perfil_data[0].get('rol')
-                    nombre_completo = perfil_data[0].get('nombre_completo')
-                else:
-                    role = user.user_metadata.get('role') if user and hasattr(user, 'user_metadata') else None
-        except Exception as e:
-            print('AVISO: No se pudo leer perfil:', e)
+            perfil_res = supabase.table('perfiles').select('id, rol, nombre_completo').eq('id', user.id).execute()
+            profiles = getattr(perfil_res, 'data', [])
+            profile = profiles[0] if isinstance(profiles, list) and profiles else None
+            role = trusted_role(identity, profile)
+            nombre_completo = profile.get('nombre_completo')
+        except ClinicalError as error:
+            return jsonify(error=error.message, code=error.code), error.status
+        except Exception:
+            return jsonify(error='No se pudo verificar el perfil autorizado.'), 503
 
         payload = {
             "message": "Login exitoso",
@@ -162,19 +99,34 @@ def login_user():
             "nombre_completo": nombre_completo,
             "session": {"access_token": session_token}
         }
-        if not role:
-            payload['warning'] = 'Usuario autorizado pero sin rol asignado.'
 
         return jsonify(payload), 200
         
     except Exception as e:
-        print("Login Fallido:", e)
-        # Devolvemos el error real para depuración (luego se puede simplificar)
+        # No registrar respuestas del proveedor que puedan contener datos sensibles.
         error_msg = str(e)
         if "Email not confirmed" in error_msg:
-             return jsonify({"error": "⚠️ Correo no confirmado. Revisa tu bandeja de entrada o desactiva la confirmación en Supabase."}), 401
-        return jsonify({"error": f"Error de autenticación: {error_msg}"}), 401
+             return jsonify({"error": "Correo no confirmado. Revisa tu bandeja de entrada."}), 401
+        return jsonify({"error": "No se pudo iniciar sesión. Verifica tus credenciales o intenta más tarde."}), 401
 
 # =========================================================
 # NOTA: El blueprint 'auth_bp' se registra en la app maestra
 # =========================================================
+
+
+@auth_bp.after_request
+def private_auth_response(response):
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
+
+@auth_bp.get('/me')
+def current_identity():
+    try:
+        token, identity, profile, role = request_identity()
+        return jsonify(role=role, nombre_completo=profile.get('nombre_completo'))
+    except ClinicalError as error:
+        return jsonify(error=error.message, code=error.code), error.status
+    except Exception:
+        return jsonify(error='No se pudo verificar la sesión.'), 503

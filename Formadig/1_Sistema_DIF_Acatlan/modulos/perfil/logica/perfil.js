@@ -55,15 +55,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadProfile() {
         try {
             console.log("🔄 Cargando perfil desde Supabase...");
-            // Leer ID directamente del JWT para evitar el error 403 Auth session missing del endpoint user
-            const tokenPayload = JSON.parse(atob(sessionToken.token.split('.')[1]));
-            const userId = tokenPayload.sub;
+            // Consultar Auth: no decodificar un JWT sin verificarlo.
+            const { data: identity, error: authError } = await supabase.auth.getUser(sessionToken.token);
+            if (authError) throw new Error('La sesión no pudo verificarse.');
+            const userId = identity?.user?.id;
             if (!userId) throw new Error("No se pudo extraer el usuario del token.");
 
             const { data, error: dbError } = await supabase.from('perfiles').select('*').eq('id', userId).single();
             if (dbError) throw new Error("Error BD: " + dbError.message);
 
-            console.log("✅ Datos de perfil cargados:", data);
+            // No registrar información personal del perfil.
 
             if (data) {
                 // Actualizar UI de solo lectura
@@ -119,15 +120,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSaveData.textContent = 'Actualizando...';
 
         try {
-            const tokenPayload = JSON.parse(atob(sessionToken.token.split('.')[1]));
-            const userId = tokenPayload.sub;
+            const { data: identity, error: authError } = await supabase.auth.getUser(sessionToken.token);
+            if (authError) throw new Error('La sesión no pudo verificarse.');
+            const userId = identity?.user?.id;
             if (!userId) throw new Error("No se pudo extraer el usuario del token.");
 
-            const { error: dbError } = await supabase.from('perfiles')
+            const { data: updated, error: dbError } = await supabase.from('perfiles')
                 .update({ nombre_completo: nuevoNombre, telefono: nuevoTelefono })
-                .eq('id', userId);
+                .eq('id', userId).select('id');
 
             if (dbError) throw new Error(dbError.message);
+            if (!updated || updated.length !== 1) throw new Error('No se aplicó la actualización del perfil.');
 
             UI.notify('¡Datos actualizados correctamente! ✅');
             await loadProfile();

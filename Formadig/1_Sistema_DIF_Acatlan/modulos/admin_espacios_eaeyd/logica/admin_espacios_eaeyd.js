@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
+            const res = await Auth.fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            const res = await fetch('/api/espacios_eaeyd', {
+            const res = await Auth.fetch('/api/espacios_eaeyd', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();
@@ -343,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnRechazar.textContent = 'Rechazando...';
 
             try {
-                const res = await fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
+                const res = await Auth.fetch(`/api/espacios_eaeyd/${currentSelectedId}`, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (folioId) {
             console.log("🔍 ESPACIOS EAEYD - Detectado ID en URL:", folioId);
             try {
-                const response = await fetch(`/api/espacios_eaeyd/${folioId}`, {
+                const response = await Auth.fetch(`/api/espacios_eaeyd/${folioId}`, {
                     headers: { 'Authorization': `Bearer ${session.token}` }
                 });
                 if (!response.ok) throw new Error(`Error ${response.status}`);

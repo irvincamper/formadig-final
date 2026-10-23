@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const res = await fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
+            const res = await Auth.fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarDatos(render = true) {
         try {
-            const res = await fetch('/api/desayunos_calientes', {
+            const res = await Auth.fetch('/api/desayunos_calientes', {
                 headers: { 'Authorization': `Bearer ${session.token}` }
             });
             const data = await res.json();
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnRechazar.textContent = 'Rechazando...';
 
             try {
-                const res = await fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
+                const res = await Auth.fetch(`/api/desayunos_calientes/${currentSelectedId}`, {
                     method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (folioId) {
             console.log("🔍 DESAYUNOS CALIENTES - Detectado ID en URL:", folioId);
             try {
-                const response = await fetch(`/api/desayunos_calientes/${folioId}`, {
+                const response = await Auth.fetch(`/api/desayunos_calientes/${folioId}`, {
                     headers: { 'Authorization': `Bearer ${session.token}` }
                 });
                 if (!response.ok) throw new Error(`Error ${response.status}`);
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = `/api/colonias/${codigoPostal}`;
             console.log(`📡 Petición GET a: ${url}`);
             
-            const response = await fetch(url, {
+            const response = await Auth.fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });

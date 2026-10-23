@@ -18,6 +18,18 @@ for kind in SCHEMAS:
     repo.create(kind, data)
 
 
+@app.get('/api/auth/me')
+def synthetic_identity():
+    from clinical.security import request_identity
+    from clinical.validation import ClinicalError
+    from flask import jsonify
+    try:
+        token, identity, profile, role = request_identity()
+        return jsonify(role=role, nombre_completo='Cuenta sintética')
+    except ClinicalError as error:
+        return jsonify(error=error.message), error.status
+
+
 @app.get('/demo')
 def demo():
     return make_response('''<!doctype html><html lang="es"><title>Demo sintética FORMADIG</title>

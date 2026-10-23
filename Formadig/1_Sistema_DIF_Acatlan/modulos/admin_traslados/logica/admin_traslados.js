@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (folioId) {
             console.log("🔍 Detectado ID en URL:", folioId);
             try {
-                const response = await fetch(`/api/traslados/${folioId}`);
+                const response = await Auth.fetch(`/api/traslados/${folioId}`);
                 if (!response.ok) throw new Error(`Error ${response.status}`);
                 
                 const data = await response.json();
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = `/api/colonias/${codigoPostal}`;
             console.log(`📡 Petición GET a: ${url}`);
             
-            const response = await fetch(url, {
+            const response = await Auth.fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnSubmit) btnSubmit.textContent = 'Guardando...';
 
         try {
-            const res = await fetch(`/api/traslados/${currentSelectedId}`, {
+            const res = await Auth.fetch(`/api/traslados/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRechazar.textContent = 'Rechazando...';
 
         try {
-            const res = await fetch(`/api/traslados/${currentSelectedId}`, {
+            const res = await Auth.fetch(`/api/traslados/${currentSelectedId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const userEmail = user?.email || '';
             const userRole = user?.role || '';
             
-            const res = await fetch('/api/traslados', {
+            const res = await Auth.fetch('/api/traslados', {
                 headers: {
                     'Authorization': `Bearer ${session.token}`,
                     'X-User-Email': userEmail,

@@ -1,0 +1,12 @@
+{
+  "scope": "Demo localhost con datos ficticios; sin Supabase real",
+  "python": {"passed": 34},
+  "node": {"passed": 12},
+  "visual_auth": {"passed": 7, "real_auth": false},
+  "visual_fields": {"passed": 7},
+  "visual_flow_final_clean_process": {"passed": 29},
+  "earlier_runs": [
+    {"failed": 1, "case": "logout", "cause": "El caso esperaba quedarse en pagina clinica; la verificacion nueva redirige al login. Ahora exige redireccion y API 401."},
+    {"failed": 4, "cases": "busqueda y seleccion de ambas areas", "cause": "Demo reutilizada: dos coincidencias VISUAL-PSICOLOGIA y VISUAL-DENTISTA, confirmadas por GET local. Reinicio documentado de proceso demo para aislamiento; aserciones de busqueda y detalle conservadas."}
+  ]
+}
