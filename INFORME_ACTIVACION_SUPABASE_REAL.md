@@ -4,6 +4,12 @@
 
 Esta sección sustituye las conclusiones de estado anteriores, que se conservan abajo como antecedente de la contención. **Fase A aplicada y verificada; contención conciliada con el historial; Fase B, cuentas y publicación pendientes.**
 
+**Actualización posterior de credencial:** el titular sustituyó la clave local. El diagnóstico actual pasó con HTTP 200 y con `supabase-py 2.33.0` usando Auth Admin sobre una única identidad del inventario autorizado. El JWT administrativo corresponde a DIF; no existe variable de proceso que sobrescriba la clave del archivo. El anterior HTTP 401 queda superado. Evidencia sin secretos: `output/cli-auth-admin-diagnostic.json`.
+
+El inventario privado actualizado contiene UUID, correo, rol histórico, rol administrado, registro protegido y decisión pendiente para cada una de las ocho identidades. Está fuera del repositorio, en `%LOCALAPPDATA%/FORMADIG/security-activation/REVISION_ROLES_EXISTENTES.md` y `.json`, con ACL del usuario de Windows. Se solicitó abrir el Markdown en el panel local. **Las ocho requieren aprobación individual**: ninguna tiene rol administrado ni registro protegido. No se imprimieron sus correos/UUID en las salidas públicas ni se copiaron al informe/Git.
+
+Por instrucción posterior expresa del titular, el aprovisionamiento de roles (incluidas las tres cuentas nuevas), la Fase B y la publicación se mantienen detenidos hasta la revisión individual y la confirmación de compatibilidad. La clave ya no es el bloqueo; quedan la decisión sobre cuentas existentes y los permisos/regresión de los módulos web. No se modificaron, borraron ni promovieron identidades durante esta comprobación.
+
 ### Operaciones reales y secuencia
 
 1. Se comprobó que el vínculo CLI apunta exclusivamente a DIF `ctiqbycbkcftwuqgzxjb`. `db query --linked` funciona; no se volvió a depender del MCP.
@@ -22,7 +28,7 @@ El inventario con UUID, rol histórico y rol administrado se guardó exclusivame
 
 La revisión de dependencias también confirmó RLS deshabilitado en Traslados, los tres módulos alimentarios y sms_logs. La Fase B propuesta sólo cubre perfiles y las dos tablas clínicas; por sí sola **no certifica autorización directa de toda la aplicación**. Su diseño y la regresión web por rol siguen pendientes. No se modificaron esas tablas para ocultar esta incompatibilidad ni se afirma compatibilidad móvil.
 
-### Tres cuentas y credenciales
+### Tres cuentas y credenciales (diagnóstico inicial; clave corregida según actualización superior)
 
 La clave de Auth Admin está presente en `.env`, pero la solicitud al endpoint administrativo respondió **HTTP 401**. La comprobación local sin mostrar su contenido indicó que no tiene formato JWT service_role ni sb_secret_. Presencia en el archivo no significa credencial válida. Se solicitó sustituirla por la clave administrativa de DIF únicamente en el archivo local ignorado; no se intentó crear cuentas por SQL ni usarla contra tablas para saltar RLS.
 
@@ -34,7 +40,7 @@ La Fase A conserva el SQL previamente validado en el laboratorio: 47 pruebas Pyt
 
 Los cambios siguen en `fix/autenticacion-seguridad`. Se conservaron capturas, .env, archivos ignorados y trabajo frontend; no se modificó HTML/CSS ni la aplicación móvil. **No hubo push, merge a main ni despliegue Render.** El alcance autorizado permite prepararlos, pero faltan la conciliación de usuarios, los permisos de módulos existentes y las pruebas Auth/PostgREST reales. Las escrituras clínicas permanecen cerradas.
 
-Para continuar: corregir la credencial administrativa; revisar explícitamente las ocho identidades históricas; preparar el cierre de los permisos directos aún abiertos en módulos web; provisionar las cuentas por Auth Admin con acceso operativo retenido hasta la validación; conciliar los roles aprobados; ensayar el corte de perfiles/RLS/backend; aplicar B de forma aislada sólo cuando sus preflights y la compatibilidad pasen; validar positivos y negativos con JWT reales y datos ficticios autorizados; entonces integrar backend en GitHub/Render y entregar las contraseñas por archivo privado local. No reabrir políticas públicas para solucionar fallos.
+Para continuar: revisar explícitamente las ocho identidades históricas; preparar el cierre de los permisos directos aún abiertos en módulos web; provisionar las cuentas por Auth Admin con acceso operativo retenido hasta la validación; conciliar los roles aprobados; ensayar el corte de perfiles/RLS/backend; aplicar B de forma aislada sólo cuando sus preflights y la compatibilidad pasen; validar positivos y negativos con JWT reales y datos ficticios autorizados; entonces integrar backend en GitHub/Render y entregar las contraseñas por archivo privado local. No reabrir políticas públicas para solucionar fallos.
 
 ---
 
