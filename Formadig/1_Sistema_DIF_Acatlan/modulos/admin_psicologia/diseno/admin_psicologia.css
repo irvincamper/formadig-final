@@ -1,19 +1,19 @@
 /* ==========================================================================
-   admin_psicologia.css – Personalización Visual del Módulo de Psicología
-   Sistema DIF Acatlán. Mantener nombres, IDs y contratos funcionales.
+   admin_psicologia.css – Identidad Visual Institucional del Módulo de Psicología
+   Sistema DIF Acatlán. Integrado y homologado con el diseño general.
    ========================================================================== */
 
 :root {
-    --psico-primary: #00766c;
-    --psico-primary-dark: #004d40;
-    --psico-accent: #0d9488;
-    --psico-accent-soft: #f0fdfa;
-    --psico-badge-bg: #ccfbf1;
-    --psico-badge-text: #0f766e;
-    --psico-highlight: #14b8a6;
+    --psico-primary:        var(--color-primary, #00766c);
+    --psico-primary-dark:   var(--color-primary-dark, #004d40);
+    --psico-accent:         var(--color-primary-light, #14b8a6);
+    --psico-accent-soft:    #f0fdfa;
+    --psico-badge-bg:       rgba(0, 118, 108, 0.1);
+    --psico-badge-text:     var(--color-primary-dark, #004d40);
+    --psico-highlight:      var(--color-primary-light, #14b8a6);
 }
 
-/* Identidad visual específica de Psicología */
+/* Identidad visual de Psicología homologada al DIF Acatlán */
 .psicologia-banner {
     border-left-color: var(--psico-primary) !important;
     background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
@@ -22,7 +22,7 @@
 .psicologia-badge {
     background-color: var(--psico-badge-bg) !important;
     color: var(--psico-badge-text) !important;
-    border: 1px solid #99f6e4;
+    border: 1px solid rgba(0, 118, 108, 0.2) !important;
 }
 
 /* Indicadores de estado en atención psicológica */
@@ -33,13 +33,13 @@
     padding: 0.2rem 0.55rem;
     font-size: 0.75rem;
     font-weight: 700;
-    background: #e0f2fe;
-    color: #0369a1;
+    background: rgba(0, 118, 108, 0.1);
+    color: var(--color-primary-dark, #004d40);
     border-radius: 9999px;
     margin-left: 0.5rem;
 }
 
-/* Realce suave para el formulario de seguimiento */
+/* Realce superior sutil para tarjetas clínicas */
 .clinical-detail {
     border-top: 3px solid var(--psico-highlight);
 }
@@ -48,17 +48,17 @@
     border-top: 3px solid var(--psico-primary);
 }
 
-/* Efectos de enfoque en Psicología */
+/* Efectos de enfoque homologados */
 .psicologia-view input:focus,
 .psicologia-view textarea:focus {
     border-color: var(--psico-primary) !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18) !important;
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.16) !important;
 }
 
 /* Ayudas contextuales de campos */
 .field-tip {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: #64748b;
     font-weight: 400;
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
 }
