@@ -1,0 +1,30 @@
+{
+  "mode": "real_browser_local_flask_real_supabase",
+  "results": [
+    {
+      "role": "admin",
+      "passed": true,
+      "checks": [
+        "real_password_login",
+        "verified_identity",
+        "dashboard",
+        "role_menu",
+        "localStorage_cannot_grant_role",
+        "remote_logout",
+        "invalid_token_redirect"
+      ]
+    },
+    {
+      "role": "psicologo",
+      "passed": false,
+      "sensitive_error_details_omitted": true
+    },
+    {
+      "role": "dentista",
+      "passed": false,
+      "sensitive_error_details_omitted": true
+    }
+  ],
+  "clinical_records_read": false,
+  "render_tested": false
+}

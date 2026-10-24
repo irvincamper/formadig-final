@@ -1,0 +1,25 @@
+{
+  "mode": "real_browser_local_flask_real_supabase",
+  "results": [
+    {
+      "role": "admin",
+      "passed": false,
+      "stage": "login",
+      "sensitive_error_details_omitted": true
+    },
+    {
+      "role": "psicologo",
+      "passed": false,
+      "stage": "login",
+      "sensitive_error_details_omitted": true
+    },
+    {
+      "role": "dentista",
+      "passed": false,
+      "stage": "login",
+      "sensitive_error_details_omitted": true
+    }
+  ],
+  "clinical_records_read": false,
+  "render_tested": false
+}

@@ -50,11 +50,9 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}"
 
 
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception as e:
-    print(f"ATENCIÓN: Error al conectar con Supabase: {e}")
-    supabase = None
+from clinical.security import protect_module, WEB_ROLES, SUPPORT_TABLE_ROLES
+from flask import g
+supabase = protect_module(chatbot_bp, WEB_ROLES, restrict_tables=True)
 
 # =========================================================
 # 🧠 LÓGICA DE OBTENCIÓN DE CONTEXTO (RAG LIGHT)
@@ -373,6 +371,8 @@ def crear_pdf_reporte(data, table_name, titulo):
 @chatbot_bp.route('/export', methods=['GET'], strict_slashes=False)
 def export_report():
     table_name = request.args.get('table', 'traslados')
+    if table_name not in ('traslados','desayunos_frios','desayunos_calientes','desayunos_eaeyd') or g.web_role not in SUPPORT_TABLE_ROLES.get(table_name, ()):
+        return jsonify(error='No tienes permiso para exportar esta tabla.'), 403
     file_format = request.args.get('format', 'excel')
     
     if not supabase:
@@ -481,6 +481,9 @@ def upload_file():
                 "detected_columns": list(cols)
             }), 400
 
+        if g.web_role not in SUPPORT_TABLE_ROLES.get(target_table, ()):
+            return jsonify(error='No tienes permiso para importar en esta área.'), 403
+
         # 3. Limpiar y Preparar Datos
         # Filtrar solo columnas que existen en la tabla destino (según ESQUEMAS_TABLAS)
         if target_table in ESQUEMAS_TABLAS:
@@ -551,8 +554,8 @@ def generar_respuesta_local(mensaje, email, role):
 def ask_gemini():
     data = request.json
     user_message = data.get('message', '')
-    user_email = data.get('email', '')
-    user_role = data.get('role', '')
+    user_email = g.web_identity.get('email', '')
+    user_role = g.web_role
 
     if not user_message:
         return jsonify({"error": "No message provided"}), 400

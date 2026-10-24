@@ -8,9 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/main.css?v=99">
-    <link rel="stylesheet" href="css/modules.css?v=99">
-    <link rel="stylesheet" href="css/dashboard.css?v=99">
+    <link rel="stylesheet" href="css/main.css?v=200">
+    <link rel="stylesheet" href="css/modules.css?v=200">
+    <link rel="stylesheet" href="css/dashboard.css?v=200">
 </head>
 
 <body>
@@ -19,15 +19,57 @@
 
     <main class="workspace">
         <div class="workspace-content">
+            <!-- Sección de Bienvenida Premium -->
             <div class="welcome-section">
+                <span class="welcome-pill">🏛️ DIF Municipal Acatlán • Gestión Integral</span>
                 <h1 id="welcomeTitle">Bienvenido</h1>
-                <p>Panel integral de administración por áreas.</p>
+                <p>Panel centralizado de administración por áreas, servicios médicos, programas asistenciales y configuración.</p>
+                
+                <div class="welcome-badges">
+                    <span class="welcome-pill" id="liveDatePill">📅 Cargando fecha...</span>
+                    <span class="welcome-pill" id="rolePill">🛡️ Rol: Verificando...</span>
+                    <span class="welcome-pill">🟢 Sistema Operativo En Línea</span>
+                </div>
             </div>
+
+            <!-- KPIs Rápidos de Sesión y Módulos -->
+            <div class="dashboard-kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📦</div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Módulos Habilitados</span>
+                        <span class="kpi-value" id="kpiModulesCount">0</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🛡️</div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Nivel de Acceso</span>
+                        <span class="kpi-value" id="kpiRoleName">-</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">⚡</div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Seguridad de Datos</span>
+                        <span class="kpi-value">Acceso por rol</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🌐</div>
+                    <div class="kpi-content">
+                        <span class="kpi-label">Plataforma</span>
+                        <span class="kpi-value">FORMADIG 2.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor Dinámico de Módulos por Área -->
             <div id="modulesContainer"></div>
         </div>
     </main>
 
-    <script src="core/formadig-core.js?v=275"></script>
+    <script src="core/formadig-core.js?v=277"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const user = Auth.getUser();
@@ -40,71 +82,162 @@
 
             document.getElementById('welcomeTitle').textContent = `Bienvenido, ${user.fullName}`;
 
+            // Fecha en vivo en formato amigable
+            try {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('es-MX', options);
+                const capitalizedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+                document.getElementById('liveDatePill').textContent = `📅 ${capitalizedDate}`;
+            } catch (e) {
+                document.getElementById('liveDatePill').textContent = '📅 Hoy';
+            }
+
             const role = user.role || '';
             const isAdmin = ['directora', 'admin', 'desarrollador'].includes(role);
             const isTraslado = role.includes('traslado');
             const isDesayuno = role.includes('desayuno');
+
+            // Actualizar KPIs de rol
+            const roleLabels = {
+                'admin': 'Administrador General',
+                'directora': 'Dirección General',
+                'desarrollador': 'Desarrollador',
+                'admin_traslados': 'Área Traslados',
+                'admin_desayunos': 'Programas Alimentarios',
+                'psicologo': 'Especialista en Psicología',
+                'dentista': 'Especialista Odontólogo'
+            };
+            const friendlyRole = roleLabels[role] || (role ? role.toUpperCase() : 'Personal DIF');
+            document.getElementById('rolePill').textContent = `🛡️ Rol: ${friendlyRole}`;
+            document.getElementById('kpiRoleName').textContent = friendlyRole;
 
             const areas = [];
 
             // Visibilidad orientativa; la autorización real ocurre en cada endpoint.
             if (['admin', 'psicologo', 'dentista'].includes(role)) {
                 areas.push({
-                    areaName: 'Atención clínica',
+                    areaName: 'Atención clínica y salud especializada',
                     modules: [
-                        ...(['admin', 'psicologo'].includes(role) ? [{ title: 'Psicología', icon: '🧠', url: 'modulos/admin_psicologia/vistas/admin_psicologia.html' }] : []),
-                        ...(['admin', 'dentista'].includes(role) ? [{ title: 'Dentista', icon: '🦷', url: 'modulos/admin_dentista/vistas/admin_dentista.html' }] : [])
+                        ...(['admin', 'psicologo'].includes(role) ? [{ 
+                            title: 'Psicología', 
+                            icon: '🧠', 
+                            url: 'modulos/admin_psicologia/vistas/admin_psicologia.html',
+                            tag: 'Salud Mental',
+                            desc: 'Consulta y seguimiento de casos psicológicos, notas de evolución y diagnósticos.'
+                        }] : []),
+                        ...(['admin', 'dentista'].includes(role) ? [{ 
+                            title: 'Dentista', 
+                            icon: '🦷', 
+                            url: 'modulos/admin_dentista/vistas/admin_dentista.html',
+                            tag: 'Estomatología',
+                            desc: 'Historias clínicas dentales, tratamientos odontológicos y cuotas de recuperación.'
+                        }] : [])
                     ]
                 });
             }
 
             if (isAdmin || isTraslado) {
                 areas.push({
-                    areaName: "Área Médica",
+                    areaName: "Área Médica y Asistencia Social",
                     modules: [
-                        { title: 'Traslados Médicos', icon: '🚑', url: 'modulos/admin_traslados/vistas/admin_traslados.html' }
+                        { 
+                            title: 'Traslados Médicos', 
+                            icon: '🚑', 
+                            url: 'modulos/admin_traslados/vistas/admin_traslados.html',
+                            tag: 'Servicio Médico',
+                            desc: 'Coordinación y calendarización de unidades de traslado a clínicas y hospitales de alta especialidad.'
+                        }
                     ]
                 });
             }
 
             const alimentosModules = [];
             if ((isAdmin || isDesayuno) && role !== 'admin_traslados') {
-                alimentosModules.push({ title: 'Gestión Fríos', icon: '🥛', url: 'modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html' });
-                alimentosModules.push({ title: 'Gestión Calientes', icon: '🍲', url: 'modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html' });
-                alimentosModules.push({ title: 'Espacios EAEyD', icon: '🏢', url: 'modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html' });
+                alimentosModules.push({ 
+                    title: 'Gestión Fríos', 
+                    icon: '🥛', 
+                    url: 'modulos/admin_desayunos_frios/vistas/admin_desayunos_frios.html',
+                    tag: 'Nutrición Escolar',
+                    desc: 'Padrón de beneficiarios escolares, entrega de dotaciones y cartones de leche fría.'
+                });
+                alimentosModules.push({ 
+                    title: 'Gestión Calientes', 
+                    icon: '🍲', 
+                    url: 'modulos/admin_desayunos_calientes/vistas/admin_desayunos_calientes.html',
+                    tag: 'Comedores Comunitarios',
+                    desc: 'Supervisión de insumos alimenticios, beneficiarios y menús calientes balanceados.'
+                });
+                alimentosModules.push({ 
+                    title: 'Espacios EAEyD', 
+                    icon: '🏢', 
+                    url: 'modulos/admin_espacios_eaeyd/vistas/admin_espacios_eaeyd.html',
+                    tag: 'Infraestructura',
+                    desc: 'Equipamiento, inventario y verificación de Espacios de Alimentación y Desarrollo.'
+                });
             }
 
             if (alimentosModules.length > 0) {
                 areas.push({
-                    areaName: "Programas Alimentarios y Desarrollo",
+                    areaName: "Programas Alimentarios y Desarrollo Comunitario",
                     modules: alimentosModules
                 });
             }
 
             // --- Sección de Soporte (Universal) ---
             const supportModules = [
-                { title: 'Chatbot Asistente', icon: '🤖', url: 'modulos/chatbot/vistas/chatbot.html' }
+                { 
+                    title: 'Chatbot Asistente', 
+                    icon: '🤖', 
+                    url: 'modulos/chatbot/vistas/chatbot.html',
+                    tag: 'Inteligencia Artificial',
+                    desc: 'Asistencia automatizada a la ciudadanía con respuestas institucionales y orientación.'
+                }
             ];
 
             // Restricción: admin_desayunos no tiene SMS
             if (role !== 'admin_desayunos') {
-                supportModules.push({ title: 'Gestión de SMS', icon: '📱', url: 'modulos/sms/vistas/admin_sms.html' });
+                supportModules.push({ 
+                    title: 'Gestión de SMS', 
+                    icon: '📱', 
+                    url: 'modulos/sms/vistas/admin_sms.html',
+                    tag: 'Comunicación',
+                    desc: 'Envío de alertas masivas, recordatorios de citas médicas y comunicados oficiales por SMS.'
+                });
             }
 
             areas.push({
-                areaName: "Asistencia y Comunicación",
+                areaName: "Asistencia y Canales de Comunicación",
                 modules: supportModules
             });
 
             // --- Sección Sistema (Mi Perfil) ---
-            const systemModules = [
-                { title: 'Mi Perfil', icon: '⚙️', url: 'modulos/perfil/vistas/admin_perfil.html' }
-            ];
+            const systemModules = [];
+            if (isAdmin) {
+                systemModules.push({
+                    title: 'Gestión de Usuarios',
+                    icon: '👤',
+                    url: 'modulos/admin_usuarios/vistas/admin_usuarios.html',
+                    tag: 'Administración',
+                    desc: 'Alta de personal, asignación de roles de seguridad y control de acceso al sistema.'
+                });
+            }
+            systemModules.push({ 
+                title: 'Mi Perfil', 
+                icon: '⚙️', 
+                url: 'modulos/perfil/vistas/admin_perfil.html',
+                tag: 'Configuración',
+                desc: 'Ajustes de cuenta, credenciales de inicio de sesión y datos institucionales.'
+            });
 
             areas.push({
-                areaName: "Configuración del Sistema",
+                areaName: "Configuración y Administración del Sistema",
                 modules: systemModules
             });
+
+            // Contar total de módulos
+            const totalModules = areas.reduce((acc, a) => acc + a.modules.length, 0);
+            document.getElementById('kpiModulesCount').textContent = totalModules;
 
             const container = document.getElementById('modulesContainer');
 
@@ -122,9 +255,14 @@
                     const card = document.createElement('div');
                     card.className = 'module-card';
                     card.innerHTML = `
+                        <span class="module-category-tag">${mod.tag || 'Módulo'}</span>
                         <div class="module-icon">${mod.icon}</div>
                         <h3>${mod.title}</h3>
-                        <a href="${mod.url}" class="button button--primary">Entrar al Módulo</a>
+                        <p class="module-desc">${mod.desc || 'Acceso directo a las funciones operativas del área.'}</p>
+                        <a href="${mod.url}" class="button button--primary">
+                            <span>Entrar al Módulo</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
                     `;
                     grid.appendChild(card);
                 });

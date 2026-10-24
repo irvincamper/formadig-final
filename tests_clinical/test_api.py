@@ -179,9 +179,10 @@ class IntegrationTests(unittest.TestCase):
             login_globals = module.app.view_functions['auth.login_user'].__globals__
             for role in ('admin', 'admin_desayunos', 'admin_traslados', 'psicologo', 'dentista'):
                 fake = Mock()
-                fake.auth.sign_in_with_password.return_value = SimpleNamespace(user=SimpleNamespace(id=ADMIN), session=SimpleNamespace(access_token='synthetic'))
-                fake.table.return_value.select.return_value.eq.return_value.execute.return_value = SimpleNamespace(data=[{'rol': role, 'nombre_completo': 'Cuenta sintética'}])
-                with patch.dict(login_globals, {'supabase': fake}):
+                fake.auth.sign_in_with_password.return_value = SimpleNamespace(user=SimpleNamespace(id=ADMIN, app_metadata={'role': role}), session=SimpleNamespace(access_token='synthetic'))
+                fake.auth.get_user.return_value = SimpleNamespace(user=SimpleNamespace(id=ADMIN, app_metadata={'role': role}))
+                fake.table.return_value.select.return_value.eq.return_value.execute.return_value = SimpleNamespace(data=[{'id': ADMIN, 'rol': role, 'nombre_completo': 'Cuenta sintética'}])
+                with patch.dict(login_globals, {'login_client': lambda: (fake, None)}):
                     response = client.post('/api/auth/login', json={'email': 'ficticio@example.test', 'password': 'ficticia'})
                     self.assertEqual(response.status_code, 200)
                     self.assertEqual(response.json['role'], role)
@@ -200,12 +201,16 @@ class IntegrationTests(unittest.TestCase):
             for role in ('psicologo', 'dentista'):
                 payload = dict(nombre_usuario='sintetico', nombre_completo='Profesional sintético',
                                email='sintetico@example.invalid', password='sintetica-123', rol=role, telefono='0000000000')
-                with patch.dict(user_globals, {'supabase_admin': auth_admin}):
+                auth_admin.auth.admin.get_user_by_id.return_value = SimpleNamespace(user=SimpleNamespace(id=PATIENT,app_metadata={'role':role}))
+                provisioning_client=Mock()
+                provisioning_client.table.return_value.select.return_value.eq.return_value.execute.return_value=SimpleNamespace(data=[{'id':PATIENT,'rol':role}])
+                with patch.dict(user_globals, {'supabase_admin': auth_admin,'create_client':Mock(return_value=provisioning_client)}):
                     response = client.post('/api/admin_usuarios', headers={'Authorization': 'Bearer synthetic-admin'}, json=payload)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, 201)
+                self.assertTrue(response.json['access_validation_pending'])
                 attributes = auth_admin.auth.admin.create_user.call_args.args[0]
                 self.assertEqual(attributes['app_metadata'], {'role': role})
-                self.assertEqual(attributes['user_metadata']['rol'], role)
+                self.assertNotIn('rol', attributes['user_metadata'])
 
             # Gestión usa JWT por petición, no el cliente público global, sin cambiar roles a medias.
             scoped = Mock()

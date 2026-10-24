@@ -28,3 +28,6 @@ node_modules/
 
 # Auditoría remota privada: no publicar respaldos ni capturas de cuentas.
 /evidencias_supabase/
+
+# Enlace y credenciales temporales de Supabase CLI: nunca publicar.
+/supabase/.temp/

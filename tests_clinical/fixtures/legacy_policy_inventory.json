@@ -1,0 +1,182 @@
+[
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios desayunos calientes",
+    "qual": null,
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_calientes",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios registros calientes",
+    "qual": null,
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_calientes",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden ver sus propios registros calientes",
+    "qual": "(auth.uid() = registrado_por)",
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_calientes",
+    "with_check": null
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Lectura publica desayunos",
+    "qual": "true",
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_eaeyd",
+    "with_check": null
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios registros eaeyd",
+    "qual": null,
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_eaeyd",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden ver sus propios registros eaeyd",
+    "qual": "(auth.uid() = registrado_por)",
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_eaeyd",
+    "with_check": null
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios desayunos frios",
+    "qual": null,
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_frios",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios registros frios",
+    "qual": null,
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_frios",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden ver sus propios registros frios",
+    "qual": "(auth.uid() = registrado_por)",
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "desayunos_frios",
+    "with_check": null
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Permitir inserci\u00f3n p\u00fablica temporal",
+    "qual": null,
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "sms_logs",
+    "with_check": "true"
+  },
+  {
+    "cmd": "ALL",
+    "permissive": "PERMISSIVE",
+    "policyname": "Permitir todo a usuarios autenticados",
+    "qual": "true",
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "sms_logs",
+    "with_check": null
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Lectura publica traslados",
+    "qual": "true",
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "traslados",
+    "with_check": null
+  },
+  {
+    "cmd": "ALL",
+    "permissive": "PERMISSIVE",
+    "policyname": "RLS Traslados",
+    "qual": "((( SELECT perfiles.rol\n   FROM perfiles\n  WHERE (perfiles.id = auth.uid())) = 'admin_traslados'::text) OR (registrado_por = auth.uid()))",
+    "roles": [
+      "public"
+    ],
+    "schemaname": "public",
+    "tablename": "traslados",
+    "with_check": null
+  },
+  {
+    "cmd": "INSERT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden insertar sus propios traslados",
+    "qual": null,
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "traslados",
+    "with_check": "(auth.uid() = registrado_por)"
+  },
+  {
+    "cmd": "SELECT",
+    "permissive": "PERMISSIVE",
+    "policyname": "Usuarios pueden ver sus propios traslados",
+    "qual": "(auth.uid() = registrado_por)",
+    "roles": [
+      "authenticated"
+    ],
+    "schemaname": "public",
+    "tablename": "traslados",
+    "with_check": null
+  }
+]

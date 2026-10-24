@@ -1,0 +1,75 @@
+.[2026-10-23 20:18:49,222] ERROR in api: Clinical psicologia failed (RuntimeError)
+.........C:\Users\Herna\Downloads\PROYECTO INTEGRADOR\WEB\formadig-final\.venv-local\Lib\site-packages\supabase\_sync\client.py:309: DeprecationWarning: The 'timeout' parameter is deprecated. Please configure it in the http client instead.
+  return SyncPostgrestClient(
+C:\Users\Herna\Downloads\PROYECTO INTEGRADOR\WEB\formadig-final\.venv-local\Lib\site-packages\supabase\_sync\client.py:309: DeprecationWarning: The 'verify' parameter is deprecated. Please configure it in the http client instead.
+  return SyncPostgrestClient(
+
+======================================================================
+🚀 FORMADIG v2.1 - APLICACIÓN UNIFICADA
+======================================================================
+   Sistema en: C:\Users\Herna\.codex\worktrees\formadig-integracion-final\formadig-final\Formadig\1_Sistema_DIF_Acatlan
+   Módulos en: C:\Users\Herna\.codex\worktrees\formadig-integracion-final\formadig-final\Formadig\1_Sistema_DIF_Acatlan\modulos
+
+📦 Variables de entorno:
+   SUPABASE_URL: ✅ Configurada
+   SUPABASE_KEY: ✅ Configurada
+   SUPABASE_SERVICE_ROLE_KEY: ✅ Configurada
+======================================================================
+   ✅ [login] Registrado como blueprint (auth_bp)
+✅ Supabase Admin Client inicializado (para operaciones Auth)
+   ✅ [admin_usuarios] Registrado como blueprint (admin_usuarios_bp)
+   ✅ [admin_traslados] Registrado como blueprint (traslados_bp)
+   ✅ [admin_desayunos_frios] Registrado como blueprint (desayunos_frios_bp)
+   ✅ [admin_desayunos_calientes] Registrado como blueprint (desayunos_calientes_bp)
+   ✅ [admin_espacios_eaeyd] Registrado como blueprint (espacios_eaeyd_bp)
+   ✅ [chatbot] Registrado como blueprint (chatbot_bp)
+   ✅ [sms] Registrado como blueprint (sms_bp)
+   ✅ [colonias] Registrado como blueprint (colonias_bp)
+   ✅ [admin_psicologia] Registrado como blueprint (psicologia_bp)
+   ✅ [admin_dentista] Registrado como blueprint (dentista_bp)
+
+✅ Total blueprints registrados: 11/11
+
+📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===
+
+📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===
+
+📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===
+
+📥 === CREACIÓN DE USUARIO ADMIN (Paso 0: Validación) ===
+........................................
+----------------------------------------------------------------------
+Ran 50 tests in 8.278s
+
+OK
+
+======================================================================
+🚀 FORMADIG v2.1 - APLICACIÓN UNIFICADA
+======================================================================
+   Sistema en: C:\Users\Herna\.codex\worktrees\formadig-integracion-final\formadig-final\Formadig\1_Sistema_DIF_Acatlan
+   Módulos en: C:\Users\Herna\.codex\worktrees\formadig-integracion-final\formadig-final\Formadig\1_Sistema_DIF_Acatlan\modulos
+
+📦 Variables de entorno:
+   SUPABASE_URL: ✅ Configurada
+   SUPABASE_KEY: ✅ Configurada
+   SUPABASE_SERVICE_ROLE_KEY: ✅ Configurada
+======================================================================
+   ✅ [login] Registrado como blueprint (auth_bp)
+✅ Supabase Admin Client inicializado (para operaciones Auth)
+   ✅ [admin_usuarios] Registrado como blueprint (admin_usuarios_bp)
+   ✅ [admin_traslados] Registrado como blueprint (traslados_bp)
+   ✅ [admin_desayunos_frios] Registrado como blueprint (desayunos_frios_bp)
+   ✅ [admin_desayunos_calientes] Registrado como blueprint (desayunos_calientes_bp)
+   ✅ [admin_espacios_eaeyd] Registrado como blueprint (espacios_eaeyd_bp)
+   ✅ [chatbot] Registrado como blueprint (chatbot_bp)
+   ✅ [sms] Registrado como blueprint (sms_bp)
+   ✅ [colonias] Registrado como blueprint (colonias_bp)
+   ✅ [admin_psicologia] Registrado como blueprint (psicologia_bp)
+   ✅ [admin_dentista] Registrado como blueprint (dentista_bp)
+
+✅ Total blueprints registrados: 11/11
+✅ Traslado guardado: ID 00000000-0000-0000-0000-000000000002
+✅ Desayuno 00000000-0000-0000-0000-000000000002 actualizado en desayunos_frios
+✅ Desayuno 00000000-0000-0000-0000-000000000002 actualizado en desayunos_calientes
+✅ EAEyD 00000000-0000-0000-0000-000000000002 actualizado en desayunos_eaeyd
+✅ Traslado actualizado ID: 00000000-0000-0000-0000-000000000002

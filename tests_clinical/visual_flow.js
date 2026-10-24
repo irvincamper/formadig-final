@@ -185,8 +185,10 @@ async (page) => {
     await check('cerrar sesión borra acceso clínico', async () => {
         await page.getByRole('button', {name: 'Cerrar Sesión'}).click();
         await page.waitForURL('**/login/vistas/login.html');
-        await page.goto(base + modulePath('dentista')); await waitStatus('Inicia sesión');
-        ok(await page.locator('#attention-form [type=submit]').isDisabled(), 'Escritura habilitada sin sesión');
+        await page.goto(base + modulePath('dentista'));
+        await page.waitForURL('**/login/vistas/login.html');
+        ok(await page.evaluate(() => !localStorage.getItem('supabase_token')), 'Token retenido tras cerrar sesión');
+        ok((await page.request.get(base + '/api/dentista')).status() === 401, 'API accesible sin sesión');
     });
     return {results, errors, httpErrors, external};
 }

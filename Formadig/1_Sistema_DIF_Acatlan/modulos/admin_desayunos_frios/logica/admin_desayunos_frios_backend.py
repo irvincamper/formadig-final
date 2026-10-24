@@ -8,15 +8,13 @@ import base64
 # Crear Blueprint para desayunos fríos
 desayunos_frios_bp = Blueprint('desayunos_frios', __name__, url_prefix='/api/desayunos_frios')
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
-    exit(1)
+from clinical.security import protect_module
+from flask import g
+from clinical.validation import uuid_value, ClinicalError
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+global_client = protect_module(desayunos_frios_bp, ('admin', 'admin_desayunos'))
 
 @desayunos_frios_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():
@@ -141,25 +139,13 @@ def dictamen_registro(record_id):
         return jsonify({"error": "No hay datos para actualizar"}), 400
     
     try:
-        # Determinar tabla y columna de ID
-        target_table = None
-        id_col = None
-        
-        for table in ['desayunos_frios', 'desayunos_fríos', 'desayunos_eaeyd']:
-            for col in ['id', 'uuid', 'Identificación']:
-                try:
-                    check = global_client.table(table).select('*').eq(col, record_id).limit(1).execute()
-                    if check.data:
-                        target_table = table
-                        id_col = col
-                        break
-                except:
-                    continue
-            if target_table:
-                break
-        
-        if not target_table:
-            return jsonify({"error": "No se encontró el registro para actualizar"}), 404
+        # Tabla e identificador confirmados; no probar aliases ni otras áreas.
+        record_id = uuid_value(record_id, 'id')
+        target_table = 'desayunos_frios'
+        id_col = 'id'
+        check = global_client.table(target_table).select('id').eq(id_col, record_id).limit(1).execute()
+        if not check.data:
+            return jsonify(error='Registro no encontrado o no accesible.'), 404
 
         # Mapeo de campos (Frontend -> DB)
         field_mapping = {
@@ -185,8 +171,10 @@ def dictamen_registro(record_id):
             "estatus": "estatus",
             # CAMPOS DE ARCHIVOS (URL)
             "url_curp": "url_curp",
-            "url_comprobante_salud": "url_comprobante_salud",
-            "url_ine_tutor": "url_ine_tutor",
+            "url_comprobante_salud": "url_salud",
+            "url_salud": "url_salud",
+            "url_ine_tutor": "url_ine",
+            "url_ine": "url_ine",
             "url_comprobante_domicilio": "url_comprobante_domicilio",
             "url_foto_infante": "url_foto_infante"
         }
@@ -201,42 +189,20 @@ def dictamen_registro(record_id):
             return jsonify({"error": "No se enviaron campos válidos para actualizar"}), 400
 
         # --- MÉTODO ROBUSTO: Usar requests.patch() con JWT para pasar RLS ---
-        auth_header = request.headers.get('Authorization')
         headers = {
-            "apikey": SUPABASE_KEY,
-            "Content-Type": "application/json",
-            "Prefer": "return=representation"
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + request.headers['Authorization'].split()[1],
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
         }
-        
-        if auth_header and auth_header.startswith('Bearer '):
-            headers["Authorization"] = auth_header
-            # Extraer UUID del token JWT para inyectar en el registro
-            try:
-                token = auth_header.split(' ')[1]
-                payload = token.split('.')[1]
-                pad = '=' * (-len(payload) % 4)
-                decoded = json.loads(base64.b64decode(payload + pad).decode('utf-8'))
-                admin_uuid = decoded.get('sub')
-                
-                # Pre-patch para asignar usuario si no existe
-                url_get = f"{SUPABASE_URL}/rest/v1/{target_table}?select={id_col}&{id_col}=eq.{record_id}"
-                rg = requests.get(url_get, headers={"apikey": SUPABASE_KEY, "Authorization": auth_header})
-                if rg.status_code == 200 and rg.json():
-                    if not rg.json()[0].get('usuario_admin'):
-                        url_patch = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
-                        requests.patch(url_patch, json={'usuario_admin': admin_uuid}, headers=headers, proxies={"http": None, "https": None})
-            except Exception as e:
-                print(f"⚠️ Advertencia parseando JWT: {e}")
-        else:
-            headers["Authorization"] = f"Bearer {SUPABASE_KEY}"  # Fallback
 
         # Ejecutar PATCH manual a REST API
         url = f"{SUPABASE_URL}/rest/v1/{target_table}?{id_col}=eq.{record_id}"
-        r = requests.patch(url, json=update_payload, headers=headers, proxies={"http": None, "https": None})
+        r = requests.patch(url, json=update_payload, headers=headers, timeout=(3, 15), allow_redirects=False)
         
         if r.status_code >= 400:
-            print(f"❌ Supabase error: {r.text}")
-            return jsonify({"error": f"Supabase rechazó la operación: {r.text}"}), r.status_code
+            # No registrar cuerpos con información de beneficiarios.
+            return jsonify(error="La base de datos rechazó la actualización."), r.status_code
 
         res_data = r.json()
         if not res_data:
@@ -245,9 +211,10 @@ def dictamen_registro(record_id):
         print(f"✅ Desayuno {record_id} actualizado en {target_table}")
         return jsonify({"message": "¡Cambios guardados exitosamente!", "data": res_data[0] if res_data else {}}), 200
         
+    except ClinicalError as error:
+        return jsonify(error=error.message, code=error.code), error.status
     except Exception as e:
-        print(f"❌ Error crítico en PUT: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify(error="No se pudo completar la actualización."), 503
 
 # ============================================================================
 # NOTA: El blueprint 'desayunos_frios_bp' se registra en la app maestra

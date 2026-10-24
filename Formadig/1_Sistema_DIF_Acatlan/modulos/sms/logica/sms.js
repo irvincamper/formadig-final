@@ -86,7 +86,7 @@ const SMS = {
     // ═══════════════════════════════════════════════════════════
     async loadTraslados() {
         try {
-            const res = await fetch(`${this.API_URL}/traslados`);
+            const res = await Auth.fetch(`${this.API_URL}/traslados`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
 
@@ -122,7 +122,7 @@ const SMS = {
         if (!table) return;
 
         try {
-            const response = await fetch(`${this.API_URL}/history`);
+            const response = await Auth.fetch(`${this.API_URL}/history`);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
 
@@ -170,7 +170,7 @@ const SMS = {
     async checkServerStatus() {
         const statusIndicator = document.querySelector('.status-indicator');
         try {
-            const res = await fetch(`${this.API_URL}/ping`, { mode: 'cors' });
+            const res = await Auth.fetch(`${this.API_URL}/ping`, { mode: 'cors' });
             if (res.ok) {
                 if (statusIndicator) {
                     statusIndicator.classList.add('connected');
@@ -216,7 +216,7 @@ const SMS = {
         if (btn) { btn.disabled = true; btn.innerText = 'Enviando…'; }
 
         try {
-            const response = await fetch(`${this.API_URL}/send`, {
+            const response = await Auth.fetch(`${this.API_URL}/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

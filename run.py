@@ -20,24 +20,25 @@ if os.name == 'nt':
         if hasattr(stream, 'reconfigure'):
             stream.reconfigure(encoding='utf-8', errors='replace')
 
-from flask import Flask, send_from_directory, redirect, jsonify
+from flask import Flask, send_from_directory, redirect, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde .env (si existe en desarrollo)
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'), override=False)
 
 # ============================================================================
 # VALIDACIÓN DE VARIABLES DE ENTORNO REQUERIDAS
 # ============================================================================
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_URL:
     print("⚠️  ADVERTENCIA: SUPABASE_URL no está configurada. Algunos endpoints pueden no funcionar.")
-if not SUPABASE_SERVICE_ROLE_KEY:
-    print("⚠️  ADVERTENCIA: SUPABASE_SERVICE_ROLE_KEY no está configurada. Algunos endpoints pueden no funcionar.")
+if not SUPABASE_KEY:
+    print("⚠️  ADVERTENCIA: SUPABASE_KEY no está configurada; autenticación no disponible.")
 
 # ============================================================================
 # CONFIGURACIÓN DE DIRECTORIOS
@@ -54,6 +55,7 @@ print(f"   Sistema en: {SYSTEM_DIR}")
 print(f"   Módulos en: {MODULES_DIR}")
 print(f"\n📦 Variables de entorno:")
 print(f"   SUPABASE_URL: {'✅ Configurada' if SUPABASE_URL else '❌ NO configurada'}")
+print(f"   SUPABASE_KEY: {'✅ Configurada' if SUPABASE_KEY else '❌ NO configurada'}")
 print(f"   SUPABASE_SERVICE_ROLE_KEY: {'✅ Configurada' if SUPABASE_SERVICE_ROLE_KEY else '❌ NO configurada'}")
 print("="*70)
 
@@ -67,6 +69,18 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # Configuración
 app.config['JSON_SORT_KEYS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+app.config['FORMADIG_MAINTENANCE'] = os.getenv('FORMADIG_MAINTENANCE', 'false').lower() == 'true'
+
+
+@app.before_request
+def coordinated_maintenance():
+    """Ventana de corte: cerrar web/API antes de ejecutar DDL; health sigue disponible."""
+    if app.config['FORMADIG_MAINTENANCE'] and request.path != '/health':
+        response = jsonify({'error': 'FORMADIG está en mantenimiento programado. Intenta más tarde.'})
+        response.status_code = 503
+        response.headers['Retry-After'] = '60'
+        response.headers['Cache-Control'] = 'no-store'
+        return response
 
 # ============================================================================
 # REGISTRAR TODOS LOS BLUEPRINTS BAJO /api/
@@ -142,6 +156,7 @@ def health_check():
         "status": "healthy",
         "service": "FORMADIG v2.1",
         "version": "2.1.0",
+        "maintenance": app.config['FORMADIG_MAINTENANCE'],
         "port": os.environ.get('PORT', 8000)
     }), 200
 

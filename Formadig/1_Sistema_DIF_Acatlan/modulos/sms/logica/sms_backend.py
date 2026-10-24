@@ -34,28 +34,29 @@ def ping():
 # =========================================================
 # 🏗️ CONFIGURACIÓN (REEMPLAZAR CON TUS CLAVES)
 # =========================================================
-# Conexión Supabase (Uso de SERVICE_ROLE_KEY para bypass RLS)
-SUPABASE_URL = "https://ctiqbycbkcftwuqgzxjb.supabase.co"
-SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_KEY')
+# Sólo clave pública y JWT verificado por petición; sin fallback privilegiado.
+from clinical.security import protect_module
+from flask import g
+
+@sms_bp.before_request
+def restrict_callback():
+    if request.path.rstrip('/').endswith('/webhook'):
+        from clinical.sms_security import receive_webhook
+        return receive_webhook()
+
+supabase = protect_module(sms_bp, ('admin','admin_traslados','psicologo','dentista'), restrict_tables=True)
 
 # Configuración Twilio
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 
-try:
-    # Se prefiere SERVICE_ROLE_KEY para evitar errores 42501 (RLS) en backend
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-except Exception as e:
-    print(f"Error Supabase: {e}")
-    supabase = None
-
 @sms_bp.route('/send', methods=['POST'], strict_slashes=False)
 def send_sms():
     data = request.json
     phone = data.get('phone')
     message_text = data.get('message')
-    registrado_por = data.get('user_id', 'anonimo')
+    registrado_por = g.web_identity['id']
 
     if not phone or not message_text:
         return jsonify({"error": "Teléfono y mensaje son obligatorios"}), 400
@@ -66,15 +67,15 @@ def send_sms():
 
     status = "Enviado"
     error_msg = None
-    
+
    # --- MODO SIMULACIÓN / REAL ---
     # Si las credenciales empiezan con AC_ o están vacías, usamos Mock
-    is_mock = (TWILIO_ACCOUNT_SID.startswith('AC_TU_') or 
-               not TWILIO_ACCOUNT_SID or 
+    is_mock = (not TWILIO_ACCOUNT_SID or
+               TWILIO_ACCOUNT_SID.startswith('AC_TU_') or
                'TwilioClient' not in globals())
-    
+
     if is_mock:
-        print(f"[MOCK SMS] Enviando a {phone}: {message_text}")
+        print("[MOCK SMS] Ensayo sin envío externo")
         # Simulamos éxito
     else:
         try:
@@ -105,7 +106,7 @@ def send_sms():
                 "enviado_por": registrado_por
             }
             res = supabase.table('sms_logs').insert(log_data).execute()
-            
+
             if hasattr(res, 'error') and res.error:
                 print(f"❌ ERROR DB: {res.error}")
             else:
@@ -124,7 +125,7 @@ def send_sms():
 def get_history():
     if not supabase:
         return jsonify({"error": "Sin conexión a DB"}), 500
-    
+
     try:
         res = supabase.table('sms_logs').select("*").order('fecha', desc=True).limit(50).execute()
         return jsonify(res.data)
@@ -151,55 +152,7 @@ def get_traslados_for_sms():
 
 @sms_bp.route('/webhook', methods=['POST'], strict_slashes=False)
 def sms_webhook():
-    incoming_msg = request.values.get('Body', '').strip().upper()
-    sender_phone = request.values.get('From', '') # p.ej. +52775...
-    
-    print(f"📥 Webhook SMS Recibido de {sender_phone}: {incoming_msg}")
-    
-    if supabase:
-        try:
-            # 1. Registrar el mensaje entrante directo en el Historial de SMS
-            log_data = {
-                "fecha": datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
-                "telefono": sender_phone,
-                "mensaje": f"[Respuesta del Ciudadano]: {incoming_msg}",
-                "estatus": "Recibido",
-                "enviado_por": "Paciente"
-            }
-            res_log = supabase.table('sms_logs').insert(log_data).execute()
-            if hasattr(res_log, 'error') and res_log.error:
-                print(f"❌ Error al guardar log del webhook: {res_log.error}")
-
-            # 2. Buscar el registro más reciente en estado ACEPTADO que coincida con el teléfono
-            # Importante: Como no podemos hacer un OR complejo fácil en select, traemos los recientes
-            res = supabase.table('traslados').select('id, telefono_principal, telefono_secundario').eq('estado', 'ACEPTADO').execute()
-
-            
-            target_id = None
-            local_phone = sender_phone.replace('+52', '').replace('+1', '') # Por si en DB no tiene lada
-            
-            for r in res.data:
-                t1 = str(r.get('telefono_principal') or '')
-                t2 = str(r.get('telefono_secundario') or '')
-                if sender_phone in t1 or local_phone in t1 or sender_phone in t2 or local_phone in t2:
-                    target_id = r['id']
-                    break
-                    
-            if target_id:
-                if incoming_msg in ['SI', 'SÍ', 'S', 'YES', 'CONFIRMO']:
-                    supabase.table('traslados').update({'estado': 'CONFIRMADO'}).eq('id', target_id).execute()
-                    print(f"✅ Webhook: Traslado {target_id} CONFIRMADO.")
-                elif incoming_msg in ['NO', 'N', 'CANCELAR', 'RECHAZO']:
-                    supabase.table('traslados').update({'estado': 'RECHAZADO'}).eq('id', target_id).execute()
-                    print(f"❌ Webhook: Traslado {target_id} RECHAZADO por el usuario.")
-            else:
-                print(f"⚠️ Webhook: No se encontró un traslado ACEPTADO para el número {sender_phone}.")
-
-        except Exception as e:
-            print(f"❌ Webhook BD Error: {e}")
-
-    # Respuesta neutra para el webhook
-    return '<?xml version="1.0" encoding="UTF-8"?><Response></Response>', 200, {'Content-Type': 'application/xml'}
+    return jsonify(error='El callback sólo se procesa mediante el receptor seguro.'), 503
 
 # ============================================================================
 # NOTA: El blueprint 'sms_bp' se registra en la app maestra
@@ -213,9 +166,9 @@ if __name__ == "__main__":
         CORS(app)
     except ImportError:
         pass
-        
+
     app.register_blueprint(sms_bp)
-    
+
     port = int(os.environ.get("PORT", 5009))
     print(f"Iniciando SMS Web Service en el puerto {port}...")
     app.run(host='0.0.0.0', port=port)
