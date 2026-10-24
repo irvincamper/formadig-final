@@ -9,14 +9,14 @@ const Auth = {
     // Sólo la respuesta verificada del servidor determina la sesión vigente.
     verifySession: async function () {
         const token = localStorage.getItem('supabase_token');
-        if (!token) { this.logout(); return false; }
+        if (!token) { await this.logout(); return false; }
         try {
             const response = await fetch('/api/auth/me', {headers: {Authorization: 'Bearer ' + token}, cache: 'no-store'});
-            if (response.status === 401 || response.status === 403) { this.logout(); return false; }
+            if (response.status === 401 || response.status === 403) { await this.logout(); return false; }
             if (!response.ok) return false;
             const data = await response.json();
             if (!['admin', 'admin_traslados', 'admin_desayunos', 'psicologo', 'dentista'].includes(data.role)) {
-                this.logout(); return false;
+                await this.logout(); return false;
             }
             const changed = localStorage.getItem('user_role') !== data.role;
             localStorage.setItem('user_role', data.role);
@@ -48,8 +48,14 @@ const Auth = {
     },
 
     // Cerrar sesión
-    logout: function () {
+    logout: async function () {
+        const token = localStorage.getItem('supabase_token');
         localStorage.clear();
+        if (token) {
+            try {
+                await fetch('/api/auth/logout', {method: 'POST', headers: {Authorization: 'Bearer ' + token}, cache: 'no-store'});
+            } catch (_) { /* El navegador siempre elimina la sesión local. */ }
+        }
         // Ajustar ruta según profundidad del módulo
         const currentPath = window.location.pathname;
         if (currentPath.includes('/modulos/')) {

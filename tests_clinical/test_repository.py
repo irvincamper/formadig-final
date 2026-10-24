@@ -8,6 +8,16 @@ from tests_clinical.fakes import ADMIN, RECORD
 
 
 class RepositoryTests(unittest.TestCase):
+    def test_logout_revokes_only_current_auth_session_using_public_key_and_user_jwt(self):
+        self.response.status_code = 204
+        self.repo.logout()
+        args, kwargs = self.transport.request.call_args
+        self.assertEqual(args, ('POST', 'https://synthetic.supabase.co/auth/v1/logout'))
+        self.assertEqual(kwargs['params'], [('scope', 'local')])
+        self.assertEqual(kwargs['headers']['Authorization'], 'Bearer verified-user-token')
+        self.assertEqual(kwargs['headers']['apikey'], 'sb_publishable_synthetic')
+        self.response.json.assert_not_called()
+
     def setUp(self):
         self.env = patch.dict(os.environ, {'SUPABASE_URL': 'https://synthetic.supabase.co', 'SUPABASE_KEY': 'sb_publishable_synthetic'})
         self.env.start()

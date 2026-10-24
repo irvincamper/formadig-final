@@ -1,5 +1,7 @@
 # FORMADIG — Activación Supabase real
 
+**Actualización posterior:** el titular autorizó explícitamente las ocho identidades históricas y tres nuevas. Ya se aprovisionaron las once por Auth Admin y se probaron las tres contraseñas nuevas con Supabase real. El estado vigente completo está en `INFORME_APROVISIONAMIENTO_11_USUARIOS.md`. Las restricciones de acceso directo no clínico impiden todavía aplicar el corte B y publicar. Las secciones anteriores sobre aprobación pendiente o cero cuentas nuevas quedan como antecedentes.
+
 ## Estado vigente tras integración por CLI (23 de octubre de 2026)
 
 Esta sección sustituye las conclusiones de estado anteriores, que se conservan abajo como antecedente de la contención. **Fase A aplicada y verificada; contención conciliada con el historial; Fase B, cuentas y publicación pendientes.**

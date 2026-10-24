@@ -12,7 +12,7 @@ except ImportError:
 
 # Cliente independiente por solicitud: ninguna sesión se comparte entre usuarios.
 from clinical.repository import public_key
-from clinical.security import trusted_role, request_identity
+from clinical.security import trusted_role, request_identity, request_subject
 from clinical.validation import ClinicalError
 from urllib.parse import urlparse
 
@@ -130,3 +130,15 @@ def current_identity():
         return jsonify(error=error.message, code=error.code), error.status
     except Exception:
         return jsonify(error='No se pudo verificar la sesión.'), 503
+
+
+@auth_bp.post('/logout')
+def logout_user():
+    try:
+        token, identity, repository = request_subject()
+        repository.logout()
+        return '', 204
+    except ClinicalError as error:
+        return jsonify(error=error.message, code=error.code), error.status
+    except Exception:
+        return jsonify(error='No se pudo confirmar el cierre remoto de sesión.'), 503

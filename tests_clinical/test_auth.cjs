@@ -65,3 +65,13 @@ test('El nombre de perfil se muestra como texto en el header', () => {
     assert.ok(!a.header.innerHTML.includes('<img'));
     assert.ok(a.header.innerHTML.includes('&lt;img'));
 });
+
+test('Logout limpia el navegador y solicita revocacion remota con su JWT', async () => {
+    const a=app();
+    await vm.runInContext('Auth.logout()',a.context);
+    assert.equal(a.store.size,0);
+    assert.equal(a.calls[0].url,'/api/auth/logout');
+    assert.equal(a.calls[0].options.method,'POST');
+    assert.equal(a.calls[0].options.headers.Authorization,'Bearer synthetic-token');
+    assert.match(a.context.window.location.href,/login/);
+});
