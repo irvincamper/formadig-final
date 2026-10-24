@@ -4,7 +4,7 @@ Este procedimiento está preparado, no ejecutado. No depende de móvil ni MongoD
 
 ## 1. Fijar versión y ventana
 
-Trabajar en el worktree `codex/integracion-final-formadig`. Ejecutar `git fetch origin`, comprobar HEAD del PR y su diff final, que main todavía parte del commit esperado y que no haya nuevos cambios externos sin revisar. No usar reset ni force push. El PR debe mantenerse abierto sin auto-merge hasta autorizar el corte.
+Trabajar en `C:\Users\Herna\Downloads\PROYECTO INTEGRADOR\WEB\formadig-publicacion`, rama `codex/integracion-final-formadig`, PR https://github.com/irvincamper/formadig-final/pull/2 . Es la copia saneada publicada; el worktree anterior conserva el historial privado original y no debe publicarse. Ejecutar `git fetch origin`, comprobar HEAD del PR y su diff final, que main todavía parte del commit esperado y que no haya nuevos cambios externos sin revisar. No usar reset ni force push. El PR debe mantenerse abierto sin auto-merge hasta autorizar el corte.
 
 Render verificado en lectura: rama main, Auto-Deploy On Commit, PR Previews Off; build `pip install -r requirements.txt`; start `gunicorn run:app --workers 1 --threads 2 --worker-class gthread --timeout 30`; raíz del repositorio. El último despliegue comprobado es 405ea508bfd9db69b47f9813d89d1a7fe2f83316. No se cambió su configuración en el prompt preparatorio.
 

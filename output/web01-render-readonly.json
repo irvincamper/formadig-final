@@ -1,0 +1,10 @@
+{
+  "source": "authenticated Render dashboard, read only, checked before and after branch publication",
+  "service_id": "srv-d7cuee1j2pic73f81v20",
+  "branch": "main",
+  "auto_deploy": "On Commit",
+  "pr_previews": "Off",
+  "live_commit": "405ea508bfd9db69b47f9813d89d1a7fe2f83316",
+  "settings_changed": false,
+  "deployment_triggered": false
+}

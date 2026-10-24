@@ -74,15 +74,15 @@ Los 180 registros se probaron sólo en aislamiento. El paciente técnico de los 
 
 Se autoriza únicamente codex/integracion-final-formadig. La revisión de TODOS los blobs salientes detectó correos de cuentas en un informe histórico. Se conserva el historial original localmente y se anonimiza ese contenido en la copia destinada a GitHub antes del push, sin volver a integrar ni cambiar la implementación. El escaneo también compara las contraseñas actuales y secretos locales; las claves públicas publishable/anon se distinguen de claves privadas.
 
-El estado definitivo de publicación y PR se registra al cerrar esta intervención. No se publican .env, respaldos, inventarios privados, contraseñas, tokens, capturas reales ni archivos temporales. Las evidencias no versionadas se conservan fuera del árbol de publicación.
+La rama se publicó y verificó mediante git ls-remote. La copia canónica para el próximo prompt está en `C:\Users\Herna\Downloads\PROYECTO INTEGRADOR\WEB\formadig-publicacion`, rama codex/integracion-final-formadig. El historial original permanece intacto en el repositorio anterior y en la referencia local codex/integracion-final-privada-preservada (163ba09). No se repitió ningún merge: únicamente se anonimizaron seis líneas del informe histórico, conservando el árbol de código idéntico. El escaneo de 149 blobs salientes comprobó cero secretos o identificadores privados conocidos antes del push. No se publican .env, respaldos, inventarios privados, contraseñas, tokens, capturas reales ni archivos temporales. Las evidencias no versionadas permanecen en el worktree original; la copia de publicación tiene el árbol limpio. .env y supabase/.temp se conservan sólo localmente, ignorados y con ACL restringida.
 
 ## 10. Pull Request
 
-Base main; compare codex/integracion-final-formadig. Enlace de comparación: https://github.com/irvincamper/formadig-final/compare/main...codex/integracion-final-formadig . El PR se crea sin merge ni auto-merge; su URL definitiva se incorpora al finalizar.
+PR creado como borrador, abierto y sin merge/auto-merge: https://github.com/irvincamper/formadig-final/pull/2 . Base main; compare codex/integracion-final-formadig. Comparación: https://github.com/irvincamper/formadig-final/compare/main...codex/integracion-final-formadig .
 
 ## 11. Commits
 
-Base remota: 405ea508bfd9db69b47f9813d89d1a7fe2f83316. Rediseño integrado: 5bf320100af50a88b32567ee6064e53cef8dcacd. Integración funcional local anterior: b86ce7b. Los commits originales permanecen recuperables localmente; la anonimización para publicar cambia los SHA descendientes del informe saneado. El commit técnico y el head publicado se registran tras verificar push/PR.
+Base remota: 405ea508bfd9db69b47f9813d89d1a7fe2f83316. Rediseño integrado: 5bf320100af50a88b32567ee6064e53cef8dcacd. Integración funcional local anterior: b86ce7b. Los commits originales permanecen recuperables localmente; la anonimización para publicar cambia los SHA descendientes del informe saneado. Commit técnico publicado: 02b70ce (equivalente de 8ca0bf5, sin cambios de código respecto a lo probado). Primer head publicado y verificado: 0ac3259b68ba3fbdf9f48f262e72b7e4ef2ecb1a. El commit posterior sólo sella este informe y la ubicación del procedimiento; el head definitivo se obtiene del PR y git ls-remote y se entrega también en la respuesta final.
 
 ## 12. Render sin cambios
 
