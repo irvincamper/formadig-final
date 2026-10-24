@@ -4,7 +4,7 @@ const {chromium}=require(process.argv[2]);
 (async()=>{
  const accounts=JSON.parse(fs.readFileSync(path.join(process.env.LOCALAPPDATA,'FORMADIG','security-activation','CREDENCIALES_SUPABASE_REALES.private.json'),'utf8'));
  const browser=await chromium.launch({channel:'chrome',headless:true});
- const results=[]; const base='http://127.0.0.1:8054';
+ const results=[]; const base=process.env.FORMADIG_VALIDATION_URL||'http://127.0.0.1:8054';
  try{
   for(const account of accounts){
    const context=await browser.newContext();
@@ -32,6 +32,14 @@ const {chromium}=require(process.argv[2]);
      if(menu.includes('Dentista')!==['admin','dentista'].includes(account.role))throw new Error();
     };
     stage='verified_initial_menu'; await verifyMenu();
+    if(process.env.FORMADIG_CAPTURE_DASHBOARD==='true'){
+     await page.setViewportSize({width:1365,height:900});
+     await page.screenshot({path:path.join(__dirname,'../output/playwright/final-'+account.role+'-desktop.png'),fullPage:true});
+     await page.setViewportSize({width:390,height:844});
+     await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getComputedTiming().endTime)).map(a=>a.finished.catch(()=>{})));});
+     await page.screenshot({path:path.join(__dirname,'../output/playwright/final-'+account.role+'-mobile.png'),fullPage:true,animations:'disabled'});
+     await page.setViewportSize({width:1365,height:900});
+    }
     const token=await page.evaluate(()=>localStorage.getItem('supabase_token'));
     const me=await page.request.get(base+'/api/auth/me',{headers:{Authorization:'Bearer '+token}});
     if(me.status()!==200||(await me.json()).role!==account.role)throw new Error();
@@ -61,7 +69,7 @@ const {chromium}=require(process.argv[2]);
   }
  }finally{await browser.close();}
  const output={mode:'real_browser_local_flask_real_supabase',results,clinical_records_read:false,render_tested:false};
- fs.writeFileSync(path.join(__dirname,'../output/eleven-real-browser.json'),JSON.stringify(output,null,2));
+ fs.writeFileSync(path.join(__dirname,'../output/',process.env.FORMADIG_BROWSER_REPORT||'eleven-real-browser.json'),JSON.stringify(output,null,2));
  console.log(JSON.stringify(output));
  if(results.some(r=>!r.passed))process.exitCode=1;
 })().catch(()=>{console.error('La prueba real de navegador se detuvo; detalles sensibles omitidos.');process.exitCode=1;});

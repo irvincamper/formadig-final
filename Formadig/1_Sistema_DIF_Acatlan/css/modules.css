@@ -375,6 +375,22 @@
 }
 
 @media (max-width: 600px) {
+    /* Los grids inline heredados deben caber en una columna sin comprimir inputs. */
+    .workspace .layout-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .workspace .layout-grid > *,
+    .workspace input, .workspace select, .workspace textarea {
+        min-width: 0;
+    }
+    .workspace form [style*="grid-template-columns"] {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+    .workspace .module-header,
+    .workspace .view__header-compact {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
     .form__group-row, .form-row-2 {
         flex-direction: column;
         gap: 1rem;

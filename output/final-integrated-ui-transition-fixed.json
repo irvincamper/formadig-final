@@ -1,0 +1,166 @@
+{
+  "scope": "HTML/CSS/JS integrados; cinco roles con Auth y datos simulados; sin persistencia remota",
+  "results": [
+    {
+      "role": "admin",
+      "module": "Dashboard",
+      "passed": true,
+      "controls": 0,
+      "responsive": true
+    },
+    {
+      "role": "admin",
+      "module": "Usuarios",
+      "passed": true,
+      "controls": 7,
+      "responsive": true
+    },
+    {
+      "role": "admin",
+      "module": "Traslados",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 439"
+    },
+    {
+      "role": "admin",
+      "module": "Fríos",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin",
+      "module": "Calientes",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin",
+      "module": "EAEyD",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin",
+      "module": "Psicología",
+      "passed": true,
+      "controls": 13,
+      "responsive": true
+    },
+    {
+      "role": "admin",
+      "module": "Dentista",
+      "passed": true,
+      "controls": 10,
+      "responsive": true
+    },
+    {
+      "role": "admin",
+      "module": "Perfil",
+      "passed": true,
+      "controls": 5,
+      "responsive": true
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Dashboard",
+      "passed": true,
+      "controls": 0,
+      "responsive": true
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Traslados",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 439"
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Perfil",
+      "passed": true,
+      "controls": 5,
+      "responsive": true
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Dashboard",
+      "passed": true,
+      "controls": 0,
+      "responsive": true
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Fríos",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Calientes",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "EAEyD",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 632"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Perfil",
+      "passed": true,
+      "controls": 5,
+      "responsive": true
+    },
+    {
+      "role": "psicologo",
+      "module": "Dashboard",
+      "passed": true,
+      "controls": 0,
+      "responsive": true
+    },
+    {
+      "role": "psicologo",
+      "module": "Psicología",
+      "passed": true,
+      "controls": 13,
+      "responsive": true
+    },
+    {
+      "role": "psicologo",
+      "module": "Perfil",
+      "passed": true,
+      "controls": 5,
+      "responsive": true
+    },
+    {
+      "role": "dentista",
+      "module": "Dashboard",
+      "passed": true,
+      "controls": 0,
+      "responsive": true
+    },
+    {
+      "role": "dentista",
+      "module": "Dentista",
+      "passed": true,
+      "controls": 10,
+      "responsive": true
+    },
+    {
+      "role": "dentista",
+      "module": "Perfil",
+      "passed": true,
+      "controls": 5,
+      "responsive": true
+    }
+  ]
+}

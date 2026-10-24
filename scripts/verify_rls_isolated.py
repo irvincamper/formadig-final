@@ -56,7 +56,7 @@ GRANT ALL ON public.perfiles,public.modulo_psicologia,public.modulo_dental TO an
 """
 
 
-def main():
+def main(after_phase_b=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pg-bin', type=Path, required=True)
     args = parser.parse_args()
@@ -189,6 +189,8 @@ def main():
               f"UPDATE public.perfiles SET nombre_completo='x' WHERE id='{USER}'", anonymous=True), 'UPDATE 0')
         check('perfil propio y UUID disponibles al dentista', actor('dentista', 'SELECT count(*) FROM public.perfiles'), '1')
         check('dentista no edita otros perfiles', actor('dentista', f"UPDATE public.perfiles SET nombre_completo='x' WHERE id='{OTHER}'"), 'UPDATE 0')
+        if after_phase_b is not None:
+            after_phase_b(sql, check, actor)
         print(json.dumps({'status': 'passed', 'checks': len(results), 'lab': str(lab),
                           'scope': 'PostgreSQL local; Auth/JWT simulados', 'results': results}, ensure_ascii=True))
     finally:

@@ -1,0 +1,182 @@
+{
+  "scope": "HTML/CSS/JS integrados; cinco roles con Auth y datos simulados; sin persistencia remota",
+  "results": [
+    {
+      "role": "admin",
+      "module": "Dashboard",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 509"
+    },
+    {
+      "role": "admin",
+      "module": "Usuarios",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 579"
+    },
+    {
+      "role": "admin",
+      "module": "Traslados",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 709"
+    },
+    {
+      "role": "admin",
+      "module": "Fríos",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin",
+      "module": "Calientes",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin",
+      "module": "EAEyD",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin",
+      "module": "Psicología",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 527"
+    },
+    {
+      "role": "admin",
+      "module": "Dentista",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 527"
+    },
+    {
+      "role": "admin",
+      "module": "Perfil",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 392"
+    },
+    {
+      "role": "admin",
+      "module": "javascript_runtime",
+      "passed": false,
+      "errors": [
+        "inputFecha is not defined"
+      ]
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Dashboard",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 506"
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Traslados",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 709"
+    },
+    {
+      "role": "admin_traslados",
+      "module": "Perfil",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 392"
+    },
+    {
+      "role": "admin_traslados",
+      "module": "javascript_runtime",
+      "passed": false,
+      "errors": [
+        "inputFecha is not defined"
+      ]
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Dashboard",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 506"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Fríos",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Calientes",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "EAEyD",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 902"
+    },
+    {
+      "role": "admin_desayunos",
+      "module": "Perfil",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 392"
+    },
+    {
+      "role": "psicologo",
+      "module": "Dashboard",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 506"
+    },
+    {
+      "role": "psicologo",
+      "module": "Psicología",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 527"
+    },
+    {
+      "role": "psicologo",
+      "module": "Perfil",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 392"
+    },
+    {
+      "role": "dentista",
+      "module": "Dashboard",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 506"
+    },
+    {
+      "role": "dentista",
+      "module": "Dentista",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 527"
+    },
+    {
+      "role": "dentista",
+      "module": "Perfil",
+      "passed": false,
+      "stage": "responsive",
+      "error": "Horizontal page overflow: 392"
+    }
+  ]
+}

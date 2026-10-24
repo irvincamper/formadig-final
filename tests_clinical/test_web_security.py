@@ -140,6 +140,27 @@ class WebSecurityTests(unittest.TestCase):
         self.assertEqual(r.status_code,201)
         self.assertEqual(sdk.table.return_value.insert.call_args.args[0]['registrado_por'],ADMIN)
 
+    def test_food_updates_preserve_owner_and_use_confirmed_document_columns(self):
+        for module,table in [('desayunos_frios','desayunos_frios'),('desayunos_calientes','desayunos_calientes'),('espacios_eaeyd','desayunos_eaeyd')]:
+            sdk=Mock(); chain=Mock(); sdk.table.return_value=chain
+            for method in ('select','eq','limit'):
+                getattr(chain,method).return_value=chain
+            chain.execute.return_value.data=[{'id':PATIENT}]
+            response=Mock(status_code=200)
+            response.json.return_value=[{'id':PATIENT,'registrado_por':PATIENT}]
+            with patch('supabase.create_client',return_value=sdk), patch('requests.patch',return_value=response) as update, patch('requests.get') as pre_read:
+                r=self.client.patch('/api/'+module+'/'+PATIENT,headers={'Authorization':'Bearer admin_desayunos'},
+                    json={'url_comprobante_salud':'https://example.invalid/salud.pdf','url_ine_tutor':'https://example.invalid/ine.pdf','registrado_por':ADMIN})
+            self.assertEqual(r.status_code,200,(module,r.json))
+            sdk.table.assert_called_once_with(table)
+            update.assert_called_once(); pre_read.assert_not_called()
+            payload=update.call_args.kwargs['json']
+            self.assertEqual(set(payload),{'url_salud','url_ine'})
+            self.assertNotIn('registrado_por',payload)
+            self.assertEqual(update.call_args.kwargs['timeout'],(3,15))
+            self.assertFalse(update.call_args.kwargs['allow_redirects'])
+            self.assertEqual(update.call_args.kwargs['headers']['Authorization'],'Bearer admin_desayunos')
+
 
 if __name__ == '__main__':
     unittest.main()

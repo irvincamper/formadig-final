@@ -442,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 6. Lógica de Cupos (Máx 16)
+    const inputFecha = document.getElementById('fecha_viaje');
     inputFecha.addEventListener('change', actualizarUI_Cupos);
 
     function calcularCuposPorFecha(fecha) {
