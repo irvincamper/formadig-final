@@ -8,15 +8,12 @@ import base64
 # Crear Blueprint para desayunos fríos
 desayunos_frios_bp = Blueprint('desayunos_frios', __name__, url_prefix='/api/desayunos_frios')
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
-    exit(1)
+from clinical.security import protect_module
+from flask import g
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+global_client = protect_module(desayunos_frios_bp, ('admin', 'admin_desayunos'))
 
 @desayunos_frios_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():

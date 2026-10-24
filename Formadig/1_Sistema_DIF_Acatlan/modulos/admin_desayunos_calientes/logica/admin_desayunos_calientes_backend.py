@@ -12,15 +12,12 @@ desayunos_calientes_bp = Blueprint('desayunos_calientes', __name__, url_prefix='
 # Habilitar CORS para permitir la comunicación con el Frontend
 CORS(desayunos_calientes_bp)
 
-try:
-    from supabase import create_client, Client
-except ImportError:
-    print("CRÍTICO: Debes ejecutar 'pip install supabase' en tu terminal.")
-    exit(1)
+from clinical.security import protect_module
+from flask import g
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-global_client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+global_client = protect_module(desayunos_calientes_bp, ('admin', 'admin_desayunos'))
 
 @desayunos_calientes_bp.route('/', methods=['GET'], strict_slashes=False)
 def obtener_registros():

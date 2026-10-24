@@ -3,6 +3,7 @@ import os
 from flask import Blueprint, current_app, g, jsonify, request
 from werkzeug.exceptions import BadRequest, RequestEntityTooLarge, UnsupportedMediaType
 from .repository import SupabaseRepository
+from .security import trusted_role
 from .validation import ClinicalError, uuid_value, validate_filters, validate_payload
 
 
@@ -12,10 +13,12 @@ def authorize(identity, profile, kind):
     Administrador general o responsable del área, según el alcance web autorizado.
     Nunca usar user_metadata, X-User-Role ni datos del cuerpo para autorizar.
     """
-    role = profile.get('rol') if profile else None
-    trusted_role = (identity.get('app_metadata') or {}).get('role')
-    return bool(profile and profile.get('id') == identity['id']
-                and role == trusted_role and role in ('admin', 'psicologo' if kind == 'psicologia' else 'dentista'))
+    try:
+        role = trusted_role(identity, profile)
+        return role in ('admin', 'psicologo' if kind == 'psicologia' else 'dentista')
+    except ClinicalError:
+        return False
+
 
 
 def make_blueprint(kind):

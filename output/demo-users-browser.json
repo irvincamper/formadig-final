@@ -1,0 +1,43 @@
+{
+  "mode": "synthetic-local-only",
+  "results": [
+    {
+      "role": "admin",
+      "passed": true,
+      "checks": [
+        "login",
+        "identity",
+        "dashboard",
+        "menu",
+        "operation_matrix",
+        "logout_revocation"
+      ]
+    },
+    {
+      "role": "psicologo",
+      "passed": true,
+      "checks": [
+        "login",
+        "identity",
+        "dashboard",
+        "menu",
+        "operation_matrix",
+        "logout_revocation"
+      ]
+    },
+    {
+      "role": "dentista",
+      "passed": true,
+      "checks": [
+        "login",
+        "identity",
+        "dashboard",
+        "menu",
+        "operation_matrix",
+        "logout_revocation"
+      ]
+    }
+  ],
+  "invalid_session_denied": true,
+  "real_supabase_auth": false
+}
