@@ -1,31 +1,31 @@
 /* ==========================================================================
-   admin_dentista.css – Personalización Visual del Módulo de Dentista
-   Sistema DIF Acatlán. Mantener nombres, IDs y contratos funcionales.
+   admin_dentista.css – Identidad Visual Institucional del Módulo de Dentista
+   Sistema DIF Acatlán. Integrado y homologado con el diseño general.
    ========================================================================== */
 
 :root {
-    --dent-primary: #0284c7;
-    --dent-primary-dark: #0369a1;
-    --dent-accent: #0ea5e9;
-    --dent-accent-soft: #f0f9ff;
-    --dent-badge-bg: #e0f2fe;
-    --dent-badge-text: #075985;
-    --dent-highlight: #38bdf8;
+    --dent-primary:        var(--color-primary, #00766c);
+    --dent-primary-dark:   var(--color-primary-dark, #004d40);
+    --dent-accent:         var(--color-primary-light, #14b8a6);
+    --dent-accent-soft:    #f0fdfa;
+    --dent-badge-bg:       rgba(0, 118, 108, 0.1);
+    --dent-badge-text:     var(--color-primary-dark, #004d40);
+    --dent-highlight:      var(--color-primary-light, #14b8a6);
 }
 
-/* Identidad visual específica de Dentista / Odontología */
+/* Identidad visual de Dentista homologada al DIF Acatlán */
 .dentista-banner {
     border-left-color: var(--dent-primary) !important;
-    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%) !important;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%) !important;
 }
 
 .dentista-badge {
     background-color: var(--dent-badge-bg) !important;
     color: var(--dent-badge-text) !important;
-    border: 1px solid #bae6fd;
+    border: 1px solid rgba(0, 118, 108, 0.2) !important;
 }
 
-/* Realce suave para el formulario y lista de Dentista */
+/* Realce superior sutil para tarjetas clínicas */
 .clinical-detail {
     border-top: 3px solid var(--dent-highlight);
 }
@@ -41,25 +41,25 @@
     gap: 0.35rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: #15803d;
-    background: #dcfce7;
-    border: 1px solid #bbf7d0;
+    color: #065f46;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
     padding: 0.2rem 0.55rem;
     border-radius: 9999px;
     margin-left: 0.5rem;
 }
 
-/* Efectos de enfoque en Dentista */
+/* Efectos de enfoque homologados */
 .dentista-view input:focus,
 .dentista-view textarea:focus {
     border-color: var(--dent-primary) !important;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18) !important;
+    box-shadow: 0 0 0 3px rgba(0, 118, 108, 0.16) !important;
 }
 
 /* Ayudas contextuales de campos */
 .field-tip {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: #64748b;
     font-weight: 400;
-    margin-top: 0.15rem;
+    margin-top: 0.2rem;
 }

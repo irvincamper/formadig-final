@@ -75,26 +75,37 @@ const Auth = {
     }
 };
 
+function escapeHeaderText(value) {
+    return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+}
+
 UI = {
     // Generar el Header común para todos los módulos
     setupHeader: (title) => {
         const user = Auth.getUser();
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
+        const roleLabel = user && user.role ? user.role.toUpperCase() : '';
         const headerInner = `
-            <div style="display:flex; align-items:center;">
+            <div style="display:flex; align-items:center; gap:1rem;">
                 <div class="header__logo">FORMADIG</div>
+                ${title ? `<span style="font-size:0.85rem; color:rgba(255,255,255,0.7); border-left:1px solid rgba(255,255,255,0.2); padding-left:0.75rem; font-weight:500;">${escapeHeaderText(title)}</span>` : ''}
             </div>
             <div class="header__user-info">
-                <span class="user-name">${String(user ? user.fullName : 'Bienvenido').replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]))}</span>
-                <button onclick="Auth.logout()" class="btn-logout-small">Cerrar Sesión</button>
+
+                <span class="user-name">${escapeHeaderText(user ? user.fullName : 'Bienvenido')}${roleLabel ? ` <span style="font-size:0.7rem; font-weight:700; opacity:0.85; background:rgba(255,255,255,0.18); padding:2px 8px; border-radius:999px; margin-left:6px; letter-spacing:0.04em;">${escapeHeaderText(roleLabel)}</span>` : ''}</span>
+                <button onclick="Auth.logout()" class="btn-logout-small" title="Cerrar Sesión">
+                    <span>Cerrar Sesión</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle; margin-left:4px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                </button>
+
             </div>
         `;
 
         const headerEl = document.querySelector('header.header');
         if (headerEl) {
             headerEl.innerHTML = headerInner;
-        } else {
+        } else if (typeof document !== 'undefined' && document.body) {
             document.body.insertAdjacentHTML('afterbegin', `
                 <header class="header">${headerInner}</header>
             `);
@@ -108,7 +119,7 @@ UI = {
 
             const userObj = Auth.getUser();
             const userRole = userObj ? (userObj.role || '') : '';
-            const isAdmin = ['directora', 'admin', 'desarrollador'].includes(userRole);
+            const isAdmin = userRole === 'admin';
 
             const sidebarElement = document.getElementById('sidebarMenu');
             if (sidebarElement) {
@@ -148,8 +159,8 @@ UI = {
                             
                             ${['admin', 'psicologo', 'dentista'].includes(userRole) ? `
                                 <div class="sidebar-section-label">Atención clínica</div>
-                                ${['admin', 'psicologo'].includes(userRole) ? `<a href="${basePath}modulos/admin_psicologia/vistas/admin_psicologia.html" class="menu-item">Psicología</a>` : ''}
-                                ${['admin', 'dentista'].includes(userRole) ? `<a href="${basePath}modulos/admin_dentista/vistas/admin_dentista.html" class="menu-item">Dentista</a>` : ''}
+                                ${['admin', 'psicologo'].includes(userRole) ? `<a href="${basePath}modulos/admin_psicologia/vistas/admin_psicologia.html" class="menu-item ${currentPath.includes('psicologia') ? 'active' : ''}" title="Psicología">🧠 <span>Psicología</span></a>` : ''}
+                                ${['admin', 'dentista'].includes(userRole) ? `<a href="${basePath}modulos/admin_dentista/vistas/admin_dentista.html" class="menu-item ${currentPath.includes('dentista') ? 'active' : ''}" title="Dentista">🦷 <span>Dentista</span></a>` : ''}
                             ` : ''}
                             <div class="sidebar-section-label">Soporte</div>
                             ${userRole !== 'admin_desayunos' ? `
@@ -201,14 +212,39 @@ UI = {
 
     // Mostrar mensaje de notificación
     notify: function (msg, type = 'success') {
-        const box = document.getElementById('formMessage');
+        const box = typeof document !== 'undefined' ? document.getElementById('formMessage') : null;
         if (box) {
             box.textContent = msg;
             box.className = `message ${type}`;
             box.classList.remove('hidden');
             setTimeout(() => box.classList.add('hidden'), 5000);
-        } else {
-            alert(msg);
+        } else if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+            window.alert(msg);
+        }
+    },
+
+    // Notificación flotante Toast
+    toast: function (msg, type = 'success') {
+        if (typeof document === 'undefined') return;
+        let container = document.getElementById('globalToastContainer');
+        if (!container && document.body) {
+            container = document.createElement('div');
+            container.id = 'globalToastContainer';
+            container.style.cssText = 'position:fixed; top:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%; pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        if (container) {
+            const toast = document.createElement('div');
+            toast.className = `message ${type}`;
+            toast.style.cssText = 'pointer-events:auto; box-shadow:0 12px 30px rgba(0,0,0,0.18); margin:0; border-radius:10px; animation:fadeIn 0.25s ease-out;';
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4500);
         }
     }
 };
