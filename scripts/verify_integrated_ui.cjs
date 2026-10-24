@@ -43,7 +43,12 @@ const allowed=(role,area)=>area==='profile'||role==='admin'||(role==='admin_tras
      if(area==='admin_usuarios')return json({usuarios:[{...profile,email:'fixture@example.invalid'}],total:1});
      if(area==='traslados')return json(url.pathname.replace(/\/$/,'')==='/api/traslados'?{traslados:[record]}:record);
      if(['desayunos_frios','desayunos_calientes','espacios_eaeyd'].includes(area))return json(url.pathname.split('/').filter(Boolean).length===2?{desayunos:[record]}:record);
-     if(['psicologia','dentista'].includes(area))return json({data:[record],pagination:{limit:25,offset:0,has_more:false}});
+     if(['psicologia','dentista'].includes(area)){
+      const q=url.searchParams.get('q')||'',offset=Number(url.searchParams.get('offset')||0);
+      if(q==='WEB01_ERROR')return json({error:'WEB01 error simulado'},503);
+      const rows=q==='WEB01_EMPTY'?[]:Array.from({length:30},(_,i)=>({...record,motivo_consulta:'WEB01 FICTICIO '+(i+1)}));
+      return json({data:rows.slice(offset,offset+25),pagination:{limit:25,offset,has_more:offset+25<rows.length}});
+     }
      return json([]);
     }
     if(url.hostname==='ctiqbycbkcftwuqgzxjb.supabase.co'){
@@ -79,14 +84,31 @@ const allowed=(role,area)=>area==='profile'||role==='admin'||(role==='admin_tras
       await page.waitForFunction(()=>document.querySelector('#displayNombre')?.textContent==='LAB EDITED');
       profile.nombre_completo='LAB PROFILE';
      }
-     stage='responsive'; await page.setViewportSize({width:390,height:844});
+     if(['psicologia','dentista'].includes(area)){
+      stage='pagination_search_errors';
+      await page.locator('#next:not([disabled])').waitFor();
+      await page.locator('#next').click();
+      await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('Página 2'));
+      if(await page.locator('#results tr').count()!==5)throw new Error('Second page must show five synthetic rows');
+      await page.locator('#search-form input[name=q]').fill('WEB01_EMPTY');
+      await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('0 atenciones'));
+      await page.locator('#search-form input[name=q]').fill('WEB01_ERROR');
+      await page.waitForFunction(()=>document.querySelector('#status')?.dataset.error==='true');
+      if(!(await page.locator('#status').textContent()).includes('WEB01 error simulado'))throw new Error('Missing server error state: '+await page.locator('#status').textContent());
+      await page.locator('#search-form input[name=q]').fill('');
+      await page.waitForFunction(()=>document.querySelector('#status')?.textContent.includes('25 atenciones'));
+     }
+     stage='responsive';
+     for(const [width,height] of [[1365,900],[1024,768],[768,1024],[390,844]]){
+     await page.setViewportSize({width,height});
      await page.evaluate(async()=>{await Promise.all(document.getAnimations().filter(a=>Number.isFinite(a.effect?.getComputedTiming().endTime)).map(a=>a.finished.catch(()=>{})));});
      const metrics=await page.evaluate(()=>({viewport:innerWidth,width:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)}));
      const responsive=metrics.width<=metrics.viewport+1;
      if(!responsive)throw new Error('Horizontal page overflow: '+metrics.width);
+     }
      if(role==='admin')await page.screenshot({path:path.join(__dirname,'../output/playwright/integrated-fixture-'+area+'-mobile.png'),fullPage:true});
      await page.setViewportSize({width:1365,height:900});
-     results.push({role,module:name,passed:true,controls,responsive});
+     results.push({role,module:name,passed:true,controls,responsive:true,resolutions:[1365,1024,768,390]});
     }catch(e){results.push({role,module:name,passed:false,stage,error:e.message.replaceAll(token,'[synthetic token]')});await page.setViewportSize({width:1365,height:900});}
    }
    if(errors.length)results.push({role,module:'javascript_runtime',passed:false,errors});

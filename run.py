@@ -20,7 +20,7 @@ if os.name == 'nt':
         if hasattr(stream, 'reconfigure'):
             stream.reconfigure(encoding='utf-8', errors='replace')
 
-from flask import Flask, send_from_directory, redirect, jsonify
+from flask import Flask, send_from_directory, redirect, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -69,6 +69,18 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # Configuración
 app.config['JSON_SORT_KEYS'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+app.config['FORMADIG_MAINTENANCE'] = os.getenv('FORMADIG_MAINTENANCE', 'false').lower() == 'true'
+
+
+@app.before_request
+def coordinated_maintenance():
+    """Ventana de corte: cerrar web/API antes de ejecutar DDL; health sigue disponible."""
+    if app.config['FORMADIG_MAINTENANCE'] and request.path != '/health':
+        response = jsonify({'error': 'FORMADIG está en mantenimiento programado. Intenta más tarde.'})
+        response.status_code = 503
+        response.headers['Retry-After'] = '60'
+        response.headers['Cache-Control'] = 'no-store'
+        return response
 
 # ============================================================================
 # REGISTRAR TODOS LOS BLUEPRINTS BAJO /api/
@@ -144,6 +156,7 @@ def health_check():
         "status": "healthy",
         "service": "FORMADIG v2.1",
         "version": "2.1.0",
+        "maintenance": app.config['FORMADIG_MAINTENANCE'],
         "port": os.environ.get('PORT', 8000)
     }), 200
 

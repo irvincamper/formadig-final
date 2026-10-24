@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "backup_sha256": "b88d4004e62b290acce835b8b4fb539ba0b1ab2313723253d363ce222e22e8fa",
+  "restored_schema": true,
+  "acl_rls_constraints_match": true,
+  "phase_b_and_legacy_on_restored_schema": true,
+  "replay_aborts": true,
+  "fail_closed_repeated": true,
+  "synthetic_fixture_rows": 180,
+  "fixture_seed_cleanup_verified": true,
+  "clinical_or_auth_rows_exported": false,
+  "scope": "DDL recovery; existing production rows are unchanged by the planned cut"
+}

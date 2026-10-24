@@ -37,6 +37,18 @@ class WebSecurityTests(unittest.TestCase):
             self.assertEqual(r.headers['Cache-Control'], 'no-store')
             self.assertNotIn(token, r.get_data(as_text=True) if token != role else '')
 
+    def test_maintenance_blocks_web_and_api_before_auth(self):
+        with patch.dict(self.module.app.config, {'FORMADIG_MAINTENANCE': True}):
+            for path in ('/', '/dashboard.html', '/api/auth/me', '/api/traslados', '/api/psicologia/'):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 503)
+                self.assertEqual(response.headers['Retry-After'], '60')
+                self.assertEqual(response.headers['Cache-Control'], 'no-store')
+            response = self.client.get('/health')
+            self.assertEqual(response.status_code, 200)
+            self.assertIs(response.json['maintenance'], True)
+        self.assertEqual(self.client.get('/api/auth/me').status_code, 401)
+
     def test_identity_endpoint_rejects_missing_expired_and_anonymous(self):
         self.assertEqual(self.client.get('/api/auth/me').status_code, 401)
         for token in ('expired', 'invalid', 'anonymous'):

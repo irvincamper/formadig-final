@@ -6,161 +6,299 @@
       "module": "Dashboard",
       "passed": true,
       "controls": 0,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Usuarios",
       "passed": true,
       "controls": 7,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Traslados",
       "passed": true,
       "controls": 18,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Fríos",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Calientes",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "EAEyD",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Psicología",
       "passed": true,
       "controls": 13,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Dentista",
       "passed": true,
       "controls": 10,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin",
       "module": "Perfil",
       "passed": true,
       "controls": 5,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_traslados",
       "module": "Dashboard",
       "passed": true,
       "controls": 0,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_traslados",
       "module": "Traslados",
       "passed": true,
       "controls": 18,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_traslados",
       "module": "Perfil",
       "passed": true,
       "controls": 5,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_desayunos",
       "module": "Dashboard",
       "passed": true,
       "controls": 0,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_desayunos",
       "module": "Fríos",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_desayunos",
       "module": "Calientes",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_desayunos",
       "module": "EAEyD",
       "passed": true,
       "controls": 22,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "admin_desayunos",
       "module": "Perfil",
       "passed": true,
       "controls": 5,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "psicologo",
       "module": "Dashboard",
       "passed": true,
       "controls": 0,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "psicologo",
       "module": "Psicología",
       "passed": true,
       "controls": 13,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "psicologo",
       "module": "Perfil",
       "passed": true,
       "controls": 5,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "dentista",
       "module": "Dashboard",
       "passed": true,
       "controls": 0,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "dentista",
       "module": "Dentista",
       "passed": true,
       "controls": 10,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     },
     {
       "role": "dentista",
       "module": "Perfil",
       "passed": true,
       "controls": 5,
-      "responsive": true
+      "responsive": true,
+      "resolutions": [
+        1365,
+        1024,
+        768,
+        390
+      ]
     }
   ]
 }

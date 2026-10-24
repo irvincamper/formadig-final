@@ -1,0 +1,21 @@
+✔ Los cinco roles se revalidan con JWT y sin confiar en localStorage (51.782ms)
+✔ 401/403 eliminan sesión y devuelven al login (2.9287ms)
+✔ Un rol desconocido no se acepta aunque la respuesta sea 200 (1.2859ms)
+✔ Una caída 503 no se considera sesión verificada (1.216ms)
+✔ Auth.fetch añade el token sólo a la API del mismo origen (2.5266ms)
+✔ El nombre de perfil se muestra como texto en el header (1.7777ms)
+✔ Logout limpia el navegador y solicita revocacion remota con su JWT (1.2025ms)
+✔ Psicología serializa sesión entera, nulos y fecha UTC sin headers de rol (2.4166ms)
+✔ Dentista conserva centavos como decimal textual y omite fecha vacía (0.8909ms)
+✔ Edición parcial preserva precisión de fechas y no reasigna paciente/profesional (1.5056ms)
+✔ Edición sin cambios no construye un PATCH vacío ni borra columnas NULL históricas (0.2095ms)
+✔ HTML mantiene campos obligatorios, scripts separados y enlaces resolubles (5.5123ms)
+✔ Sidebar conserva áreas previas y separa los dos accesos nuevos (5.9856ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 205.1056
